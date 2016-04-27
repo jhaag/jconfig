@@ -35,7 +35,6 @@ let g:airline_symbols.linenr = ''
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#tabline#show_buffers = 1
 let g:bufferline_echo = 0
-let g:airline_theme = 'solarized'
 let g:airline_section_c = ''
 
 let g:airline#extensions#tabline#buffer_idx_mode = 1
