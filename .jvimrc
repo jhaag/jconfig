@@ -1,0 +1,60 @@
+set nocompatible
+filetype off
+
+execute pathogen#infect()
+
+syntax enable
+filetype plugin indent on
+
+let mapleader = " "
+
+set number
+set ruler
+set visualbell
+set encoding=utf-8
+
+set wrap
+set textwidth=79
+set formatoptions=tcqrn1
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set expandtab
+set noshiftround
+
+set scrolloff=5
+set backspace=indent,eol,start
+set matchpairs+=<:>
+packadd! matchit
+
+nnoremap j gj
+nnoremap k gk
+
+set hidden
+
+set ttyfast
+
+set laststatus=2
+
+set showmode
+set showcmd
+
+nnoremap / /\v
+vnoremap / /\v
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+set showmatch
+map <leader><space> :let @/=''<cr>
+
+map <leader>q gqip
+
+set listchars=tab:▸\ ,eol:¬
+map <leader>l :set list!<CR>
+
+set t_Co=256
+let g:solarized_termcolors=256
+let g:solarized_termtrans=1
+set background=dark
+colorscheme solarized
