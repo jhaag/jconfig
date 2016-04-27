@@ -10,8 +10,7 @@ alias jshe='vim ~/config/.jbashrc'
 alias jshr=bshr
 alias tmxe='vim ~/config/.tmux.conf.j'
 alias tmxr='tmux source-file ~/config/.tmux.conf.j'
-
-alias jos='cd ~/Programs/OS/JOS'
+alias vime='vim ~/.vimrc'
 
 #=== Fixes =====================================================================
 # C-l fix that keeps current typed command
@@ -27,4 +26,3 @@ export HISTTIMEFORMAT="[%F %T] "
 export HISTFILE=~/config/.bash_eternal_history
 # Force prompt to write history after every command.
 PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
-
