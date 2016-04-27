@@ -1,1 +1,8 @@
+"FONTS
 Make sure to install powerline fonts. Using Meslo LG S for Powerling at 11.
+
+"PLUGINS
+vim-airline
+vim-airline-themes
+vim-bufferline
+vim-colors-solarized
