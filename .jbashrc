@@ -8,6 +8,7 @@ alias bshe='vim ~/.bashrc'
 alias bshr='. ~/.bashrc'
 alias jshe='vim ~/config/.jbashrc'
 alias jshr=bshr
+alias jvme='vim ~/config/.jvimrc'
 alias tmxe='vim ~/config/.tmux.conf.j'
 alias tmxr='tmux source-file ~/config/.tmux.conf.j'
 alias vime='vim ~/.vimrc'
