@@ -1,6 +1,19 @@
 # Change prefix
 unbind C-b
-set -g prefix C-a
+set -g prefix C-Space
+bind-key C-Space last-window
+
+# Start numbering at 1
+set -g base-index 1
+
+# Allows for faster key repetition
+set -s escape-time 0
+
+# Set status bar
+set -g status-bg black
+set -g status-fg white
+set -g status-left ""
+set -g status-right "#[fg=green]#H"
 
 # Split panes using | and -
 unbind '"'
