@@ -17,6 +17,7 @@ set encoding=utf-8
 set whichwrap+=<,>,h,l,[,]
 "set wrap
 "set textwidth=79
+set whichwrap+=<,>,h,l,[,]
 set formatoptions=tcqrn1
 set tabstop=2
 set shiftwidth=2
