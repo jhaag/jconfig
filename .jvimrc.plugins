@@ -47,3 +47,12 @@ nmap <leader>6 <Plug>AirlineSelectTab6
 nmap <leader>7 <Plug>AirlineSelectTab7
 nmap <leader>8 <Plug>AirlineSelectTab8
 nmap <leader>9 <Plug>AirlineSelectTab9
+
+" Rainbow
+let g:rainbow_active = 1
+
+" Tslime
+let g:tslime_ensure_trailing_newlines = 1
+let g:tslime_normal_mapping = '<localleader>t'
+let g:tslime_visual_mapping = '<localleader>t'
+let g:tslime_vars_mapping = '<localleader>T'
