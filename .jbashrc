@@ -27,3 +27,6 @@ export HISTTIMEFORMAT="[%F %T] "
 #export HISTFILE=~/config/.bash_eternal_history
 # Force prompt to write history after every command.
 PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
+
+#=== External Sources ==========================================================
+source ~/config/.shell_prompt.sh

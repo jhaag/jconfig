@@ -6,3 +6,5 @@ vim-airline
 vim-airline-themes
 vim-bufferline
 vim-colors-solarized
+  ->http://www.webupd8.org/2011/04/solarized-must-have-color-paletter-for.html
+    | Fix terminal colors
