@@ -9,6 +9,8 @@ filetype plugin indent on
 let mapleader = " "
 let maplocalleader = "\\"
 
+set autoread
+
 set number
 set ruler
 set visualbell

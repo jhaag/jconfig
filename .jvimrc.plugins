@@ -59,3 +59,19 @@ let g:tslime_vars_mapping = '<localleader>T'
 
 " DelimitMate
 let g:delimitMate_matchpairs = '(:),[:],{:}'
+
+" Rubocop
+let g:vimrubocop_keymap = 0
+nmap <leader>r :RuboCop<CR>
+
+" Syntastic (linter)
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 0
+let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_wq = 0
+
+let g:syntastic_ruby_checkers = ['mri', 'rubocop']
