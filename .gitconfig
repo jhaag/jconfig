@@ -1,0 +1,56 @@
+[alias]
+  amend = commit --amend
+  br = branch
+  ci = commit
+  cim = commit -m
+  co = checkout
+  df = diff --word-diff=color
+  g = grep -I
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr - %cn)%Creset' --abbrev-commit --date=relative
+  mend = commit --amend -C HEAD
+  pp = !"echo 'Pull'; git pull; echo 'Push'; git push"
+  st = status
+  sub = submodule update
+  unstage = reset HEAD
+  rc = rebase --continue
+
+[apply]
+  whitespace = fix
+
+[branch]
+  autosetupmerge = true
+  autosetuprebase = always
+
+[core]
+  autocrlf = input
+  editor=vim -c 'startinsert'
+  filemode = false
+  whitespace = fix,space-before-tab,tab-in-indent,trailing-space
+
+[diff]
+  mnemonicprefix = true
+
+[merge]
+  log = true
+  ; stat = true
+
+[pager]
+  diff = less -r
+  log = less
+  show = less -r
+
+[push]
+  default = tracking
+
+[rerere]
+  enabled = 1
+
+[include]
+  ; Store the user block in this separate file, excluded from version control.
+  path = .gitconfig.user
+  ; file should contain a block like this:
+  ; [user]
+  ;   name = Adam Alboyadjian
+  ;   email = adam@vistahigherlearning.com
+[credential]
+        helper = cache
