@@ -51,27 +51,52 @@ nmap <leader>9 <Plug>AirlineSelectTab9
 " Rainbow
 let g:rainbow_active = 1
 
-" Tslime
-let g:tslime_ensure_trailing_newlines = 1
-let g:tslime_normal_mapping = '<localleader>t'
-let g:tslime_visual_mapping = '<localleader>t'
-let g:tslime_vars_mapping = '<localleader>T'
-
 " DelimitMate
 let g:delimitMate_matchpairs = '(:),[:],{:}'
 
-" Rubocop
-let g:vimrubocop_keymap = 0
-nmap <leader>r :RuboCop<CR>
-
-" Syntastic (linter)
+" syntastic
+map <Leader>s :SyntasticToggleMode<CR>
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 0
-let g:syntastic_check_on_open = 0
-let g:syntastic_check_on_wq = 0
+let g:syntastic_always_populate_loc_list=1
+let g:syntastic_auto_loc_list=0
+let g:syntastic_check_on_open=0
+let g:syntastic_check_on_wq=0
 
-let g:syntastic_ruby_checkers = ['mri', 'rubocop']
+" ghc-mod
+map <silent> tw :GhcModTypeInsert<CR>
+map <silent> ts :GhcModSplitFunCase<CR>
+map <silent> tq :GhcModType<CR>
+map <silent> te :GhcModTypeClear<CR>
+
+" supertab
+let g:SuperTabDefaultCompletionType='<c-x><c-o>'
+
+if has("gui_running")
+  imap <c-space> <c-r>=SuperTabAlternateCompletion("\<lt>c-x>\<lt>c-o>")<cr>
+else " no gui
+  if has("unix")
+    inoremap <Nul> <c-r>=superTabAlternateCompletion("\<lt>c-x>\<lt>c-o>")<cr>
+  endif
+endif
+
+" neco-ghc
+let g:haskellmode_completion_ghc=1
+autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+
+" nerdtree
+map <Leader>n :NERDTreeToggle<CR>
+
+" tabularize
+let g:haskell_tabular=1
+
+vmap a= :Tabularize /=<CR>
+vmap a; :Tabularize /::<CR>
+vmap a- :Tabularize /-><CR>
+
+" ctrl-p
+map <silent> <Leader>t :CtrlP()<CR>
+noremap <leader>b<space> :CtrlPBuffer<cr>
+let g:ctrlp_custom_ignore='\v[\/]dist$'

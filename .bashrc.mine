@@ -102,5 +102,4 @@ if ! shopt -oq posix; then
 fi
 
 #===============================================================================
-alias racket='racket -i -p neil/sicp -l xrepl'
 source ~/config/.jbashrc  
