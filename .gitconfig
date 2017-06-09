@@ -1,42 +1,105 @@
 [alias]
-  amend = commit --amend
-  br = branch
-  ci = commit
-  cim = commit -m
-  co = checkout
-  df = diff --word-diff=color
-  g = grep -I
-  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr - %cn)%Creset' --abbrev-commit --date=relative
-  mend = commit --amend -C HEAD
-  pp = !"echo 'Pull'; git pull; echo 'Push'; git push"
-  st = status
-  sub = submodule update
-  unstage = reset HEAD
-  rc = rebase --continue
+  # add and remove all changes
+  addremove = !git r && git add . --all
 
-[apply]
+  # ammend the previous commit that was made
+  amend	    = !git log -n 1 --pretty=tformat:%s%n%n%b | git commit -F - --amend
+
+  # list all aliases defined for git
+  aliases   = !git config --list | grep 'alias\\.' | sed 's/alias\\.\\([^=]*\\)=\\(.*\\)/\\1\\ \t => \\2/' | sort
+
+  # list all branches in this repo
+  br 	    = branch -av
+
+  # list the current branch name (useful if I'm in an environment where I can't load my terminal settings up, since that display the branch)
+  brname    = !git branch | grep "^*" | awk '{ print $2 }'
+
+  # delete the current branch that you are in
+  brdel     = branch -D
+
+  # show the files which are being edited the most
+  churn     = !git log --all -M -C --name-only --format='format:' "$@" | sort | grep -v '^$' | uniq -c | sort -nr | head
+
+  # commit changes
+  ci 	    = commit
+
+  # commit changes with a message
+  cim 	    = commit -m
+
+  # checkout a branch
+  co 	    = checkout
+
+  # view the log and diff for a commit (previous if no SHA1 provided)
+  details = log -n1 -p --format=fuller
+
+  # show colored diff
+  df 	    = diff --word-diff=color
+
+  # save expo as a tarball
+  export    = archive -o latest.tar.gz -9 --prefix=latest/
+
+  # shortcut for grepping git stuff
+  gr 	    = grep -I
+
+  # view a pretty git log with branch tree
+  lg 	    = !git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %CGreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --data=relative
+
+  # push-pull to rectify whatever git issue you got yourself into
+  pp 	    = !"echo 'Pull'; git pull; echo 'Push'; git push"
+
+  # remove deleted files
+  r 	    = !git ls-files -z --deleted | xargs -0 git rm
+  
+  # shortcut for git rebase --continue
+  rc 	    = rebase --continue
+
+  # return the repo's root directory (useful for shell prompts)
+  root 	    = rev-parse --show-toplevel
+
+  # return a list of commit SHA1s
+  sh 	    = "!f() { git log $* | grep '^commit ' | cut -f 2 -d ' '; }; f"
+
+  # shortcut for git status
+  st 	    = status
+
+  # update all submodules
+  sub 	    = submodule update --init
+
+  # list all tags
+  tags 	    = tag -l
+
+  # start a new local repository and perform initial commit
+  this 	    = !git init && git add . && git cim \"Initial commit.\"
+
+  # thin out older metadata within the repo, and reduce filesystem footprint
+  thin 	    = !git reflog expire --expire=now --all && git gc --prune=now
+
+  # unstage current changes
+  unstage   = reset HEAD --
+	
+[apply]	
   whitespace = fix
-
+	
 [branch]
-  autosetupmerge = true
+  autosetupmerge  = true
   autosetuprebase = always
-
-[core]
-  autocrlf = input
-  editor=vim -c 'startinsert'
-  filemode = false
+	
+[core]	
+  autocrlf   = input
+  editor     = 'emacs --no-window-system'
+  filemode   = false
   whitespace = fix,space-before-tab,tab-in-indent,trailing-space
 
 [diff]
   mnemonicprefix = true
 
 [merge]
-  log = true
+  log  = true
   ; stat = true
 
 [pager]
   diff = less -r
-  log = less
+  log  = less
   show = less -r
 
 [push]
@@ -50,7 +113,15 @@
   path = .gitconfig.user
   ; file should contain a block like this:
   ; [user]
-  ;   name = Adam Alboyadjian
-  ;   email = adam@vistahigherlearning.com
+  ;   name = Jasper Haag
+  ;   email = jasperhaag16@gmail.com
+
 [credential]
-        helper = cache
+  helper = cache
+
+[url "https://github.com/"]
+  insteadOf = gh:
+[url "https://gist.github.com/"]
+  insteadOf = gist:
+[url "https://bitbucket.org/"]
+  insteadOf = bb:

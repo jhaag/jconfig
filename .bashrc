@@ -1,17 +1,8 @@
 #=== Aliases ===================================================================
-#--- ls aliases --
+#--- ls aliases ----------------------------------------------------------------
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-#--- edit conf files -----------------------------
-alias bshe='vim ~/.bashrc'
-alias bshr='. ~/.bashrc'
-alias jshe='vim ~/config/.jbashrc'
-alias jshr=bshr
-alias jvme='vim ~/config/.jvimrc'
-alias tmxe='vim ~/config/.tmux.conf.j'
-alias tmxr='tmux source-file ~/config/.tmux.conf.j'
-alias vime='vim ~/.vimrc'
 
 #=== Fixes =====================================================================
 # C-l fix that keeps current typed command
@@ -29,4 +20,5 @@ export HISTTIMEFORMAT="[%F %T] "
 PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 
 #=== External Sources ==========================================================
-source ~/config/.shell_prompt.sh
+source ~/jconfig/scripts/shell_prompt.sh
+source ~/jconfig/scripts/utilities.sh
