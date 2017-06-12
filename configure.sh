@@ -47,12 +47,12 @@ load_custom_config "$BASH_CONF" ~/.bashrc "#"
 read -r -d '' EMACS_CONF <<EOF
 ;;=== Custom global configurations ==========
 
-;;=== Hook for pulling in my dotfiles =======
-(load "$jconfig_location/.emacs.d/init.el")
-
 ;;=== Non-standard custom-file setup ========
 (setq custom-file "$jconfig_location/.emacs.d/.emacs-custom.el")
 (load custom-file)
+
+;;=== Hook for pulling in my dotfiles =======
+(load "$jconfig_location/.emacs.d/init.el")
 EOF
 
 load_custom_config "$EMACS_CONF" ~/.emacs ";;"
