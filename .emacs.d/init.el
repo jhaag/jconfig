@@ -2,7 +2,7 @@
 ;; Don't autoload packages and initialize the package authorities
 ;; we want to pull from
 (require 'package)
-(setq package-enable-at-startup nil)
+(custom-set-variables '(package-enable-at-startup nil))
 (add-to-list 'package-archives
 	     '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives
@@ -20,10 +20,8 @@
 ;; it is installed at that point
 (eval-when-compile
   (require 'use-package))
-;; Add the following line if using :diminish with use-package
-;;(require 'diminish)
-;; Add the following line if using :bind with use-package
-;;(require 'bind-key)
+(require 'diminish)
+(require 'bind-key)
 
 ;;=== Loading Local Dependencies ===============================================
 ;; Add all local .el files to the emacs load path
@@ -35,8 +33,27 @@
 (load "~/jconfig/.emacs.d/packages.el")
 
 ;;=== General Configurations ===================================================
-(global-linum-mode t)
+;; Setup column numbers and line numbers
+(add-hook 'prog-mode-hook 'linum-mode)
 (column-number-mode t)
+
+;; Setup better parentheses
+(custom-set-variables '(show-paren-mode t)
+                      '(show-paren-delay 0))
+
+;; Setup inferential tab-replacement
+(defun infer-indentation-style ()
+  ;; if the current source file uses tabs, use tabs
+  ;; if the current source file uses spaces, use spaces
+  ;; otherwise, default to the current indent-tabs-mode
+  (let ((space-count (how-many "^ "  (point-min) (point-max)))
+	(tab-count   (how-many "^\t" (point-min) (point-max))))
+    (if (> space-count tab-count) (custom-set-variables '(indent-tabs-mode nil)))
+    (if (> tab-count space-count) (custom-set-variables '(indent-tabs-mode t)))))
+
+(add-hook 'prog-mode-hook (lambda ()
+			    (custom-set-variables '(indent-tabs-mode nil))
+			    (infer-indentation-style)))
 
 ;;=== Backups ==================================================================
 ;; Place all backup and autosave files in ~/.emacs.d/
