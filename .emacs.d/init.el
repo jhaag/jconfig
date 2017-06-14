@@ -1,6 +1,14 @@
+;;=== Pre Initialization =======================================================
+(defconst emacs-start-time (current-time))
+
+(unless noninteractive
+  (message "Loading %s..." load-file-name))
+
+(setq message-log-max 16384)
+
 ;;=== Package Management Setup =================================================
-;; Don't autoload packages and initialize the package authorities
-;; we want to pull from
+;; Don't autoload packages
+;; initialize the package authorities we want to pull from
 (require 'package)
 (custom-set-variables '(package-enable-at-startup nil))
 (add-to-list 'package-archives
@@ -23,16 +31,16 @@
 (require 'diminish)
 (require 'bind-key)
 
-;;=== Loading Local Dependencies ===============================================
-;; Add all local .el files to the emacs load path
-(load "~/jconfig/.emacs.d/packages/load-directory.el")
-(load-directory "~/jconfig/.emacs.d/packages/")
-(load-directory "~/jconfig/.emacs.d/utilities/")
-
-;;=== Packages =================================================================
+;;=== Loading Organized Configurations =========================================
 (load "~/jconfig/.emacs.d/packages.el")
+(load "~/jconfig/.emacs.d/languages.el")
 
 ;;=== General Configurations ===================================================
+;; Remove 'beginner' emacs stuff from appearing
+(tool-bar-mode   -1)
+(toggle-scroll-bar -1)
+(setq inhibit-splash-screen t)
+
 ;; Setup column numbers and line numbers
 (add-hook 'prog-mode-hook 'linum-mode)
 (column-number-mode t)
@@ -77,3 +85,17 @@
 		  week))
       (message "%s" file)
       (delete-file file))))
+
+;;=== Post Initialization ======================================================
+(when window-system
+  (let ((elapsed (float-time (time-subtract (current-time)
+                                            emacs-start-time))))
+    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+
+  (add-hook 'after-init-hook
+            `(lambda ()
+               (let ((elapsed (float-time (time-subtract (current-time)
+                                                         emacs-start-time))))
+                 (message "Loading %s...done (%.3fs) [after-init]"
+                          ,load-file-name elapsed)))
+            t))
