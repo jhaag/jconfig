@@ -4,8 +4,8 @@ jconfig_location="$HOME/jconfig"
 
 source $jconfig_location/scripts/utilities.sh
 
-#=== General ===============================================================
-#--- Solarized Dark Terminal Setup -----------------------------------------
+#=== General ===================================================================
+#--- Solarized Dark Terminal Setup ---------------------------------------------
 cd
 
 # download the package for terminal solarized dark and set it up
@@ -17,7 +17,7 @@ fi
 
 echo '[NOTE] If solarized dark is not the theme for the terminal, look into it'
 
-#--- Powerline Font Terminal Setup -----------------------------------------
+#--- Powerline Font Terminal Setup ---------------------------------------------
 cd
 
 # download the package for the fonts I want and set them up
@@ -31,38 +31,39 @@ echo '[NOTE] Change your user preferences to use Meslo LG S at 11pt font'
 
 
 echo -e '\n\n'
-#=== Bash ==================================================================
+
+#=== Bash ======================================================================
 # Add custom configs to .bashrc
 read -r -d '' BASH_CONF <<EOF
-#=== Custom global configurations ======
+#=== Custom global configurations ==============================================
 
-#=== Hook for pulling in my dotfiles ===
+#=== Hook for pulling in my dotfiles ===========================================
 source $jconfig_location/.bashrc
 EOF
 
 load_custom_config "$BASH_CONF" ~/.bashrc "#"
 
-#=== Emacs =================================================================
+#=== Emacs =====================================================================
 # Add custom configs to .emacs
 read -r -d '' EMACS_CONF <<EOF
-;;=== Custom global configurations ==========
+;;=== Custom global configurations =============================================
 
-;;=== Non-standard custom-file setup ========
+;;=== Non-standard custom-file setup ===========================================
 (setq custom-file "$jconfig_location/.emacs.d/.emacs-custom.el")
 (load custom-file)
 
-;;=== Hook for pulling in my dotfiles =======
+;;=== Hook for pulling in my dotfiles ==========================================
 (load "$jconfig_location/.emacs.d/init.el")
 EOF
 
 load_custom_config "$EMACS_CONF" ~/.emacs ";;"
 
-#=== Git ====================================================================
+#=== Git =======================================================================
 # Add custom configs to .gitconfig
 read -r -d '' GIT_CONF <<EOF
-#=== Custom global configurations ======
+#=== Custom global configurations ==============================================
 
-#=== Hook for pulling in my dotfiles ===
+#=== Hook for pulling in my dotfiles ===========================================
 [include]
   path = ~/jconfig/.gitconfig
 EOF
@@ -72,9 +73,9 @@ load_custom_config "$GIT_CONF" ~/.gitconfig "#"
 #=== Tmux ======================================================================
 # Add custom configs to .tmux.conf
 read -r -d '' TMUX_CONF <<EOF
-#=== Custom global configurations ============
+#=== Custom global configurations ==============================================
 
-#=== Hook for pulling in my configurations ===
+#=== Hook for pulling in my configurations =====================================
 source-file ~/jconfig/.tmux.conf
 EOF
 

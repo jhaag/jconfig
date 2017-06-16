@@ -10,7 +10,7 @@
 ;; Don't autoload packages
 ;; initialize the package authorities we want to pull from
 (require 'package)
-(custom-set-variables '(package-enable-at-startup nil))
+(setq package-enable-at-startup nil)
 (add-to-list 'package-archives
 	     '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives
@@ -37,9 +37,17 @@
 
 ;;=== General Configurations ===================================================
 ;; Remove 'beginner' emacs stuff from appearing
-(tool-bar-mode   -1)
+(tool-bar-mode -1)
 (toggle-scroll-bar -1)
 (setq inhibit-splash-screen t)
+(setq inhibit-startup-message t)
+(setq inhibit-startup-screen t)
+
+;; show whitespace that could mess up VC
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (interactive)
+            (setq show-trailing-whitespace 1)))
 
 ;; Setup column numbers and line numbers
 (add-hook 'prog-mode-hook 'linum-mode)
@@ -68,8 +76,7 @@
 (custom-set-variables
  '(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
  '(backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
- '(initial-frame-alist '((fullscreen . maximized)))
- '(inhibit-startup-screen t))
+ '(initial-frame-alist '((fullscreen . maximized))))
 
 ;; Create the autosave and backup dirs if necessary, since emacs won't
 (make-directory "~/.emacs.d/autosaves/" t)
