@@ -6,6 +6,14 @@
 
 (setq message-log-max 16384)
 
+(eval-and-compile
+  (defconst jconfig-path "~/jconfig/.emacs.d/")
+
+  (mapc #'(lambda (path)
+            (add-to-list 'load-path
+                         (expand-file-name path jconfig-path)))
+        '("packages" "languages" "")))
+
 ;;=== Package Management Setup =================================================
 ;; Don't autoload packages
 ;; initialize the package authorities we want to pull from
@@ -32,8 +40,8 @@
 (require 'bind-key)
 
 ;;=== Loading Organized Configurations =========================================
-(load "~/jconfig/.emacs.d/packages.el")
-(load "~/jconfig/.emacs.d/languages.el")
+(load "packages")
+(load "languages")
 
 ;;=== General Configurations ===================================================
 ;; Remove 'beginner' emacs stuff from appearing
@@ -42,12 +50,6 @@
 (setq inhibit-splash-screen t)
 (setq inhibit-startup-message t)
 (setq inhibit-startup-screen t)
-
-;; show whitespace that could mess up VC
-(add-hook 'prog-mode-hook
-          (lambda ()
-            (interactive)
-            (setq show-trailing-whitespace 1)))
 
 ;; Setup column numbers and line numbers
 (add-hook 'prog-mode-hook 'linum-mode)
