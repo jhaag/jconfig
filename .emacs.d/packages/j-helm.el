@@ -124,27 +124,28 @@
   :bind ("C-c h h f" . helm-flycheck))
 
 (use-package helm-gtags ; Helm interface for GNU Global
-  :ensure helm
-  :init (custom-set-variables
-         '(helm-gtags-ignore-case t)
-         '(helm-gtags-auto-update t)
-         '(helm-gtags-use-input-at-cursor t)
-         '(helm-gtags-pulse-at-cursor t)
-         '(helm-gtags-prefix-key "\C-cg")
-         '(helm-gtags-suggested-key-mapping t))
+  :ensure t
+  :diminish helm-gtags-mode
+  :init (progn
+          (custom-set-variables
+           '(helm-gtags-ignore-case t)
+           '(helm-gtags-auto-update t)
+           '(helm-gtags-use-input-at-cursor t)
+           '(helm-gtags-pulse-at-cursor t)
+           '(helm-gtags-prefix-key "\C-cg")
+           '(helm-gtags-suggested-key-mapping t))
+          (add-hook 'dired-mode-hook  'helm-gtags-mode)
+          (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+          (add-hook 'c-mode-hook      'helm-gtags-mode)
+          (add-hook 'c++-mode-hook    'helm-gtags-mode)
+          (add-hook 'asm-mode-hook    'helm-gtags-mode))
   :bind (:map helm-gtags-mode-map
               ("C-c g a" . helm-gtags-tags-in-this-function)
-              ("C-j"     . helm-gtags-select)
+              ("C-c j"   . helm-gtags-select)
               ("M-."     . helm-gtags-dwim)
               ("M-,"     . helm-gtags-pop-stack)
               ("C-c <"   . helm-gtags-previous-history)
-              ("C-c >"   . helm-gtags-next-history))
-  :config (progn
-            (add-hook 'dired-mode-hook  'helm-gtags-mode)
-            (add-hook 'eshell-mode-hook 'helm-gtags-mode)
-            (add-hook 'c-mode-hook      'helm-gtags-mode)
-            (add-hook 'c++-mode-hook    'helm-gtags-mode)
-            (add-hook 'asm-mode-hook    'helm-gtags-mode)))
+              ("C-c >"   . helm-gtags-next-history)))
 
 ;;=== Help =====================================================================
 (use-package helm-info ; Helm tools for Info
@@ -199,20 +200,8 @@
              '(helm-swoop-split-direction 'split-window-vertically)
              '(helm-swoop-speed-or-color t)
              '(helm-swoop-move-to-line-cycle t)
-             '(helm-swoop-use-line-number-face t))
-
-            (defvar helm-c-source-swoop-match-functions
-              '(helm-mm-exact-match
-                helm-mm-match
-                helm-fuzzy-match))
-
-            (use-package helm-multi-match
-              :ensure t
-              :init (custom-set-variables
-                     `(helm-c-source-swoop-search-functions (helm-mm-exact-search
-                                                             helm-mm-search
-                                                             helm-candidates-in-buffer-search-default-fn
-                                                             helm-fuzzy-search))))))
+             '(helm-swoop-use-line-number-face t)
+             '(helm-swoop-use-fuzzy-match t))))
 
 (use-package helm-ag ; Helm frontend for ag
   :if (executable-find "ag")
