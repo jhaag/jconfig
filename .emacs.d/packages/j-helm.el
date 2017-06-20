@@ -11,7 +11,7 @@
              '(helm-display-header-line nil))       ; Cleaner helm interface
 
             (helm-adaptive-mode 1)   ; Adaptive sorting in all sources
-            (helm-autoresize-mode 1) ; Auto-resize helm-buffer
+            (helm-autoresize-mode t) ; Auto-resize helm-buffer
             
             (add-to-list 'helm-sources-using-default-as-input
                          'helm-source-man-pages)))
@@ -123,6 +123,29 @@
   :ensure t
   :bind ("C-c h h f" . helm-flycheck))
 
+(use-package helm-gtags ; Helm interface for GNU Global
+  :ensure helm
+  :init (custom-set-variables
+         '(helm-gtags-ignore-case t)
+         '(helm-gtags-auto-update t)
+         '(helm-gtags-use-input-at-cursor t)
+         '(helm-gtags-pulse-at-cursor t)
+         '(helm-gtags-prefix-key "\C-cg")
+         '(helm-gtags-suggested-key-mapping t))
+  :bind (:map helm-gtags-mode-map
+              ("C-c g a" . helm-gtags-tags-in-this-function)
+              ("C-j"     . helm-gtags-select)
+              ("M-."     . helm-gtags-dwim)
+              ("M-,"     . helm-gtags-pop-stack)
+              ("C-c <"   . helm-gtags-previous-history)
+              ("C-c >"   . helm-gtags-next-history))
+  :config (progn
+            (add-hook 'dired-mode-hook  'helm-gtags-mode)
+            (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+            (add-hook 'c-mode-hook      'helm-gtags-mode)
+            (add-hook 'c++-mode-hook    'helm-gtags-mode)
+            (add-hook 'asm-mode-hook    'helm-gtags-mode)))
+
 ;;=== Help =====================================================================
 (use-package helm-info ; Helm tools for Info
   :ensure helm
@@ -137,7 +160,7 @@
   :ensure t
   :bind ("C-c h h d" . helm-descbinds))
 
-(use-package helm-descbinds-modes ; Describing modes through helm
+(use-package helm-describe-modes ; Describing modes through helm
   :ensure t
   :bind ("C-c h d" . helm-describe-modes))
 
@@ -174,7 +197,7 @@
              '(helm-multi-swoop-edit-save t) ; save when done with editing
              '(helm-swoop-split-with-multiple-windows nil)
              '(helm-swoop-split-direction 'split-window-vertically)
-             '(helm-swoop-speed-or-color nil)
+             '(helm-swoop-speed-or-color t)
              '(helm-swoop-move-to-line-cycle t)
              '(helm-swoop-use-line-number-face t))
 
@@ -183,11 +206,13 @@
                 helm-mm-match
                 helm-fuzzy-match))
 
-            (custom-set-variables
-             `(helm-c-source-swoop-search-functions (helm-mm-exact-search
-                                                     helm-mm-search
-                                                     helm-candidates-in-buffer-search-default-fn
-                                                     helm-fuzzy-search)))))
+            (use-package helm-multi-match
+              :ensure t
+              :init (custom-set-variables
+                     `(helm-c-source-swoop-search-functions (helm-mm-exact-search
+                                                             helm-mm-search
+                                                             helm-candidates-in-buffer-search-default-fn
+                                                             helm-fuzzy-search))))))
 
 (use-package helm-ag ; Helm frontend for ag
   :if (executable-find "ag")
