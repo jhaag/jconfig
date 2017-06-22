@@ -73,6 +73,9 @@
 			    (custom-set-variables '(indent-tabs-mode nil))
 			    (infer-indentation-style)))
 
+;; Setup global keybindings
+(define-key prog-mode-map (kbd "<C-return>") 'indent-new-comment-line)
+
 ;;=== Backups ==================================================================
 ;; Place all backup and autosave files in ~/.emacs.d/
 (custom-set-variables
