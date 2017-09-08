@@ -1,5 +1,5 @@
 (use-package function-args
-  :ensure t
+  :disabled t
   :diminish function-args
   :config (progn
             (custom-set-variables

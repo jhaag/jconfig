@@ -15,7 +15,7 @@ if [[ ! -e ~/gnome-terminal-colors-solarized/ ]]; then
     ./set_dark.sh
 fi
 
-echo '[NOTE] If solarized dark is not the theme for the terminal, look into it'
+echo '[NOTE] If solarized dark is not the theme for the terminal, look into it <https://github.com/seebi/dircolors-solarized>'
 
 #--- Powerline Font Terminal Setup ---------------------------------------------
 cd
