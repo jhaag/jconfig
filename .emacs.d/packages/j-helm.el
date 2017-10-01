@@ -257,7 +257,8 @@
                                 #'helm-eshell-history
                                 eshell-mode-map)))
 
-          (bind-key "C-c C-l" #'helm-comint-input-ring shell-mode-map)
+          ;; TODO: Figure out why this doesn't work and if I need it
+          ;; (bind-key "C-c C-l" #'helm-comint-input-ring shell-mode-map)
 
           ;; Completion with helm
           (add-hook 'eshell-mode-hook
