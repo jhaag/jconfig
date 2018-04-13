@@ -3,3 +3,4 @@
 
 (require 'j-haskell)
 (require 'j-asm)
+(require 'j-rust)
