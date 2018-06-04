@@ -1,4 +1,9 @@
 ;;=== Pre Initialization =======================================================
+;;--- Non-standard custom-file -------------------------------------------------
+(setq custom-file "~/.emacs.d/.emacs-custom.el")
+(load custom-file 'noerror)
+
+;;--- Timing Setup -------------------------------------------------------------
 (defconst emacs-start-time (current-time))
 
 (unless noninteractive

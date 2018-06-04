@@ -17,7 +17,7 @@ source $JCONFIG_ROOT/scripts/utilities.sh
 
 #=== General ===================================================================
 #--- Solarized Dark Terminal Setup ---------------------------------------------
-if ["$HOST_OS" == "linux" ]; then
+if [ "$HOST_OS" == "linux" ]; then
     # For now, we only have terminal color setup for linux
     cd
 
@@ -63,10 +63,6 @@ load_custom_config "$BASH_CONF" ~/.bashrc "#"
 # Add custom configs to .emacs
 read -r -d '' EMACS_CONF <<EOF
 ;;=== Custom global configurations =============================================
-
-;;=== Non-standard custom-file setup ===========================================
-(setq custom-file "$JCONFIG_ROOT/.emacs.d/.emacs-custom.el")
-(load custom-file)
 
 ;;=== Hook for pulling in my dotfiles ==========================================
 (load "$JCONFIG_ROOT/.emacs.d/init.el")
