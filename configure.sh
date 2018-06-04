@@ -32,21 +32,28 @@ if [ "$HOST_OS" == "linux" ]; then
     echo 'try using "eval `dircolors ~/.dir_color`"'
 fi
 #--- Powerline Font Terminal Setup ---------------------------------------------
-if [ "$HOST_OS" == "linux" ]; then
-    # For now, we only have font setup for linux
-    cd
-    
-    # download the package for the fonts I want and set them up
-    if ! [[ -e ~/fonts/ ]]; then
-        git clone https://github.com/powerline/fonts.git
-        cd fonts
-        ./install.sh
-    fi
-    
-    echo '[NOTE] Change your user preferences to use Meslo LG S at 11pt font'
-    
-    echo -e '\n\n'
+cd
+
+# download the package for the fonts I want and set them up
+if ! [[ -e ~/fonts/ ]]; then
+    git clone https://github.com/powerline/fonts.git --depth=1
+    cd fonts
+    ./install.sh
 fi
+
+echo '[NOTE] Change your user preferences to use Meslo LG S at 11pt font'
+
+echo -e '\n\n'
+
+#--- Powerline Shell Setup -----------------------------------------------------
+
+# Test whether or not pip is installed (as it is required to set the powerline-shell
+# up. If it isn't installed, display an error message informing you to install it,
+# and exit with error code 1.
+command -v pip3 >/dev/null 2>&1 || { echo >&2 "I require pip3 but it's not installed.  Aborting."; exit 1; }
+echo -e "Attempting to install powerline-shell as root:\n"
+sudo -H pip3 install powerline-shell
+echo -e "Installed powerline-shell; see <https://github.com/b-ryan/powerline-shell> for more.\n"
 
 #=== Bash ======================================================================
 # Add custom configs to .bashrc
@@ -94,4 +101,6 @@ EOF
 load_custom_config "$TMUX_CONF" ~/.tmux.conf "#"
 
 # Idea! Put in todo variables througout configs, and have this file go through and sed everything
-# Another Idea! Stamp config files with the time that they were configured, and compare on the fly to determine if it is necessary to add the custom stuff in, or if we want to do something else (like remove the old custom stuff and add it again so it doesn't stack up)
+# Another Idea! Stamp config files with the time that they were configured, and compare on the fly
+# to determine if it is necessary to add the custom stuff in, or if we want to do something else
+# (like remove the old custom stuff and add it again so it doesn't stack up)

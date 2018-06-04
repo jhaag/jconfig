@@ -32,10 +32,5 @@ export HISTFILE=$JCONFIG_ROOT/.bash_eternal_history
 PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 
 #=== External Sources ==========================================================
-if [ "$HOST_OS" == "linux" ]; then
-    # For now, the shell prompt setup is only working for linux, so we only want
-    # to enable it for a linux host.
-    source ~/jconfig/scripts/shell_prompt.sh
-fi
-
+source ~/jconfig/scripts/shell_prompt.sh
 source ~/jconfig/scripts/utilities.sh
