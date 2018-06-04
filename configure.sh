@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-jconfig_location="$HOME/jconfig"
+JCONFIG_ROOT="$HOME/jconfig"
 
-source $jconfig_location/scripts/utilities.sh
+source $JCONFIG_ROOT/scripts/utilities.sh
 
 #=== General ===================================================================
 #--- Solarized Dark Terminal Setup ---------------------------------------------

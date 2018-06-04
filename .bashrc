@@ -1,16 +1,28 @@
+#=== Initialization ============================================================
+# Get the host machine, and save it as $HOST_OS; unsupported OSs throw a warning
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)     HOST_OS=linux
+                ;;
+    Darwin*)    HOST_OS=darwin
+                ;;
+    *)          HOST_OS="UNKNOWN:${unameOut}"
+                echo "WARNING: Dotfile configuration not supported for ${HOST_OS}"
+                ;;
+esac
+
+export JCONFIG_ROOT="$HOME/jconfig"
+
 #=== Aliases ===================================================================
-#--- ls aliases ----------------------------------------------------------------
-alias ll='ls -alF --color'
-alias la='ls -A --color'
-alias l='ls -CF --color'
+source $JCONFIG_ROOT/aliases/$HOST_OS.sh
 
 #=== Fixes =====================================================================
 # C-l fix that keeps current typed command
 bind -x $'"C-l":clear;'
 
 #=== Eternal Bash History ======================================================
-export HISTFILESIZE=-1
-export HISTSIZE=-1
+export HISTFILESIZE=
+export HISTSIZE=
 export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT="[%F %T] "
 # Change the file location because certain bash sessions truncate .bash_history
@@ -20,5 +32,10 @@ export HISTTIMEFORMAT="[%F %T] "
 PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 
 #=== External Sources ==========================================================
-source ~/jconfig/scripts/shell_prompt.sh
+if [ "$HOST_OS" == "linux" ]; then
+    # For now, the shell prompt setup is only working for linux, so we only want
+    # to enable it for a linux host.
+    source ~/jconfig/scripts/shell_prompt.sh
+fi
+
 source ~/jconfig/scripts/utilities.sh

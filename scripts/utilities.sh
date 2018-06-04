@@ -27,7 +27,7 @@ load_custom_config () {
 	if [[ $(head -n 1 $2) =~ $CUSTOM_CONFIG_DELIMITER ]]; then
 	    echo -e "\t\t- Saving non-custom configuration..."
 	    
-	    sed -i "1,/$CUSTOM_CONFIG_DELIMITER/ d" $2
+	    sed -i "" "1,/$CUSTOM_CONFIG_DELIMITER/ d" $2
 	fi
 
 	# Add the custom configurations with header guards to the file
