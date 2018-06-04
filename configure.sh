@@ -50,10 +50,15 @@ echo -e '\n\n'
 # Test whether or not pip is installed (as it is required to set the powerline-shell
 # up. If it isn't installed, display an error message informing you to install it,
 # and exit with error code 1.
-command -v pip3 >/dev/null 2>&1 || { echo >&2 "I require pip3 but it's not installed.  Aborting."; exit 1; }
-echo -e "Attempting to install powerline-shell as root:\n"
-sudo -H pip3 install powerline-shell
-echo -e "Installed powerline-shell; see <https://github.com/b-ryan/powerline-shell> for more.\n"
+command -v pip3 >/dev/null 2>&1 || {
+    echo >&2 "I require pip3 but it's not installed.  Aborting."
+    exit 1
+}
+command -v powerline-shell >/dev/null 2>&1 || {
+    echo -e "Attempting to install powerline-shell as root:\n"
+    sudo -H pip3 install powerline-shell
+    echo -e "Installed powerline-shell; see <https://github.com/b-ryan/powerline-shell> for more.\n"
+}
 
 #=== Bash ======================================================================
 # Add custom configs to .bashrc
