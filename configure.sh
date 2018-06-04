@@ -1,37 +1,52 @@
 #!/usr/bin/env bash
 
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)     HOST_OS=linux
+                ;;
+    Darwin*)    HOST_OS=darwin
+                ;;
+    *)          HOST_OS="UNKNOWN:${unameOut}"
+                echo "WARNING: Dotfile configuration not supported for ${HOST_OS}"
+                ;;
+esac
+
 JCONFIG_ROOT="$HOME/jconfig"
 
 source $JCONFIG_ROOT/scripts/utilities.sh
 
 #=== General ===================================================================
 #--- Solarized Dark Terminal Setup ---------------------------------------------
-cd
+if ["$HOST_OS" == "linux" ]; then
+    # For now, we only have terminal color setup for linux
+    cd
 
-# download the package for terminal solarized dark and set it up
-if [[ ! -e ~/gnome-terminal-colors-solarized/ ]]; then
-    git clone gh:sigurdga/gnome-terminal-colors-solarized.git
-    cd gnome-terminal-colors-solarized
-    ./set_dark.sh
+    # download the package for terminal solarized dark and set it up
+    if [[ ! -e ~/gnome-terminal-colors-solarized/ ]]; then
+        git clone https://github.com/sigurdga/gnome-terminal-colors-solarized.git
+        cd gnome-terminal-colors-solarized
+        ./set_dark.sh
+    fi
+    
+    echo '[NOTE] If solarized dark is not the theme for the terminal, look into it <https://github.com/seebi/dircolors-solarized>'
+    echo 'try using "eval `dircolors ~/.dir_color`"'
 fi
-
-echo '[NOTE] If solarized dark is not the theme for the terminal, look into it <https://github.com/seebi/dircolors-solarized>'
-echo 'try using "eval `dircolors ~/.dir_color`"'
-
 #--- Powerline Font Terminal Setup ---------------------------------------------
-cd
-
-# download the package for the fonts I want and set them up
-if ! [[ -e ~/fonts/ ]]; then
-    git clone https://github.com/powerline/fonts.git
-    cd fonts
-    ./install.sh
+if [ "$HOST_OS" == "linux" ]; then
+    # For now, we only have font setup for linux
+    cd
+    
+    # download the package for the fonts I want and set them up
+    if ! [[ -e ~/fonts/ ]]; then
+        git clone https://github.com/powerline/fonts.git
+        cd fonts
+        ./install.sh
+    fi
+    
+    echo '[NOTE] Change your user preferences to use Meslo LG S at 11pt font'
+    
+    echo -e '\n\n'
 fi
-
-echo '[NOTE] Change your user preferences to use Meslo LG S at 11pt font'
-
-
-echo -e '\n\n'
 
 #=== Bash ======================================================================
 # Add custom configs to .bashrc
@@ -39,7 +54,7 @@ read -r -d '' BASH_CONF <<EOF
 #=== Custom global configurations ==============================================
 
 #=== Hook for pulling in my dotfiles ===========================================
-source $jconfig_location/.bashrc
+source $JCONFIG_ROOT/.bashrc
 EOF
 
 load_custom_config "$BASH_CONF" ~/.bashrc "#"
@@ -50,11 +65,11 @@ read -r -d '' EMACS_CONF <<EOF
 ;;=== Custom global configurations =============================================
 
 ;;=== Non-standard custom-file setup ===========================================
-(setq custom-file "$jconfig_location/.emacs.d/.emacs-custom.el")
+(setq custom-file "$JCONFIG_ROOT/.emacs.d/.emacs-custom.el")
 (load custom-file)
 
 ;;=== Hook for pulling in my dotfiles ==========================================
-(load "$jconfig_location/.emacs.d/init.el")
+(load "$JCONFIG_ROOT/.emacs.d/init.el")
 EOF
 
 load_custom_config "$EMACS_CONF" ~/.emacs ";;"
@@ -66,7 +81,7 @@ read -r -d '' GIT_CONF <<EOF
 
 #=== Hook for pulling in my dotfiles ===========================================
 [include]
-  path = ~/jconfig/.gitconfig
+  path = $JCONFIG_ROOT/.gitconfig
 EOF
 
 load_custom_config "$GIT_CONF" ~/.gitconfig "#"
@@ -77,7 +92,7 @@ read -r -d '' TMUX_CONF <<EOF
 #=== Custom global configurations ==============================================
 
 #=== Hook for pulling in my configurations =====================================
-source-file ~/jconfig/.tmux.conf
+source-file $JCONFIG_ROOT/.tmux.conf
 EOF
 
 load_custom_config "$TMUX_CONF" ~/.tmux.conf "#"
