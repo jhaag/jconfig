@@ -27,6 +27,10 @@
 	     '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
 
+(unless (package-installed-p 'diminish)
+  (package-refresh-contents)
+  (package-install 'diminish))
+
 ;; install use-package if it isn't already
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -36,8 +40,6 @@
 ;; it is installed at that point
 (eval-when-compile
   (require 'use-package))
-(require 'diminish)
-(require 'bind-key)
 
 ;;=== Loading Organized Configurations =========================================
 (load "packages")
