@@ -79,9 +79,9 @@ class Color(DefaultColor):
     CMD_FAILED_BG = dark0
 
     GIT_AHEAD_BG = dark0
-    GIT_AHEAD_FG = neutral_green
+    GIT_AHEAD_FG = bright_green
     GIT_BEHIND_BG = dark0
-    GIT_BEHIND_FG = neutral_red
+    GIT_BEHIND_FG = bright_red
     GIT_STAGED_BG = dark0
     GIT_STAGED_FG = bright_green
     GIT_NOTSTAGED_BG = dark0
