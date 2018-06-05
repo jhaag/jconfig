@@ -16,9 +16,9 @@
     "exit_code"
   ],
   "mode": "flat",
-  "theme": "gruvbox",
+  "theme": "~/.powerline-shell-theme.py",
   "cwd": {
     "mode": "plain",
-    "max_depth": 3
+    "max_depth": 4
   }
 }

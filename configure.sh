@@ -100,8 +100,15 @@ if [ -f ~/.powerline-shell.json ]; then
     rm ~/.powerline-shell.json
 fi
 
+# Remove old theme if it exists
+if [ -f ~/.powerline-shell-theme.py ]; then
+    rm ~/.powerline-shell-theme.py
+fi
+
 # Copy custom configs to ~/.powerline-shell.json
 cp $JCONFIG_ROOT/.powerline-shell.json ~/.powerline-shell.json
+# Copy custom theme to ~/.powerline-shell-theme.py
+cp $JCONFIG_ROOT/.powerline-shell-theme.py ~/.powerline-shell-theme.py
 
 #=== Tmux ======================================================================
 # Add custom configs to .tmux.conf
