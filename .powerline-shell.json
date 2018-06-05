@@ -11,13 +11,16 @@
     "set_term_title",
     "newline",
     "rbenv",
+    "read_only",
     "root",
     "exit_code"
   ],
   "mode": "flat",
   "theme": "~/.powerline-shell-theme.py",
   "cwd": {
-    "mode": "plain",
     "max_depth": 4
+  },
+  "hostname": {
+    "colorize": true
   }
 }

@@ -46,67 +46,55 @@ faded_orange = 130
 
 class Color(DefaultColor):
     USERNAME_ROOT_BG = faded_red
-    USERNAME_BG = dark2
+    USERNAME_BG = dark0
     USERNAME_FG = bright_purple
 
     HOSTNAME_BG = dark1
     HOSTNAME_FG = bright_purple
 
     HOME_SPECIAL_DISPLAY = True
-    HOME_BG = neutral_blue
-    HOME_FG = light2
-    PATH_BG = dark3
-    PATH_FG = light3
-    CWD_FG = light2
-    SEPARATOR_FG = dark_gray
+    HOME_BG = dark0
+    HOME_FG = bright_orange
+    PATH_BG = dark0
+    PATH_FG = faded_orange
+    CWD_FG = bright_orange
 
-    READONLY_BG = bright_red
-    READONLY_FG = light0
+    READONLY_BG = dark0
+    READONLY_FG = bright_red
 
-    SSH_BG = faded_purple
-    SSH_FG = light0
+    SSH_BG = dark0
+    SSH_FG = faded_purple
 
-    REPO_CLEAN_BG = faded_green
-    REPO_CLEAN_FG = dark1
-    REPO_DIRTY_BG = faded_orange
-    REPO_DIRTY_FG = light0
+    REPO_CLEAN_BG = dark0
+    REPO_CLEAN_FG = bright_green
+    REPO_DIRTY_BG = dark0
+    REPO_DIRTY_FG = bright_red
 
-    JOBS_FG = neutral_aqua
-    JOBS_BG = dark1
+    JOBS_FG = bright_aqua
+    JOBS_BG = dark0
 
-    CMD_PASSED_FG = light4
-    CMD_PASSED_BG = dark1
-    CMD_FAILED_FG = light0
-    CMD_FAILED_BG = neutral_red
+    CMD_PASSED_FG = bright_purple
+    CMD_PASSED_BG = dark0
+    CMD_FAILED_FG = bright_red
+    CMD_FAILED_BG = dark0
 
-    SVN_CHANGES_FG = REPO_DIRTY_FG
-    SVN_CHANGES_BG = REPO_DIRTY_BG
+    GIT_AHEAD_BG = dark0
+    GIT_AHEAD_FG = neutral_green
+    GIT_BEHIND_BG = dark0
+    GIT_BEHIND_FG = neutral_red
+    GIT_STAGED_BG = dark0
+    GIT_STAGED_FG = bright_green
+    GIT_NOTSTAGED_BG = dark0
+    GIT_NOTSTAGED_FG = bright_yellow
+    GIT_UNTRACKED_BG = dark0
+    GIT_UNTRACKED_FG = bright_orange
+    GIT_CONFLICTED_BG = dark0
+    GIT_CONFLICTED_FG = bright_red
+    GIT_STASH_BG = dark0
+    GIT_STASH_FG = bright_aqua
 
-    GIT_AHEAD_BG = dark2
-    GIT_AHEAD_FG = light3
-    GIT_BEHIND_BG = dark2
-    GIT_BEHIND_FG = light3
-    GIT_STAGED_BG = neutral_green
-    GIT_STAGED_FG = light0
-    GIT_NOTSTAGED_BG = neutral_orange
-    GIT_NOTSTAGED_FG = light0
-    GIT_UNTRACKED_BG = faded_red
-    GIT_UNTRACKED_FG = light0
-    GIT_CONFLICTED_BG = neutral_red
-    GIT_CONFLICTED_FG = light0
-    GIT_STASH_BG = neutral_yellow
-    GIT_STASH_FG = dark0
+    VIRTUAL_ENV_BG = dark0
+    VIRTUAL_ENV_FG = bright_purple
 
-    VIRTUAL_ENV_BG = faded_green
-    VIRTUAL_ENV_FG = light0
-
-    BATTERY_NORMAL_BG = neutral_green
-    BATTERY_NORMAL_FG = dark2
-    BATTERY_LOW_BG = neutral_red
-    BATTERY_LOW_FG = light1
-
-    AWS_PROFILE_FG = neutral_aqua
-    AWS_PROFILE_BG = dark1
-
-    TIME_FG = light2
-    TIME_BG = dark4
+    TIME_FG = bright_purple
+    TIME_BG = dark0
