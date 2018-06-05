@@ -53,6 +53,11 @@
            '(helm-ff-search-library-in-sexp t)
            '(helm-ff-auto-update-intial-value t)))
 
+(use-package helm-tramp ; Tramp integration for helm
+  :ensure helm
+  :after vagrant-tramp
+  :bind (("C-c s" . helm-tramp)))
+
 (use-package helm-misc ; Misc helm commands
   :ensure helm
   :bind ([remap switch-to-buffer] . helm-mini))

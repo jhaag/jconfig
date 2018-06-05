@@ -13,5 +13,7 @@
 (require 'j-sr-speedbar)
 (require 'j-ssh)
 (require 'j-symon)
+(require 'j-tramp)
 (require 'j-undo-tree)
+(require 'j-vagrant-tramp)
 (require 'j-wttrin)

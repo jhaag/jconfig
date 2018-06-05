@@ -23,6 +23,7 @@
 ;; Don't autoload packages
 ;; initialize the package authorities we want to pull from
 (require 'package)
+(require 'cl)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives
 	     '("melpa" . "http://melpa.org/packages/") t)
