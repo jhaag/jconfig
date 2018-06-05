@@ -32,7 +32,7 @@ bright_red    = 167
 bright_green  = 142
 bright_yellow = 214
 bright_blue   = 109
-bright_purple = 175
+bright_purple = 171
 bright_aqua   = 108
 bright_orange = 208
 
