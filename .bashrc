@@ -15,6 +15,7 @@ export JCONFIG_ROOT="$HOME/jconfig"
 
 #=== Aliases ===================================================================
 source $JCONFIG_ROOT/aliases/$HOST_OS.sh
+source $JCONFIG_ROOT/aliases/shared.sh
 
 #=== Fixes =====================================================================
 # C-l fix that keeps current typed command

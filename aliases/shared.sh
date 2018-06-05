@@ -1,0 +1,3 @@
+function cdl {
+    cd "$@" && ll
+}
