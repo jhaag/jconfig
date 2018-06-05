@@ -94,6 +94,15 @@ EOF
 
 load_custom_config "$GIT_CONF" ~/.gitconfig "#"
 
+#=== Powerline Shell ===========================================================
+# Remove old configuration if it exists
+if [ -f ~/.powerline-shell.json ]; then
+    rm ~/.powerline-shell.json
+fi
+
+# Copy custom configs to ~/.powerline-shell.json
+cp $JCONFIG_ROOT/.powerline-shell.json ~/.powerline-shell.json
+
 #=== Tmux ======================================================================
 # Add custom configs to .tmux.conf
 read -r -d '' TMUX_CONF <<EOF
