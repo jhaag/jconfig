@@ -19,6 +19,9 @@
                                           "*ansi-term*"
                                           (lambda ()
                                             (ansi-term shell-pop-term-shell))))
+  (add-hook 'shell-pop-in-hook
+            (lambda ()
+              (setq shell-pop-default-directory default-directory)))
   (add-hook 'shell-pop-in-after-hook
             (lambda ()
               (set-process-query-on-exit-flag (get-process "*ansi-term*") nil))))
