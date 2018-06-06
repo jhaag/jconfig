@@ -10,7 +10,6 @@
     "jobs",
     "set_term_title",
     "newline",
-    "rbenv",
     "read_only",
     "root",
     "exit_code"
