@@ -86,7 +86,7 @@
 	
 [core]	
   autocrlf   = input
-  editor     = 'emacs --no-window-system'
+  editor     = emacs -nw
   filemode   = false
   whitespace = fix,space-before-tab,tab-in-indent,trailing-space
 
