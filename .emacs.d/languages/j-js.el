@@ -9,7 +9,7 @@
 
 (use-package js2-refactor
   :after js2-mode
-  :defer t
+  :ensure t
   :init
   (add-hook 'js2-mode-hook #'js2-refactor-mode)
   (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
@@ -18,7 +18,7 @@
 
 (use-package xref-js2
   :after js2-mode
-  :defer t
+  :ensure t
   :init
   (define-key js-mode-map (kbd "M-.") nil)
   (add-hook 'js2-mode-hook (lambda ()
