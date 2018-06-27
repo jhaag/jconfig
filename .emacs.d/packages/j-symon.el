@@ -5,7 +5,7 @@
             (custom-set-variables
              '(symon-monitors
                (cond
-                ((eq system-type 'linux)
+                ((eq system-type 'gnu/linux)
                  '(symon-current-time-monitor
                    symon-linux-battery-monitor
                    symon-linux-cpu-monitor
