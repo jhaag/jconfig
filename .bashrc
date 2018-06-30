@@ -17,9 +17,15 @@ export JCONFIG_ROOT="$HOME/jconfig"
 source $JCONFIG_ROOT/aliases/$HOST_OS.sh
 source $JCONFIG_ROOT/aliases/shared.sh
 
+#=== External Sources ==========================================================
+source ~/jconfig/scripts/shell_prompt.sh
+source ~/jconfig/scripts/utilities.sh
+
 #=== Fixes =====================================================================
-# C-l fix that keeps current typed command
-bind -x $'"C-l":clear;'
+if is_interactive_shell; then
+    # C-l fix that keeps current typed command
+    bind -x $'"C-l":clear;'
+fi
 
 # Ensure that grep coloring is set to `auto` so that it will work by default
 export GREP_OPTIONS='--color=auto'
@@ -34,7 +40,3 @@ export HISTTIMEFORMAT="[%F %T] "
 export HISTFILE=$JCONFIG_ROOT/.bash_eternal_history
 # Force prompt to write history after every command.
 PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
-
-#=== External Sources ==========================================================
-source ~/jconfig/scripts/shell_prompt.sh
-source ~/jconfig/scripts/utilities.sh

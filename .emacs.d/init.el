@@ -66,6 +66,9 @@
 (setq inhibit-startup-message t)
 (setq inhibit-startup-screen t)
 
+;; Disable emacs `ding`
+(setq ring-bell-function 'ignore)
+
 ;; Setup column numbers and line numbers
 (add-hook 'prog-mode-hook 'linum-mode)
 (column-number-mode t)

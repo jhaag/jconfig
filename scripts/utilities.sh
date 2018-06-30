@@ -6,6 +6,12 @@ mkcd () {
     mkdir -p -- "$1" && cd -P -- "$1"
 }
 
+# Test if this bash is interactive
+is_interactive_shell() {
+    # https://www.gnu.org/software/bash/manual/html_node/Is-this-Shell-Interactive_003f.html
+    [[ "$-" =~ "i" ]]
+}
+
 #=== Core =======================================================================
 # Load custom configurations for a file passed in, and handle versioning
 # $1: a string representing the custom configs to add
@@ -27,7 +33,7 @@ load_custom_config () {
 	if [[ $(head -n 1 $2) =~ $CUSTOM_CONFIG_DELIMITER ]]; then
 	    echo -e "\t\t- Saving non-custom configuration..."
 	    
-	    sed -i "" "1,/$CUSTOM_CONFIG_DELIMITER/ d" $2
+	    sed -i "1,/$CUSTOM_CONFIG_DELIMITER/ d" $2
 	fi
 
 	# Add the custom configurations with header guards to the file
