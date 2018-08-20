@@ -12,6 +12,7 @@ case "${unameOut}" in
 esac
 
 export JCONFIG_ROOT="$HOME/jconfig"
+export PATH=$PATH:/usr/local/bin
 
 #=== Aliases ===================================================================
 source $JCONFIG_ROOT/aliases/$HOST_OS.sh
