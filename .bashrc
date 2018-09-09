@@ -27,9 +27,6 @@ if is_interactive_shell; then
     bind -x $'"C-l":clear;'
 fi
 
-# Ensure that grep coloring is set to `auto` so that it will work by default
-export GREP_OPTIONS='--color=auto'
-
 #=== Eternal Bash History ======================================================
 export HISTFILESIZE=
 export HISTSIZE=
