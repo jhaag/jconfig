@@ -1,131 +1,93 @@
-;;=== Pre Initialization =======================================================
-;;--- Non-standard custom-file -------------------------------------------------
-(setq custom-file "~/.emacs.d/.emacs-custom.el")
-(load custom-file 'noerror)
+;;; Rather than tangling a .org file into a .el file, and then copying it into
+;;; my ~/.emacs.d/ folder, I simply have a stub which will load my .org files
+;;; directly using `org-babel-load-file'.
+;;;
+;;; For documentation, refer to my init.org file in ~/jconfig
 
-;;--- Timing Setup -------------------------------------------------------------
-(defconst emacs-start-time (current-time))
+;; This tweak fixes garbage collection issues during initialization which speeds startup up.
+(setq gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.6)
 
-(unless noninteractive
-  (message "Loading %s..." load-file-name))
+(defconst startup/emacs-start-time (current-time))
+(defvar startup/file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil
+      message-log-max 16384)
 
-(setq message-log-max 16384)
+(defun startup/revert-file-name-handler-alist ()
+    (setq file-name-handler-alist startup/file-name-handler-alist))
 
-(eval-and-compile
-  (defconst jconfig-path "~/jconfig/.emacs.d/")
+(defun startup/reset-gc ()
+  (setq gc-cons-threshold 16777216
+        gc-cons-percentage 0.1)
+  (garbage-collect))
 
-  (mapc #'(lambda (path)
-            (add-to-list 'load-path
-                         (expand-file-name path jconfig-path)))
-        '("packages" "languages" "")))
+;; These hooks will revert our tweaks as soon as emacs starts up. It will also
+;; garbage collect to clean up after startup.
+(add-hook 'emacs-startup-hook 'startup/revert-file-name-handler-alist)
+(add-hook 'emacs-startup-hook 'startup/reset-gc t) ; t passed to ensure this runs last
 
-;;=== Package Management Setup =================================================
-;; Don't autoload packages
-;; initialize the package authorities we want to pull from
+;; This hook will run as soon as emacs starts; we exclude the last argument to
+;; ensure that this is the first hook that is run upon startup.
+(add-hook 'emacs-startup-hook
+          `(lambda ()
+             (message "Emacs ready in %s with %d garbage collections."
+                      (format "%.2f seconds"
+                              (float-time
+                               (time-subtract (current-time) startup/emacs-start-time)))
+                      gcs-done)))
+
 (require 'package)
 (require 'cl)
+
 (setq package-enable-at-startup nil)
-(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                    (not (gnutls-available-p))))
-       (proto (if no-ssl "http" "https")))
+
+(eval-when-compile
   ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
-  (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
-  ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
-  (when (< emacs-major-version 24)
-    ;; For important compatibility libraries like cl-lib
-    (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
-(add-to-list 'package-archives
-	     '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives
-	     '("gnu" . "http://elpa.gnu.org/packages/"))
+  (add-to-list 'package-archives
+	       '("melpa" . "https://melpa.org/packages/"))
+  ;;(add-to-list 'package-archives
+  ;;             ("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  (add-to-list 'package-archives
+               '("marmalade" . "https://marmalade-repo.org/packages/"))
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives
+               '("gnu" . "https://elpa.gnu.org/packages/"))
+  (add-to-list 'package-archives
+               '("org" . "https://orgmode.org/elpa/")))
+
 (package-initialize)
+
+(when (not package-archive-contents)
+  (package-refresh-contents))
 
 (unless (package-installed-p 'diminish)
   (package-refresh-contents)
   (package-install 'diminish))
 
-;; install use-package if it isn't already
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
-;; at compile time, add use package, because we can be sure that
-;; it is installed at that point
+(if init-file-debug
+    (setq use-package-verbose t
+          use-package-expand-minimally nil
+          use-package-compute-statistics t
+          debug-on-error t)
+  (setq use-package-verbose nil
+        use-package-expand-minimally t))
+
 (eval-when-compile
-  (require 'use-package))
+  (require 'use-package)
+  (setq use-package-always-ensure t
+	use-package-always-defer t))
+(require 'diminish)
 
-;;=== Loading Organized Configurations =========================================
-(load "packages")
-(load "languages")
+(setq load-prefer-newer t)
+(use-package auto-compile
+  :defer nil
+  :config
+  (auto-compile-on-load-mode)
+  (auto-compile-on-save-mode))
 
-;;=== General Configurations ===================================================
-;; Remove 'beginner' emacs stuff from appearing
-(tool-bar-mode -1)
-(toggle-scroll-bar -1)
-(setq inhibit-splash-screen t)
-(setq inhibit-startup-message t)
-(setq inhibit-startup-screen t)
-
-;; Disable emacs `ding`
-(setq ring-bell-function 'ignore)
-
-;; Setup column numbers and line numbers
-(add-hook 'prog-mode-hook 'linum-mode)
-(column-number-mode t)
-
-;; Setup better parentheses
-(custom-set-variables '(show-paren-mode t)
-                      '(show-paren-delay 0))
-
-;; Setup inferential tab-replacement
-(defun infer-indentation-style ()
-  ;; if the current source file uses tabs, use tabs
-  ;; if the current source file uses spaces, use spaces
-  ;; otherwise, default to the current indent-tabs-mode
-  (let ((space-count (how-many "^ "  (point-min) (point-max)))
-	(tab-count   (how-many "^\t" (point-min) (point-max))))
-    (if (> space-count tab-count) (custom-set-variables '(indent-tabs-mode nil)))
-    (if (> tab-count space-count) (custom-set-variables '(indent-tabs-mode t)))))
-
-(add-hook 'prog-mode-hook (lambda ()
-			    (custom-set-variables '(indent-tabs-mode nil))
-			    (infer-indentation-style)))
-
-;; Setup global keybindings
-(define-key prog-mode-map (kbd "<C-return>") 'indent-new-comment-line)
-
-;;=== Backups ==================================================================
-;; Place all backup and autosave files in ~/.emacs.d/
-(custom-set-variables
- '(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
- '(backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
- '(initial-frame-alist '((fullscreen . maximized))))
-
-;; Create the autosave and backup dirs if necessary, since emacs won't
-(make-directory "~/.emacs.d/autosaves/" t)
-(make-directory "~/.emacs.d/backups/" t)
-
-;; Purge old backups over time to save space
-(message "Deleting old backup files...")
-(let ((week (* 60 60 24 7))
-      (current (float-time (current-time))))
-  (dolist (file (directory-files "~/.emacs.d/backups/" t))
-    (when (and (backup-file-name-p file)
-	       (> (- current (float-time (nth 5 (file-attributes file))))
-		  week))
-      (message "%s" file)
-      (delete-file file))))
-
-;;=== Post Initialization ======================================================
-(when window-system
-  (let ((elapsed (float-time (time-subtract (current-time)
-                                            emacs-start-time))))
-    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
-
-  (add-hook 'after-init-hook
-            `(lambda ()
-               (let ((elapsed (float-time (time-subtract (current-time)
-                                                         emacs-start-time))))
-                 (message "Loading %s...done (%.3fs) [after-init]"
-                          ,load-file-name elapsed)))
-            t))
+(when (file-readable-p "~/jconfig/.emacs.d/org-confs/init.org")
+  (org-babel-load-file (expand-file-name "~/jconfig/.emacs.d/org-confs/init.org")))
