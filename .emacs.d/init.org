@@ -907,8 +907,8 @@ While ~org-mode~ isn't necessarily a programming language, I consider it as such
 Since my org-mode configuration is so large, I've split it off into a separate file (inspired by jwiegley's configuration). I use the following code to load my org-mode configuration, and set up some default bindings. If my org config isn't present, I simply skip loading org-mode.
 
 #+BEGIN_SRC emacs-lisp
-  (when (file-readable-p "~/jconfig/.emacs.d/org-confs/j-dot-org.org")
-    (org-babel-load-file "~/jconfig/.emacs.d/org-confs/j-dot-org.org"))
+  (when (file-readable-p "~/jconfig/.emacs.d/j-dot-org.org")
+    (org-babel-load-file "~/jconfig/.emacs.d/j-dot-org.org"))
     ;;(use-package j-dot-org
     ;;  :commands j/org-startup
     ;;  ;; I'm not exactly sure why I need a :bind* here instead of :bind, but jwiegley had it, so I do

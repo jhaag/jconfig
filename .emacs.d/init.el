@@ -89,5 +89,5 @@
   (auto-compile-on-load-mode)
   (auto-compile-on-save-mode))
 
-(when (file-readable-p "~/jconfig/.emacs.d/org-confs/init.org")
-  (org-babel-load-file (expand-file-name "~/jconfig/.emacs.d/org-confs/init.org")))
+(when (file-readable-p "~/jconfig/.emacs.d/init.org")
+  (org-babel-load-file (expand-file-name "~/jconfig/.emacs.d/init.org")))
