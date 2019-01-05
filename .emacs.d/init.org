@@ -994,9 +994,20 @@ This package will scroll line-by-line instead of jumping by half-screens.
 I enjoy using solarized-dark, and so I load that theme here.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package solarized
-    :ensure solarized-theme
-    :init (load-theme 'solarized-dark t))
+  (use-package solarized-theme
+    :if (display-graphic-p)
+    :init
+    (defun j/solarized/toggle-theme ()
+      "Switch between Solarized variants."
+      (interactive)
+      (cond
+       ((member 'solarized-dark custom-enabled-themes)
+        (disable-theme 'solarized-dark)
+        (load-theme 'solarized-light t))
+       ((member 'solarized-light custom-enabled-themes)
+        (disable-theme 'solarized-light)
+        (load-theme 'solarized-dark t))))
+    (load-theme 'solarized-dark t))
 #+END_SRC
 ** symon
 

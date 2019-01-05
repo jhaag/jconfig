@@ -40,35 +40,121 @@ Just as Emacs config is an art, Org mode config is an art, and I've learned a lo
 ** Random Notes
 
 - Properties are inherited by subtrees automatically, but the outermost header-arg that is defined is the one that is used. For example, I use :noweb{-ref} for breaking up my config, and so I add the proper ref name to the /PROPERTIES/ of the subsection where I actually do the configuration. I wanted to also add :tangle no, but because I set the global tangle location at the top of the file, I can't use a more specific property later on to override it, so I need to manually put :tangle no on each source block.
-
 * Org-Mode
 
 I use ~:noweb~ snippets below in order to keep the organization of this file nice. Check out the tangled j-dot-org.el file if you want to see how this looks in entirety.
 
 #+BEGIN_SRC emacs-lisp :noweb yes
-  (use-package org
-    :pin org
-    :delight org-mode "Org"
-    :bind
-    <<org-mode-keybindings>>
-    :custom
-    <<org-mode-custom-vars>>
-    :custom-face
-    <<org-mode-custom-faces>>
-    :hook
-    <<org-mode-hooks>>
-    :config
-    <<org-mode-config>>)
+    (use-package org
+      :ensure solarized-theme
+      :diminish org-indent-mode
+      :delight org-mode "Org"
+      :bind
+      <<org-mode-keybindings>>
+      :custom
+      <<org-mode-custom-vars>>
+      :hook
+      <<org-mode-hooks>>
+      :config
+      <<org-mode-config>>)
 #+END_SRC
 
 ** Aesthetics
 
 I (intend to) use ~org-mode~ a lot, and so I want it to look as nice and aesthetically pleasing as possible. I'm basing this section on [[*References][this beautifying guide]] I found.
 
-First, I want to get rid of the gross emphasis markers.
+*** Structural
+
+There are some things about the layout and design of ~org~ that I want to change. First, I want to get rid of the gross emphasis markers.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
   (org-hide-emphasis-markers t)
+#+END_SRC
+
+Next, I want to replace the regular list symbol ('-') with a centered-dot, which looks a lot cleaner.
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+#+END_SRC
+
+Going further with this idea, we can replace all of the asterisks at the beginning of headings with bullets, using the wonderful ~org-bullets~ package.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :hook (org-mode . (lambda () (org-bullets-mode 1))))
+#+END_SRC
+
+*** Font/Color
+
+Just as I like to tweak my terminal and editor colors to look really nice, I want to tweak ~org-mode~ to look really nice. We can start by changing the colors of the [[*Tasks][Tasks]] that we've defined elsewhere.
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
+  (org-todo-keyword-faces '(("TODO" :foreground "red" :weight bold)
+                            ("NEXT" :foreground "blue" :weight bold)
+                            ("DONE" :foreground "forest green" :weight bold)
+                            ("WAITING" :foreground "orange" :weight bold)
+                            ("HOLD" :foreground "magenta" :weight bold)
+                            ("CANCELLED" :foreground "forest green" :weight bold)
+                            ("MEETING" :foreground "forest green" :weight bold)
+                            ("PHONE" :foreground "forest green" :weight bold)))
+#+END_SRC
+
+With this done, we also set up the standard fonts that we need to variable and fixed pitch. NOTE: We need to manually install these fonts onto the system.
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+  (custom-theme-set-faces
+   'user
+   '(variable-pitch ((t (:family "Source Sans Pro" :height 150 :weight normal))))
+   '(fixed-pitch ((t (:family "Inconsolata"
+                      :slant normal
+                      :weight normal
+                      :height 1.0
+                      :width normal)))))
+#+END_SRC
+
+We also want to configure the fonts for other org-elements so that we don't get stuck with the variable pitch for everything (since it can be kinda annoying).
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+  (custom-theme-set-faces
+   'user
+   '(org-block                 ((t (:inherit fixed-pitch))))
+   '(org-document-info         ((t (:foreground "dark orange"))))
+   '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+   '(org-link                  ((t (:foreground "royal blue" :underline t))))
+   '(org-meta-line             ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-property-value        ((t (:inherit fixed-pitch))) t)
+   '(org-special-keyword       ((t (:inherit (font-locked-comment-face fixed-pitch)))))
+   '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weigth bold :height 0.8))))
+   '(org-verbatim              ((t (:inherit (shadow fixed-pitch))))))
+#+END_SRC
+
+Next, we set up a nice proportional font, in different sizes, for the headlines. The fonts listed will be tried in sequence, and the first one found will be used. Add more if you so desire. This doesn't work right now, so I'm leaving it disabled; add ':noweb-ref org-mode-config' if you want to use it again.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (let ((variable-tuple
+         (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+               ((x-list-fonts "Lucida Grande")   '(:font "Lucia Grande"))
+               ((x-list-fonts "Verdana")         '(:font "Verdana"))
+               ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+               (nil (warn "Cannot find a Sans Serif font. Install Source Sans Pro."))))
+        (get-headline
+         (lambda (level)
+           (let ((base-font-color (face-foreground level nil 'default)))
+             (warn "%s: %s" level base-font-color)
+             `(:inherit default :weight bold :foreground ,base-font-color)))))
+    (custom-theme-set-faces
+     'user
+     `(org-level-8 ((t (,@(funcall get-headline 'org-level-8) ,@variable-tuple))))
+     `(org-level-7 ((t (,@(funcall get-headline 'org-level-7) ,@variable-tuple))))
+     `(org-level-6 ((t (,@(funcall get-headline 'org-level-6) ,@variable-tuple))))
+     `(org-level-5 ((t (,@(funcall get-headline 'org-level-5) ,@variable-tuple))))
+     `(org-level-4 ((t (,@(funcall get-headline 'org-level-4) ,@variable-tuple :height 1.1))))
+     `(org-level-3 ((t (,@(funcall get-headline 'org-level-3) ,@variable-tuple :height 1.25))))
+     `(org-level-2 ((t (,@(funcall get-headline 'org-level-2) ,@variable-tuple :height 1.5))))
+     `(org-level-1 ((t (,@(funcall get-headline 'org-level-1) ,@variable-tuple :height 1.75))))
+     `(org-document-title ((t (,@(funcall get-headline 'org-document-title) ,@variable-tuple :height 2.0 :underline nil))))))
 #+END_SRC
 
 ** Bindings
@@ -112,7 +198,7 @@ I'm not convinced that these are the binding for me, but I'm going to use them f
 #+END_SRC
 
 ** Configuration
-:PROPERTIES:
+:Properties:
 :header-args: :noweb-ref org-mode-config
 :END:
 
@@ -870,7 +956,7 @@ These are some miscellaneous helper functions that I need for my ~org-mode~ setu
     (switch-to-buffer "*scratch*"))
 #+END_SRC
 ** Hooks
-:PROPERTIES:
+:Properties:
 :header-args: :noweb-ref org-mode-hooks
 :END:
 
@@ -878,7 +964,7 @@ I have a variety of hooks that I want to register for ~org-mode~, so that everyt
 - ~sticky-header-mode~ displays the current header you're in at the top, so you don't lose your place.
 
   #+BEGIN_SRC emacs-lisp :tangle no
-  ((org-mode                . org-sticky-header-mode)
+  ((org-mode               . org-sticky-header-mode)
   #+END_SRC
 
 - ~toc-org-mode~ enables auto-updating Table-of-Contents, which can be enabled with the ~:TOC:~ tag.
@@ -893,10 +979,28 @@ I have a variety of hooks that I want to register for ~org-mode~, so that everyt
   (org-mode                . org-indent-mode)
   #+END_SRC
 
+- I always want my ~org-mode~ buffers to use variable-pitch-mode, because it looks a lot nicer for prose.
+
+  #+BEGIN_SRC emacs-lisp :tangle no
+  (org-mode                . variable-pitch-mode)
+  #+END_SRC
+
+  However, I need to be careful because this adds a modeline indicator, so I disable that manually with diminish.
+
+  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+    (eval-after-load 'face-remap '(diminish 'buffer-face-mode))
+  #+END_SRC
+
 - I always want my ~org-mode~ files to have word-wrapping enabled.
 
   #+BEGIN_SRC emacs-lisp :tangle no
   (org-mode                . visual-line-mode)
+  #+END_SRC
+
+  However, I need to be careful because this adds a modeline indicator, so I disable that manually with diminish.
+
+  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+    (eval-after-load 'simple '(diminish 'visual-line-mode))
   #+END_SRC
 
 - I use a custom agenda with custom views and navigations. I define those keys here.
@@ -939,26 +1043,6 @@ I have a variety of hooks that I want to register for ~org-mode~, so that everyt
      (org-babel-after-execute . org-display-inline-images))
   #+END_SRC
 ** Packages
-#+BEGIN_SRC emacs-lisp :tangle no
-  (use-package org
-    :config
-    (setq
-
-     org-todo-keyword-faces '(("TODO" :foreground "red" :weight bold)
-                              ("NEXT" :foreground "blue" :weight bold)
-                              ("DONE" :foreground "forest green" :weight bold)
-                              ("WAITING" :foreground "orange" :weight bold)
-                              ("HOLD" :foreground "magenta" :weight bold)
-                              ("CANCELLED" :foreground "forest green" :weight bold)
-                              ("MEETING" :foreground "forest green" :weight bold)
-                              ("PHONE" :foreground "forest green" :weight bold))
-     ;; === Refile Stuff ===
-
-     ;; === Clocking Stuff ===
-
-     ;; === Misc Stuff ===
-
-#+END_SRC
 
 ~org-mode~ is enhanced by some additional packages, which I configure below.
 
@@ -970,14 +1054,17 @@ This package displays the header for the current subtree you are in, in a bar al
   (use-package org-sticky-header
     :after org
     :custom
-    (org-stick-header-full-path 'full)
-    (org-stick-header-outline-path-separator "|"))
+    (org-sticky-header-heading-star "λ")
+    (org-sticky-header-prefix nil)
+    (org-sticky-header-always-show-header t)
+    (org-sticky-header-full-path 'full)
+    (org-sticky-header-outline-path-separator "|"))
 #+END_SRC
 *** toc-org
 
 This package creates nice auto-updating tables of contents. You can enable them by adding :TOC_N: to any top-level header (where N represents the number of levels down that you want the TOC to display).
 
 #+BEGIN_SRC emacs-lisp
-  (use-package toc-org
-    :after org)
+    (use-package toc-org
+      :after org)
 #+END_SRC
