@@ -247,12 +247,6 @@ There are some general Emacs settings which I configure first:
     (setq show-paren-delay 0)
   #+END_SRC
 
-- I try to use emacs as a server, so that it is simple and easy to startup a new session, and so that I can save my yank-ring and other stuff between sessions.
-
-  #+BEGIN_SRC emacs-lisp
-    (server-start)
-  #+END_SRC
-
 - Highlight trailing whitespace in red so that it's easily visible.
 
   #+BEGIN_SRC emacs-lisp
