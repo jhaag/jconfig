@@ -72,15 +72,7 @@ EOF
 load_custom_config "$BASH_CONF" ~/.bashrc "#"
 
 #=== Emacs =====================================================================
-# Add custom configs to .emacs
-read -r -d '' EMACS_CONF <<EOF
-;;=== Custom global configurations =============================================
-
-;;=== Hook for pulling in my dotfiles ==========================================
-(load "$JCONFIG_ROOT/.emacs.d/init.el")
-EOF
-
-load_custom_config "$EMACS_CONF" ~/.emacs ";;"
+echo "I now auto-generate my ~/.emacs file using org-babel; open ~/jconfig/.emacs.d/init.org and tangle the Bootstrap Process header."
 
 #=== Git =======================================================================
 # Add custom configs to .gitconfig

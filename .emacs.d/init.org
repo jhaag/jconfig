@@ -20,8 +20,10 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
 - [[#customized-variables][Customized Variables]]
 - [[#utilities][Utilities]]
 - [[#settings][Settings]]
-  - [[#general][General]]
   - [[#backups][Backups]]
+  - [[#general][General]]
+- [[#hooks][Hooks]]
+- [[#keybindings][Keybindings]]
 - [[#packages][Packages]]
   - [[#buffer-move][buffer-move]]
   - [[#git-gutter][git-gutter+]]
@@ -33,7 +35,6 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
   - [[#smooth-scrolling][smooth-scrolling]]
   - [[#solarized][solarized]]
   - [[#symon][symon]]
-- [[#keybindings][Keybindings]]
 
 * Tasks [/]
 * References
@@ -45,11 +46,20 @@ Emacs config is an art, and I have learned a lot by reading through other people
 - [[https://github.com/PythonNut/emacs-config][PythonNut's Emacs Config]]
 - [[https://www.masteringemacs.org/][Mastering Emacs]]
 - [[https://zzamboni.org/post/my-emacs-configuration-with-commentary/][Diego Zamboni's Emacs Config]]
+- [[https://github.com/novoid/dot-emacs/blob/master/config.org][Novoid's Emacs Config]]
 * Bootstrap Process
 
 Originally, I was planning on tangling this (and other) .org configs, and then loading the tangled files. However, I discovered in [[https://github.com/daedreth/UncleDavesEmacs/blob/master/init.el][Uncle Dave's init.el]] that this is unnecessary. Instead, I have a small init.el file which will load all of the ~emacs-lisp~ source blocks from my .org configs directly.
 
-Below, I document the contents of this init.el file. However, these blocks are not tangled because this code is contained separately in init.el.
+Below, I document the contents of this init.el file. In order to tangle this file,  ~C-x n s~ [[Bootstrap Process]], and then use ~C-c C-v t~ in order to tangle it into init.el.
+
+#+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
+  ;; This is an auto-generated file, so PLEASE DON'T TOUCH ANYTHING!
+  ;; If you want to make changes to the bootstrapping code, open
+  ;; ~/jconfig/.emacs.d/init.org, C-x n s on [[Bootstrap Process]],
+  ;; and then C-c C-v t to tangle the bootstrapping code into ~/.emacs
+
+#+END_SRC
 
 ** Performance Optimization
 
@@ -62,32 +72,32 @@ Based on these, I have added the code below.
 
 First, I define some useful values that I'll need later on (or which are necessary to tweak startup performance). We use ~emacs-start-time~ to keep track of how long startup took. We set ~file-name-handler-alist~ to ~nil~ to prevent any special-filename parsing of files loaded from the init file (e.g. remove files loaded through tramp, etc.). We configure the ~message-log-max~ to a large value so that we can refer back to messages later. We also tweak the ~gc-cons-threshold~ and ~gc-cons-percentage~ to prevent garbage collection during startup.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
   ;; This tweak fixes garbage collection issues during initialization which speeds startup up.
   (setq gc-cons-threshold most-positive-fixnum
         gc-cons-percentage 0.6)
 
-  (defconst startup/emacs-start-time (current-time))
-  (defvar startup/file-name-handler-alist file-name-handler-alist)
+  (defconst j/startup/start-time (current-time))
+  (defvar j/startup/file-name-handler-alist file-name-handler-alist)
   (setq file-name-handler-alist nil
         message-log-max 16384)
 #+END_SRC
 
 I also register hooks to clean up some of the tweaks that I made to speed up startup, and to display a message that gives info about startup performance.
 
-#+BEGIN_SRC emacs-lisp :tangle no
-  (defun startup/revert-file-name-handler-alist ()
-      (setq file-name-handler-alist startup/file-name-handler-alist))
+#+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
+  (defun j/startup/revert-file-name-handler-alist ()
+    (setq file-name-handler-alist j/startup/file-name-handler-alist))
 
-    (defun startup/reset-gc ()
-      (setq gc-cons-threshold 16777216
-            gc-cons-percentage 0.1)
-      (garbage-collect))
+  (defun j/startup/reset-gc ()
+    (setq gc-cons-threshold 16777216
+          gc-cons-percentage 0.1)
+    (garbage-collect))
 
   ;; These hooks will revert our tweaks as soon as emacs starts up. It will also
   ;; garbage collect to clean up after startup.
-  (add-hook 'emacs-startup-hook 'startup/revert-file-name-handler-alist)
-  (add-hook 'emacs-startup-hook 'startup/reset-gc t) ; t passed to ensure this runs last
+  (add-hook 'emacs-startup-hook 'j/startup/revert-file-name-handler-alist)
+  (add-hook 'emacs-startup-hook 'j/startup/reset-gc t)
 
   ;; This hook will run as soon as emacs starts; we exclude the last argument to
   ;; ensure that this is the first hook that is run upon startup.
@@ -96,7 +106,7 @@ I also register hooks to clean up some of the tweaks that I made to speed up sta
                (message "Emacs ready in %s with %d garbage collections."
                         (format "%.2f seconds"
                                 (float-time
-                                 (time-subtract (current-time) startup/emacs-start-time)))
+                                 (time-subtract (current-time) j/startup/start-time)))
                         gcs-done)))
 #+END_SRC
 
@@ -106,7 +116,7 @@ I use the [[https://www.masteringemacs.org/article/spotlight-use-package-a-decla
 
 First, we disable ~package~ at startup so that we can ensure we set it up properly.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
   (require 'package)
   (require 'cl)
 
@@ -115,7 +125,7 @@ First, we disable ~package~ at startup so that we can ensure we set it up proper
 
 Next, we set up the package archives that we want to pull from, and finally initialize the archive now that it has been properly set up. We wrap this in an eval-when-compile block to ensure that the archives are initialized for bytecompiling.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
   (eval-when-compile
     ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
     (add-to-list 'package-archives
@@ -138,7 +148,7 @@ Next, we set up the package archives that we want to pull from, and finally init
 
 Once this is done, we ensure that we have ~use-package~ installed and ready for the rest of our configuration (~diminish~ included as well just to ensure we can make emacs clean). We also configure ~use-package~ to integrate with ~init-file-debug~ (which is set to true if Emacs is invoked with ~--debug-init~).
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
   (unless (package-installed-p 'diminish)
     (package-refresh-contents)
     (package-install 'diminish))
@@ -158,16 +168,15 @@ Once this is done, we ensure that we have ~use-package~ installed and ready for 
   (eval-when-compile
     (require 'use-package)
     (setq use-package-always-ensure t
-          use-package-always-defer t
-          load-prefer-newer t))
+          use-package-always-defer t))
   (require 'diminish)
-
-
+  (require 'bind-key)
+  (require 'org)
 #+END_SRC
 
 This variable tells Emacs to prefer the ~.el~ file if it's newer, even if there is a corresponding ~.elc~ file. Also, use ~auto-compile~ to autocompile files as needed.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
   (setq load-prefer-newer t)
   (use-package auto-compile
     :defer nil
@@ -176,11 +185,26 @@ This variable tells Emacs to prefer the ~.el~ file if it's newer, even if there 
 
 ** Loading
 
+Since I am now writing much of my emacs configuration in ~org-mode~ files, and because I intend to break it up somewhat, I define a useful helper which can load my file.
+
+#+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
+  (defun j/config/load-conf-dot-org (filename &optional extension)
+    "Load the configuration.org file located at filename.
+  This function assumes the convention that the tangled configuration lives at (basename filename)/tangles"
+    (unless extension (setq extension ".el"))
+    (let ((filename (expand-file-name filename)))
+      (if (file-readable-p filename)
+          (progn
+            ;; We expect that this file is getting tangled to a ./tangles directory located with it
+            (org-babel-tangle-file filename)
+            (load (concat (file-name-directory filename) "tangles/" (file-name-base filename) extension)))
+        (warn "Missing configuration file: %s"))))
+#+END_SRC
+
 With the rest of the setup done, it is quite easy to load the rest of the configuration. I simply call ~org-babel-load-file~ in order to load my configs (and skip loading them if they're missing).
 
-#+BEGIN_SRC emacs-lisp :tangle no
-  (when (file-readable-p "~/.emacs.d/org-confs/init.org")
-    (org-babel-load-file (expand-file-name "~/.emacs.d/org-confs/init.org")))
+#+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
+  (j/config/load-conf-dot-org "~/jconfig/.emacs.d/init.org")
 #+END_SRC
 
 * Customized Variables
@@ -215,6 +239,41 @@ Over time I've gathered a lot of useful utilities which I want to be able to ref
 #+END_SRC
 
 * Settings
+** Backups
+
+I find it quite annoying how Emacs keeps autosaves locally, and so I wanted to create a nicer way to handle that. All that I do is store my autosaves in a sub-folder of my main ~.emacs.d~ folder.
+
+#+BEGIN_SRC emacs-lisp
+  ;; Create the autosave dir if necessary, since emacs won't
+  (make-directory "~/.emacs.d/autosaves/" t)
+
+  ;; Place all autosave files in ~/.emacs.d/autosaves/
+  (customize-set-variable 'auto-save-file-name-transforms '((".*"
+                                                            "~/.emacs.d/autosaves/"
+                                                            t)))
+#+END_SRC
+
+I also wanted to make sure that I never keep backups, because they just take up space, and I manage my data-storage in other ways.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default backup-inhibited t)
+#+END_SRC
+
+Before I decided to turn off backups, I would keep them in check using the following utility.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; Purge old backups over time to save space
+  (message "Deleting old backup files...")
+  (let ((week (* 60 60 24 7))
+        (current (float-time (current-time))))
+    (dolist (file (directory-files (emacs-path "backups/") t))
+      (when (and (backup-file-name-p file)
+                 (> (- current (float-time (nth 5 (file-attributes file))))
+                    week))
+        (message "\t%s" file)
+        (delete-file file))))
+  (message "Deleted old backup files successfully.")
+#+END_SRC
 ** General
 
 There are some general Emacs settings which I configure first:
@@ -223,15 +282,35 @@ There are some general Emacs settings which I configure first:
   #+BEGIN_SRC emacs-lisp
     (tool-bar-mode -1)
     (toggle-scroll-bar -1)
-    (customize-set-variable 'initial-frame-alist '((fullscreen . maximized)))
+    (setq-default initial-frame-alist '((fullscreen . maximized)))
     ;; When at the beginning of the line, make C-k remove the whole line, instead of just emptying it.
-    (customize-set-variable 'kill-whole-line t)
+    (setq-default kill-whole-line t)
     ;; Paste text where the cursor is, not where the mouse is.
-    (customize-set-variable 'mouse-yank-at-point t)
-    (setq inhibit-splash-screen t)
-    (setq inhibit-startup-message t)
-    (setq inhibit-startup-screen t)
-    (setq ring-bell-function 'ignore)
+    (setq-default mouse-yank-at-point t)
+    ;; use y/n instead of yes/no
+    (fset 'yes-or-no-p 'y-or-n-p)
+    (setq-default inhibit-splash-screen t)
+    (setq-default inhibit-startup-message t)
+    (setq-default inhibit-startup-screen t)
+    (setq-default ring-bell-function 'ignore)
+  #+END_SRC
+
+- I want my sentences to end with a single space, so that I can use M-e and M-a to navigate around actual sentences.
+
+  #+BEGIN_SRC emacs-lisp
+    (setq-default sentence-end-double-space nil)
+  #+END_SRC
+
+- I increase the warning threshold for large files from 10MB to 100MB.
+
+  #+BEGIN_SRC emacs-lisp
+    (setq-default large-file-warning-threshold 100000000)
+  #+END_SRC
+
+- I don't know about other people, but my weeks start on Mondays; I specify that here.
+
+  #+BEGIN_SRC emacs-lisp
+    (setq-default calendar-week-start-day 1)
   #+END_SRC
 
 - I find it helpful to have column information when I work, so I enable it universally.
@@ -245,6 +324,12 @@ There are some general Emacs settings which I configure first:
   #+BEGIN_SRC emacs-lisp
     (show-paren-mode)
     (setq show-paren-delay 0)
+  #+END_SRC
+
+- Along these lines, I like to be able to see the whole character that I'm looking at. Setting `x-stretch-cursor' [[http://pragmaticemacs.com/emacs/adaptive-cursor-width/][achieves this]].
+
+  #+BEGIN_SRC emacs-lisp
+    (setq x-stretch-cursor t)
   #+END_SRC
 
 - Highlight trailing whitespace in red so that it's easily visible.
@@ -261,39 +346,23 @@ There are some general Emacs settings which I configure first:
                  (time-stamp)
                  (delete-trailing-whitespace)))
   #+END_SRC
+* Hooks
 
-** Backups
+I have a variety of hooks that I want to register, so that everything works smoothly togethers :~)
 
-I find it quite annoying how Emacs keeps backups locally, and so I wanted to create a nicer way to handle that. All that I do is store my backups in a sub-folder of my main ~.emacs.d~ folder.
+- First, I ensure that if a file has a "Time-stamp: <>" at the top of the file, it gets updated upon saving.
 
-#+BEGIN_SRC emacs-lisp
-  ;; Create the autosave and backup dirs if necessary, since emacs won't
-  (make-directory "~/.emacs.d/autosaves/" t)
-  (make-directory "~/.emacs.d/backups/" t)
+  #+BEGIN_SRC emacs-lisp
+    (add-hook 'write-file-hooks 'time-stamp)
+  #+END_SRC
 
-  ;; Place all backup and autosave files in ~/.emacs.d/
-  (customize-set-variable 'auto-save-file-name-transforms '((".*"
-                                                            "~/.emacs.d/autosaves/"
-                                                            t)))
-  (customize-set-variable 'backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
-#+END_SRC
+- Next, I ensure that trailing whitespace is always deleted when I save a file.
 
-I also wanted to make sure that I never keep too many backups, and so I have a bit of code which manually crawls my backup folder and deletes anything which is over 1 month old.
+  #+BEGIN_SRC emacs-lisp
+    (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-  ;; Purge old backups over time to save space
-  (message "Deleting old backup files...")
-  (let ((week (* 60 60 24 7))
-        (current (float-time (current-time))))
-    (dolist (file (directory-files (emacs-path "backups/") t))
-      (when (and (backup-file-name-p file)
-                 (> (- current (float-time (nth 5 (file-attributes file))))
-                    week))
-        (message "\t%s" file)
-        (delete-file file))))
-  (message "Deleted old backup files successfully.")
-#+END_SRC
-
+* Keybindings
 * Packages
 
 Below is all of the configuration for the various packages that I have added to emacs over time. I'm also somewhat of a programming polyglot, and so I enjoy dabbling with a variety of different tools and paradigms. As a result, I've accumulated quite a bit of language-specific configuration for emacs, which is contained in the [[Language-Specific]] section below.
@@ -901,20 +970,7 @@ While ~org-mode~ isn't necessarily a programming language, I consider it as such
 Since my org-mode configuration is so large, I've split it off into a separate file (inspired by jwiegley's configuration). I use the following code to load my org-mode configuration, and set up some default bindings. If my org config isn't present, I simply skip loading org-mode.
 
 #+BEGIN_SRC emacs-lisp
-  (when (file-readable-p "~/jconfig/.emacs.d/j-dot-org.org")
-    (org-babel-load-file "~/jconfig/.emacs.d/j-dot-org.org"))
-    ;;(use-package j-dot-org
-    ;;  :commands j/org-startup
-    ;;  ;; I'm not exactly sure why I need a :bind* here instead of :bind, but jwiegley had it, so I do
-    ;;  :bind* (("M-C"   . jump-to-org-agenda)
-    ;;          ;("M-m"   . org-smart-capture)
-    ;;          ;("M-M"   . org-inline-note)
-    ;;          ("C-c a" . org-agenda)
-    ;;          ("C-c S" . org-store-link)
-    ;;          ("C-c l" . org-insert-link))
-    ;;  :config
-    ;;  (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    ;;  (j/org-startup)))
+  (j/config/load-conf-dot-org "~/jconfig/.emacs.d/j-dot-org.org")
 #+END_SRC
 
 *** rust
@@ -1040,5 +1096,3 @@ I enjoy using solarized-dark, and so I load that theme here.
     (symon-sparkline-type 'bounded)
     :config (symon-mode))
 #+END_SRC
-
-* Keybindings

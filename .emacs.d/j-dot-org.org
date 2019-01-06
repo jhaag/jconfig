@@ -242,23 +242,27 @@ First, however, we need to ensure that we have the necessary extension packages 
   #+END_SRC
   #+END_EXAMPLE
 
-#+BEGIN_SRC emacs-lisp :noweb-ref
-  (use-package ob-restclient)
-#+END_SRC
+  This is a weird hack. Usually, I would use-pacakge org-babel, but because org is now standard in emacs I can't do this. Since I need ob-restclient, I simply set the babel variables in the ob-restclient config block.
+
+  #+BEGIN_SRC emacs-lisp :noweb-ref
+        (use-package ob-restclient
+          :config
+          (org-babel-do-load-languages
+           'org-babel-load-languages
+           '((calc       . t) ; this is a built in calculator
+             (emacs-lisp . t)
+             (haskell    . t)
+             (python     . t)
+             (restclient . t)
+             (shell      . t))))
+  #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no
   (setq org-src-window-setup 'current-window
         org-src-fontify-natively t
         org-src-tabs-act-natively t
         org-confirm-babel-evaluate nil)
-  (org-babel-do-load-languages
-       'org-babel-load-languages
-       '((calc       . t) ; this is a built in calculator
-         (emacs-lisp . t)
-         (haskell    . t)
-         (python     . t)
-         (restclient . t)
-         (shell      . t)))
+
 #+END_SRC
 
 *** Capture
@@ -1060,6 +1064,15 @@ This package displays the header for the current subtree you are in, in a bar al
     (org-sticky-header-full-path 'full)
     (org-sticky-header-outline-path-separator "|"))
 #+END_SRC
+*** org-super-agenda
+
+[[https://github.com/alphapapa/org-super-agenda][This]] package allows for a highly-customizable agenda to be created (called a 'super-agenda'). I haven't used agendas and tasks much, but I want to set up something loose now just to have it. I disabled it for now just to remember that I'm not using it.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-super-agenda
+    :disabled)
+#+END_SRC
+
 *** toc-org
 
 This package creates nice auto-updating tables of contents. You can enable them by adding :TOC_N: to any top-level header (where N represents the number of levels down that you want the TOC to display).
