@@ -1,4 +1,4 @@
-#+PROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/") (file-name-base) ".el") :noweb-ref org-utils
+#+pPROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/") (file-name-base) ".el") :noweb-ref org-utils
 #+PROPERTY: header-args :mkdirp yes :comments no
 #+STARTUP: indent overview
 
@@ -245,7 +245,7 @@ I have a large number of different configurations that I add to org-mode so that
 
 [[https://org-babel.readthedocs.io/en/latest/][Babel]] is a powerful tool for literate programming, and for integrating org into the life of a software developer. Here, I set some custom configurations for babel, beyond enabling the languages that I want to be able to work with (like I do [[*org-babel][below]]).
 
-~org-babel~ provides the ability to write source blocks inline within an org file, and then execute them and display the results just below. I use it for writing all of my Emacs config files, but I also plan to do more literate programming in the future. The only thing I need to do with it for now is enable the languages that I want to be able to work with, and configure a few small things to make it nicer to work with.
+~org-babel~ provides the ability to write source blocks inline within an org file, and then execute them and display the results just below. I use it for writing all of my Emacs config files, but I also plan to do more literate programming in the future. The only thing I need to do with it for now is enable the languages that I want to be able to work with, and configure a few small things to make it nicer to work with. *NOTE*: inheritance is weird - see [[https://gist.github.com/kaushalmodi/4be9fb4e460adb197a6a23ffc3557665][this]]; if you want to get ~:mkdirp yes~ to inherit properly, just add it manually to each language - this way we can specify the tangle location without overriding that header-arg.
 
 First, however, we need to ensure that we have the necessary extension packages loaded for any languages which don't come stock with ~org-babel~:
 - I've been doing a lot of rust programming lately for my exokernel project, so I want to be able to write literate-rust files. For that, I turn to ~ob-rust~, although I don't enable rust-code execution bc I'm only intending to tangle src-blocks for now.
@@ -411,7 +411,8 @@ These are general ~org-mode~ configurations that didn't have a better home.
         org-return-follows-link t
         org-imenu-depth 3
         org-startup-folded t
-        org-startup-truncated nil)
+        org-startup-truncated nil
+        org-use-property-inheritance t)
   (advice-add 'org-serc--construct-edit-buffer-name :override #'j/org/org-src-buffer-name)
   ;; Resume clocking task when emacs is restarted
   (org-clock-persistence-insinuate)
@@ -1156,7 +1157,14 @@ This package displays the header for the current subtree you are in, in a bar al
               :time-grid t)  ; Items that appear on the time grid
        (:name "Important" :priority "A" :order 1)
        (:todo "NEXT" :order 2)
-       (:name "DEADLINES" :auto-parent t :deadline t :order 3)
+       (:name "DEADLINES"
+              :auto-parent t
+              :and (:deadline t
+                              :not (:todo ("DONE"
+                                           "CANCELLED"
+                                           "PHONE"
+                                           "MEETING")))
+              :order 3)
        (:priority<= "B"
                     ;; Show this section after "Today" and "Important", because
                     ;; their order is unspecified, defaulting to 0. Sections
@@ -1165,6 +1173,7 @@ This package displays the header for the current subtree you are in, in a bar al
        (:name "Habits" :habit t :order 5)))
     :config
     (require 'org-habit)
+    (org-super-agenda-mode)
     :hook
     (org-mode . org-super-agenda-mode))
 #+END_SRC

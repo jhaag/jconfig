@@ -60,14 +60,6 @@
  '(org-sticky-header-heading-star "λ")
  '(org-sticky-header-outline-path-separator "|")
  '(org-sticky-header-prefix nil)
- '(org-super-agenda-groups
-   (quote
-    ((:name "Today" :time-grid t)
-     (:name "DEADLINES" :deadline t :order 1)
-     (:name "Important" :priority "A" :order 2)
-     (:todo "NEXT" :order 3)
-     (:priority<= "B" :order 4)
-     (:name "Habits" :habit t :order 5))))
  '(org-todo-keyword-faces
    (quote
     (("TODO" :foreground "lightblue" :weight bold)
