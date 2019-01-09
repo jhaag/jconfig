@@ -1,4 +1,4 @@
-#+PROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/") (file-name-base) ".el")
+#+PROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/") (file-name-base) ".el") :noweb-ref org-utils
 #+PROPERTY: header-args :mkdirp yes :comments no
 #+STARTUP: indent overview
 
@@ -9,7 +9,7 @@
 These are my ~org-mode~ configurations for Emacs.
 
 * Table of Contents                                                             :TOC_2:noexport:
-- [[#tasks-][Tasks]]
+- [[#tasks-100][Tasks]]
   - [[#work-on-making-org-mode-look-nice][Work on making ~org-mode~ look nice]]
 - [[#references][References]]
   - [[#random-notes][Random Notes]]
@@ -21,8 +21,9 @@ These are my ~org-mode~ configurations for Emacs.
   - [[#hooks][Hooks]]
   - [[#packages][Packages]]
 
-* Tasks [/]
-** TODO Work on making ~org-mode~ look nice
+* Tasks [100%]
+** DONE Work on making ~org-mode~ look nice
+CLOSED: [2019-01-06 Sun 13:21]
 :LOGBOOK:
 CLOCK: [2019-01-04 Fri 11:22]--[2019-01-04 Fri 11:23] =>  0:01
 :END:
@@ -44,7 +45,13 @@ Just as Emacs config is an art, Org mode config is an art, and I've learned a lo
 
 I use ~:noweb~ snippets below in order to keep the organization of this file nice. Check out the tangled j-dot-org.el file if you want to see how this looks in entirety.
 
-#+BEGIN_SRC emacs-lisp :noweb yes
+#+BEGIN_SRC emacs-lisp :noweb yes :noweb-ref
+  <<org-utils>>
+
+  <<org-mode>>
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :noweb yes :noweb-ref org-mode
     (use-package org
       :ensure solarized-theme
       :diminish org-indent-mode
@@ -53,12 +60,13 @@ I use ~:noweb~ snippets below in order to keep the organization of this file nic
       <<org-mode-keybindings>>
       :custom
       <<org-mode-custom-vars>>
+      :custom-face
+      <<org-mode-custom-faces>>
       :hook
       <<org-mode-hooks>>
       :config
       <<org-mode-config>>)
 #+END_SRC
-
 ** Aesthetics
 
 I (intend to) use ~org-mode~ a lot, and so I want it to look as nice and aesthetically pleasing as possible. I'm basing this section on [[*References][this beautifying guide]] I found.
@@ -91,14 +99,26 @@ Going further with this idea, we can replace all of the asterisks at the beginni
 Just as I like to tweak my terminal and editor colors to look really nice, I want to tweak ~org-mode~ to look really nice. We can start by changing the colors of the [[*Tasks][Tasks]] that we've defined elsewhere.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-  (org-todo-keyword-faces '(("TODO" :foreground "red" :weight bold)
-                            ("NEXT" :foreground "blue" :weight bold)
-                            ("DONE" :foreground "forest green" :weight bold)
-                            ("WAITING" :foreground "orange" :weight bold)
-                            ("HOLD" :foreground "magenta" :weight bold)
+  (org-todo-keyword-faces '(("TODO"      :foreground "lightblue"    :weight bold)
+                            ("NEXT"      :foreground "red"          :weight bold)
+                            ("DONE"      :foreground "forest green" :weight bold)
+                            ("WAITING"   :foreground "orange"       :weight bold)
+                            ("HOLD"      :foreground "magenta"      :weight bold)
                             ("CANCELLED" :foreground "forest green" :weight bold)
-                            ("MEETING" :foreground "forest green" :weight bold)
-                            ("PHONE" :foreground "forest green" :weight bold)))
+                            ("MEETING"   :foreground "forest green" :weight bold)
+                            ("PHONE"     :foreground "forest green" :weight bold)))
+#+END_SRC
+
+I also tweak the font for the DONE task based on [[https://lists.gnu.org/archive/html/emacs-orgmode/2007-03/msg00179.html][this]] discussion.
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+  (setq org-fontify-done-headline t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-faces
+  (org-done ((t (:foreground "Cyan" :weight normal :strike-through t))))
+  (org-headline-done ((((class color) (min-colors 16) (background dark))
+                       (:foreground "LightSalmon" :strike-through t))))
 #+END_SRC
 
 With this done, we also set up the standard fonts that we need to variable and fixed pitch. NOTE: We need to manually install these fonts onto the system.
@@ -132,7 +152,7 @@ We also want to configure the fonts for other org-elements so that we don't get 
 
 Next, we set up a nice proportional font, in different sizes, for the headlines. The fonts listed will be tried in sequence, and the first one found will be used. Add more if you so desire. This doesn't work right now, so I'm leaving it disabled; add ':noweb-ref org-mode-config' if you want to use it again.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref
   (let ((variable-tuple
          (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
                ((x-list-fonts "Lucida Grande")   '(:font "Lucia Grande"))
@@ -158,13 +178,10 @@ Next, we set up a nice proportional font, in different sizes, for the headlines.
 #+END_SRC
 
 ** Bindings
-:PROPERTIES:
-:header-args: :noweb-ref org-mode-keybindings
-:END:
 
 I'm not convinced that these are the binding for me, but I'm going to use them for now, because I'm trying out the workflow from [[http://doc.norang.ca/org-mode.html#CaptureTasksAreFast][norang's]] GTD tutorial.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-keybindings
   (("<f12>"     . 'org-agenda)
    ("<f5>"      . 'j/org/org-todo)
    ("S-<f5>"    . 'j/org/widen)
@@ -198,9 +215,6 @@ I'm not convinced that these are the binding for me, but I'm going to use them f
 #+END_SRC
 
 ** Configuration
-:Properties:
-:header-args: :noweb-ref org-mode-config
-:END:
 
 I have a large number of different configurations that I add to org-mode so that it is perfect :~) I've categorized them below for your viewing pleasure.
 
@@ -208,8 +222,8 @@ I have a large number of different configurations that I add to org-mode so that
 
 [[http://doc.norang.ca/org-mode.html#CustomAgendaViews][The Agenda]] can be a very powerful tool, and I need to experiment more with it. However, I'm quite intrigued by [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]] and I want to explore that before I worry about learning all this junk.
 
-#+BEGIN_SRC emacs-lisp :tangle no
-  (setq org-agenda-files '("~/Dropbox/org")
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+  (setq org-agenda-files '("~/Dropbox/org/" "~/dev/exorust/xo/xo.org")
         org-agenda-window-setup 'current-window
         ;; I can look at the week view deliberately if I want
         org-agenda-span 'day
@@ -222,7 +236,7 @@ I have a large number of different configurations that I add to org-mode so that
 
 [[http://doc.norang.ca/org-mode.html#Archiving][Archiving]] is something which I'm not really worrying about yet. For now, I've copied the code from norang's tutorial and added the configs, but I'm not sure when I'll use them. I should return to this later.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
   (setq org-archive-mark-done nil
         org-archive-location "%s_archive::* Archived Tasks")
 #+END_SRC
@@ -234,6 +248,11 @@ I have a large number of different configurations that I add to org-mode so that
 ~org-babel~ provides the ability to write source blocks inline within an org file, and then execute them and display the results just below. I use it for writing all of my Emacs config files, but I also plan to do more literate programming in the future. The only thing I need to do with it for now is enable the languages that I want to be able to work with, and configure a few small things to make it nicer to work with.
 
 First, however, we need to ensure that we have the necessary extension packages loaded for any languages which don't come stock with ~org-babel~:
+- I've been doing a lot of rust programming lately for my exokernel project, so I want to be able to write literate-rust files. For that, I turn to ~ob-rust~, although I don't enable rust-code execution bc I'm only intending to tangle src-blocks for now.
+
+  #+BEGIN_SRC emacs-lisp
+    (use-package ob-rust)
+  #+END_SRC
 - ~ob-restclient~: [[https://github.com/pashky/restclient.el][restclient.el]] is an interesting package that lets you execute REST commands from inside emacs, and then display the restuls. This wrapper allows you to write REST commands in ~org-mode~ source blocks, like this:
 
   #+BEGIN_EXAMPLE
@@ -244,7 +263,7 @@ First, however, we need to ensure that we have the necessary extension packages 
 
   This is a weird hack. Usually, I would use-pacakge org-babel, but because org is now standard in emacs I can't do this. Since I need ob-restclient, I simply set the babel variables in the ob-restclient config block.
 
-  #+BEGIN_SRC emacs-lisp :noweb-ref
+  #+BEGIN_SRC emacs-lisp
         (use-package ob-restclient
           :config
           (org-babel-do-load-languages
@@ -257,58 +276,115 @@ First, however, we need to ensure that we have the necessary extension packages 
              (shell      . t))))
   #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
   (setq org-src-window-setup 'current-window
         org-src-fontify-natively t
         org-src-tabs-act-natively t
         org-confirm-babel-evaluate nil)
-
 #+END_SRC
 
 *** Capture
 
-[[http://doc.norang.ca/org-mode.html#Capture][Org Capture]] makes it painless to write down things as they pop into your head. You can configure various templates, bind them to hotkeys, and then quickly generate them - without breaking your workflow in anything else. For now, I've taken most of my configuration from the link at the beginning of this section, but I hope to refine this once I get the dot-file overhaul completed.
+[[http://doc.norang.ca/org-mode.html#Capture][Org Capture]] makes it painless to write down things as they pop into your head. You can configure various templates, bind them to hotkeys, and then quickly generate them - without breaking your workflow in anything else. +For now, I've taken most of my configuration from the link at the beginning of this section, but I hope to refine this once I get the dot-file overhaul completed.+ I'm going off of [[https://github.com/novoid/dot-emacs/blob/master/config.org#my-capture----functions-for-prompting-for-different-things][Novoid's Capture stuff]]. IMPORTANT: Note the use of ~:noweb-ref~ on these blocks; the configuration section is being spliced into the use-package block for org, but I want these to be defined globally, so I need to make sure that they actually get tangled to the toplevel of the file.
 
-#+BEGIN_SRC emacs-lisp :tangle no
-  (setq org-capture-templates '(("t" "todo" entry (file "~/Dropbox/org/refile.org")
-                                 (concat "* TODO %?\n"
-                                         "%U\n"
-                                         "%a\n") :clock-in t :clock-resume t)
-                                ("r" "respond" entry (file "~/Dropbox/org/refile.org")
-                                 (concat "* NEXT Respond to %:from on %:subject\n"
-                                         "SCHEDULED: %t\n"
-                                         "%U\n"
-                                         "%a\n") :clock-in t :clock-resume t :immediate-finish t)
-                                ("n" "note" entry (file "~/Dropbox/org/refile.org")
-                                 (concat "* %? :NOTE:\n"
-                                         "%U\n"
-                                         "%a\n") :clock-in t :clock-resume t)
-                                ("j" "Journal" entry (file+datetree "~/Dropbox/org/diary.org")
-                                 (concat "* %?\n"
-                                         "%U\n") :clock-in t :clock-resume t)
-                                ("m" "Meeting" entry (file "~/Dropbox/org/refile.org")
-                                 (concat "* MEETING with %? :MEETING:\n"
-                                         "%U") :clock-in t :clock-resume t)
-                                ("p" "Phone Call" entry (file "~/Dropbox/org/refile.org")
-                                 (concat "* PHONE %? :PHONE:\n"
-                                         "%U") :clock-in t :clock-resume t)
-                                ("h" "Habit" entry (file "~/Dropbox/org/refile.org")
-                                 (concat "* NEXT %?\n"
-                                         "%U\n"
-                                         "%a\n"
-                                         "SCHEDULED: %(format-time-string "
-                                         "\"%<<%Y-%m-%d %a .+1d/3d>>\")\n"
-                                         ":PROPERTIES:\n"
-                                         ":STYLE: habit\n"
-                                         "REPEAT_TO_STATE: NEXT\n"
-                                         ":END:\n"))))
+Since I am going to be prompting myself for data to fill in my templates, I want to create a history to save myself some keystrokes.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar j/org/capture/prompt-history nil
+    "History of prompt answers for org capture.")
 #+END_SRC
 
+Now I create prompts for various types of input.
+
+#+BEGIN_SRC emacs-lisp
+  (defun j/org/capture/prompt (prompt variable)
+    "PROMPT for string, save it to VARIABLE, and insert it."
+    (make-local-variable variable)
+    (set variable (read-string (concat prompt ": ") nil j/org/capture/prompt-history)))
+
+  (defun j/org/capture/prompt-date (prompt variable)
+    "PROMPT for a date, save it to VARIABLE, and insert it."
+    (make-local-variable variable)
+    (set variable
+         (format-time-string
+          (org-time-stamp-format nil nil)
+          (org-read-date nil t nil prompt))))
+
+  (defun j/org/capture/insert (variable)
+    "Insert contents of VARIABLE."
+    (symbol-value variable))
+
+  (defun j/org/capture/optional (what text)
+    "Ask user to include WHAT. If user agrees return TEXT."
+    (when (y-or-n-p (concat "Include " what "?"))
+      text))
+
+  (defun j/org/capture/selection (list variable)
+    "Let the user choose between a pre-defined set of strings."
+    (make-local-variable variable)
+    (let ((selected-value (ido-completing-read "Select from list: " list)))
+      (set variable selected-value)
+      selected-value))
+#+END_SRC
+
+I also create a function which constructs the properties that I want for capture tasks.
+
+#+BEGIN_SRC emacs-lisp
+  (defun j/org/capture/template/properties (&optional extra-properties)
+    (or extra-properties (setq extra-properties ""))
+    (concat ":PROPERTIES:\n:CREATED: %U\n:FROM: \%a\n" extra-properties "\n:END:\n\n"))
+#+END_SRC
+
+Now, I create a shortcut for a simple NEXT task, which I use more below. I also create a test task so I can play around with the prompts that I have.
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+  (setq j/org/capture/template/next (concat "* NEXT %?\nDEADLINE: %(j/org/capture/prompt-date \"Due Date\" 'j/org/capture/next/date)\n" (j/org/capture/template/properties))
+        j/org/capture/template/test "** Capture test
+
+  - Entering values: %(j/org/capture/prompt \"Please enter FOO\" 'j/foo) %(j/org/capture/prompt \"Please enter BAR\" 'j/bar)
+  - Entering a date: %(j/org/capture/prompt-date \"Enter a date\" 'j/date)
+  - Selection %(j/org/capture/selection '(\"one\" \"two\" \"three\") 'j/number)
+  - Optional: %(j/org/capture/optional \"an optional snippet\" \"The content for the optional thing\")
+
+  Re-using:
+  - Here comes %(j/org/capture/insert 'j/foo) and %(j/org/capture/insert 'j/bar)
+  - The date: %(j/org/capture/insert 'j/date)
+  - Your number choice: %(j/org/capture/insert 'j/number)
+
+  \n\n")
+#+END_SRC
+
+Now that I have my shortcuts, I proceed to actually write my templates.
+
+#+BEGIN_SRC emacs-lisp :tangle-no :noweb-ref org-mode-config
+  (setq org-capture-templates
+        `(("s" "shorts-todo" entry (file+headline "~/Dropbox/org/refile.org" "Shorts")
+           ,j/org/capture/template/next :clock-in t :clock-resume t)
+          ("t" "todo")
+          ("tn" "dateless todo" entry (file "~/Dropbox/org/refile.org")
+           ,(concat "* TODO %?\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+          ("td" "dated todo" entry (file "~/Dropbox/org/refile.org")
+           ,(concat "* TODO %?\nDEADLINE: %(j/org/capture/prompt-date \"Due Date\" 'j/org/capture/next/date)\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+          ("r" "respond" entry (file "~/Dropbox/org/refile.org")
+           ,(concat "* NEXT RESPOND to %:from on %:subject\nSCHEDULED: %t\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t :immediate-finish t)
+          ("n" "note" entry (file "~/Dropbox/org/refile.org")
+           ,(concat "* %? :NOTE:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+          ("j" "Journal" entry (file+olp+datetree "~/Dropbox/org/diary.org")
+           "* %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n" :clock-in t :clock-resume t)
+          ("m" "Meeting" entry (file "~/Dropbox/org/refile.org")
+           ,(concat "MEETING with %? :MEETING:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+          ("p" "Phone Call" entry (file "~/Dropbox/org/refile.org")
+           ,(concat "PHONE %? :PHONE:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+          ("h" "Habit" entry (file "~/Dropbox/org/refile.org")
+           ,(j/org/capture/template/properties "SCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT"))
+          ("X" "test" entry (file+headline "~/Dropbox/org/refile.org" "Tests")
+           ,j/org/capture/template/test :empty-lines 1)))
+#+END_SRC
 *** Clocking
 
 [[http://doc.norang.ca/org-mode.html#Clocking][Time]] [[http://doc.norang.ca/org-mode.html#TimeReportingAndTracking][Clocking]] is something that I am extremely excited about with ~org-mode~. I am awful at tracking how long I work on things, and I'm awful at estimating how long things will take. Hopefully, but tracking all of my work in a streamlined way, I'll be able to get a better handle on that sort of stuff. Plus I'm a data nerd, so I'm really freaking excited about generating a bunch of data about myself.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
   (setq org-clock-history-length 23
         org-clock-in-resume t
         org-clock-in-switch-to-state 'j/org/clock-in-to-next
@@ -327,7 +403,7 @@ First, however, we need to ensure that we have the necessary extension packages 
 
 These are general ~org-mode~ configurations that didn't have a better home.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
   (setq org-directory "~/Dropbox/org"
         org-default-notes-file "~/Dropbox/org/refile.org"
         org-ellipsis "…"
@@ -339,13 +415,14 @@ These are general ~org-mode~ configurations that didn't have a better home.
   (advice-add 'org-serc--construct-edit-buffer-name :override #'j/org/org-src-buffer-name)
   ;; Resume clocking task when emacs is restarted
   (org-clock-persistence-insinuate)
+  (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
 #+END_SRC
 
 *** Refile
 
 [[http://doc.norang.ca/org-mode.html#Refiling][Refiling]] tasks allows you to quickly and painlessly move things around in/between org files. In confunction with [[Caputre][capturing]] it serves to make it nearly painless to jot things down into emacs. I have the convention that my ~/Dropbox/org/refile.org file contains all of my refile tasks (and it marks all of them with a FILETAGS: refile).
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
   (setq org-refile-targets '((nil :maxlevel . 9)
                              (j/org/org-files-list :maxlevel . 9)
                              (org-agenda-files :maxlevel . 9))
@@ -361,7 +438,11 @@ These are general ~org-mode~ configurations that didn't have a better home.
 
 One of the major selling points of ~org-mode~ is the strong task integration that it has, and the organizational power that this gives the user. Like my [[Capture]] setup, I stole this from norang, but I intend to refine it so that it fits better with my workflow.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+This is an outline of my task-flow:
+
+[[file:~/Dropbox/org/normal_task_states.png][Normal Task States]]
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)"
                                       "|"
                                       "DONE(d)")
@@ -913,7 +994,7 @@ These functions aren't specific to any portion of my ~org-mode~ setup, and so I 
     (interactive)
     (save-excursion
       (beginning-of-line 0)
-      (org-remove-empty-drawer-at "LOGBOOK" (point))))
+      (org-remove-empty-drawer-at (point))))
 
   ;; Refile filtering
   ;; exclude DONE state tasks from refile targets
@@ -960,32 +1041,29 @@ These are some miscellaneous helper functions that I need for my ~org-mode~ setu
     (switch-to-buffer "*scratch*"))
 #+END_SRC
 ** Hooks
-:Properties:
-:header-args: :noweb-ref org-mode-hooks
-:END:
 
 I have a variety of hooks that I want to register for ~org-mode~, so that everything works properly:
 - ~sticky-header-mode~ displays the current header you're in at the top, so you don't lose your place.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
   ((org-mode               . org-sticky-header-mode)
   #+END_SRC
 
 - ~toc-org-mode~ enables auto-updating Table-of-Contents, which can be enabled with the ~:TOC:~ tag.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
   (org-mode                . toc-org-enable)
   #+END_SRC
 
 - I always want my ~org-mode~ files to be indented; I may want to look into the 'org-startup-indented` variable.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
   (org-mode                . org-indent-mode)
   #+END_SRC
 
 - I always want my ~org-mode~ buffers to use variable-pitch-mode, because it looks a lot nicer for prose.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
   (org-mode                . variable-pitch-mode)
   #+END_SRC
 
@@ -997,7 +1075,7 @@ I have a variety of hooks that I want to register for ~org-mode~, so that everyt
 
 - I always want my ~org-mode~ files to have word-wrapping enabled.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
   (org-mode                . visual-line-mode)
   #+END_SRC
 
@@ -1009,7 +1087,7 @@ I have a variety of hooks that I want to register for ~org-mode~, so that everyt
 
 - I use a custom agenda with custom views and navigations. I define those keys here.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
     (org-agenda-mode         . (lambda ()
                                  (org-defkey org-agenda-mode-map
                                              "F"
@@ -1036,14 +1114,14 @@ I have a variety of hooks that I want to register for ~org-mode~, so that everyt
 
 - When I clock out, I want to be sure to remove any empty clocks, and I also want to invoke my custom clock-out function (to ensure that I automatically clock into another task).
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
      (org-clock-out           . j/org/remove-empty-drawer-on-clock-out)
      (org-clock-out           . j/org/clock-out-maybe)
   #+END_SRC
 
 - If I ever use org-mode for literate programming, I may want to display output images inline. This hook will automatically deal with that for me.
 
-  #+BEGIN_SRC emacs-lisp :tangle no
+  #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
      (org-babel-after-execute . org-display-inline-images))
   #+END_SRC
 ** Packages
@@ -1066,13 +1144,30 @@ This package displays the header for the current subtree you are in, in a bar al
 #+END_SRC
 *** org-super-agenda
 
-[[https://github.com/alphapapa/org-super-agenda][This]] package allows for a highly-customizable agenda to be created (called a 'super-agenda'). I haven't used agendas and tasks much, but I want to set up something loose now just to have it. I disabled it for now just to remember that I'm not using it.
+[[https://github.com/alphapapa/org-super-agenda][This]] package allows for a highly-customizable agenda to be created (called a 'super-agenda'). I haven't used agendas and tasks much, but I want to set up something loose now just to have it. First, we pull it in using ~use-package~. To configure it, we create the groups that we would like to display in our agenda, and we enable `org-super-agenda-mode'.
 
 #+BEGIN_SRC emacs-lisp
   (use-package org-super-agenda
-    :disabled)
+    :custom
+    (org-super-agenda-groups
+     '(;; Each group has an implicit boolean OR operator between its selectors.
+       (:name "Today"        ; Optionally specify section name
+              :deadline 'today
+              :time-grid t)  ; Items that appear on the time grid
+       (:name "Important" :priority "A" :order 1)
+       (:todo "NEXT" :order 2)
+       (:name "DEADLINES" :auto-parent t :deadline t :order 3)
+       (:priority<= "B"
+                    ;; Show this section after "Today" and "Important", because
+                    ;; their order is unspecified, defaulting to 0. Sections
+                    ;; are displayed lowest-number-first.
+                    :order 4)
+       (:name "Habits" :habit t :order 5)))
+    :config
+    (require 'org-habit)
+    :hook
+    (org-mode . org-super-agenda-mode))
 #+END_SRC
-
 *** toc-org
 
 This package creates nice auto-updating tables of contents. You can enable them by adding :TOC_N: to any top-level header (where N represents the number of levels down that you want the TOC to display).

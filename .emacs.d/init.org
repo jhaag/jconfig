@@ -10,7 +10,7 @@ This is my Emacs configuration file. It is based on the wonderful work of Diego 
 
 This file is written in [[http://www.howardism.org/Technical/Emacs/literate-programming-tutorial.html][literate programming style]] using [[https://orgmode.org/][org-mode]]. See [[file:init.el][init.el]] for the generated file.
 
-* Table of Contents                                                             :TOC_2:noexport:
+* Table of Contents                                          :TOC_2:noexport:
 - [[#tasks-][Tasks]]
 - [[#references][References]]
 - [[#bootstrap-process][Bootstrap Process]]
@@ -213,11 +213,11 @@ With the rest of the setup done, it is quite easy to load the rest of the config
 Emacs has its own [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Easy-Customization.html#Easy-Customization][customization mechanism]] for easily customizing many parameters. To make it easier to manage, I keep the customized variables and faces in a separate file and load it from the main file. A lot of my custom settings are configured from this init file as well, but there are always some which I change by hand for added flexibility.
 
 #+BEGIN_SRC emacs-lisp
-  (setq custom-file "~/.emacs.d/.emacs-custom.el")
+  (setq custom-file "~/jconfig/.emacs.d/.emacs-custom.el")
   (load custom-file)
 #+END_SRC
 
-#+INCLUDE: "~/.emacs.d/custom.el" src emacs-lisp
+#+INCLUDE: "~/jconfig/.emacs.d/.emacs-custom.el" src emacs-lisp
 
 * Utilities
 
