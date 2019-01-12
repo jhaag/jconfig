@@ -54,11 +54,10 @@ Originally, I was planning on tangling this (and other) .org configs, and then l
 Below, I document the contents of this init.el file. In order to tangle this file,  ~C-x n s~ [[Bootstrap Process]], and then use ~C-c C-v t~ in order to tangle it into init.el.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-  ;; This is an auto-generated file, so PLEASE DON'T TOUCH ANYTHING!
-  ;; If you want to make changes to the bootstrapping code, open
-  ;; ~/jconfig/.emacs.d/init.org, C-x n s on [[Bootstrap Process]],
-  ;; and then C-c C-v t to tangle the bootstrapping code into ~/.emacs
-
+;; This is an auto-generated file, so PLEASE DON'T TOUCH ANYTHING!
+;; If you want to make changes to the bootstrapping code, open
+;; ~/jconfig/.emacs.d/init.org, C-x n s on [[Bootstrap Process]],
+;; and then C-c C-v t to tangle the bootstrapping code into ~/.emacs
 #+END_SRC
 
 ** Performance Optimization
@@ -73,41 +72,41 @@ Based on these, I have added the code below.
 First, I define some useful values that I'll need later on (or which are necessary to tweak startup performance). We use ~emacs-start-time~ to keep track of how long startup took. We set ~file-name-handler-alist~ to ~nil~ to prevent any special-filename parsing of files loaded from the init file (e.g. remove files loaded through tramp, etc.). We configure the ~message-log-max~ to a large value so that we can refer back to messages later. We also tweak the ~gc-cons-threshold~ and ~gc-cons-percentage~ to prevent garbage collection during startup.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-  ;; This tweak fixes garbage collection issues during initialization which speeds startup up.
-  (setq gc-cons-threshold most-positive-fixnum
-        gc-cons-percentage 0.6)
+;; This tweak fixes garbage collection issues during initialization which speeds startup up.
+(setq gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.6)
 
-  (defconst j/startup/start-time (current-time))
-  (defvar j/startup/file-name-handler-alist file-name-handler-alist)
-  (setq file-name-handler-alist nil
-        message-log-max 16384)
+(defconst j/startup/start-time (current-time))
+(defvar j/startup/file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil
+      message-log-max 16384)
 #+END_SRC
 
 I also register hooks to clean up some of the tweaks that I made to speed up startup, and to display a message that gives info about startup performance.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-  (defun j/startup/revert-file-name-handler-alist ()
-    (setq file-name-handler-alist j/startup/file-name-handler-alist))
+(defun j/startup/revert-file-name-handler-alist ()
+  (setq file-name-handler-alist j/startup/file-name-handler-alist))
 
-  (defun j/startup/reset-gc ()
-    (setq gc-cons-threshold 16777216
-          gc-cons-percentage 0.1)
-    (garbage-collect))
+(defun j/startup/reset-gc ()
+  (setq gc-cons-threshold 16777216
+        gc-cons-percentage 0.1)
+  (garbage-collect))
 
-  ;; These hooks will revert our tweaks as soon as emacs starts up. It will also
-  ;; garbage collect to clean up after startup.
-  (add-hook 'emacs-startup-hook 'j/startup/revert-file-name-handler-alist)
-  (add-hook 'emacs-startup-hook 'j/startup/reset-gc t)
+;; These hooks will revert our tweaks as soon as emacs starts up. It will also
+;; garbage collect to clean up after startup.
+(add-hook 'emacs-startup-hook 'j/startup/revert-file-name-handler-alist)
+(add-hook 'emacs-startup-hook 'j/startup/reset-gc t)
 
-  ;; This hook will run as soon as emacs starts; we exclude the last argument to
-  ;; ensure that this is the first hook that is run upon startup.
-  (add-hook 'emacs-startup-hook
-            `(lambda ()
-               (message "Emacs ready in %s with %d garbage collections."
-                        (format "%.2f seconds"
-                                (float-time
-                                 (time-subtract (current-time) j/startup/start-time)))
-                        gcs-done)))
+;; This hook will run as soon as emacs starts; we exclude the last argument to
+;; ensure that this is the first hook that is run upon startup.
+(add-hook 'emacs-startup-hook
+          `(lambda ()
+             (message "Emacs ready in %s with %d garbage collections."
+                      (format "%.2f seconds"
+                              (float-time
+                               (time-subtract (current-time) j/startup/start-time)))
+                      gcs-done)))
 #+END_SRC
 
 ** Package Management
@@ -117,70 +116,70 @@ I use the [[https://www.masteringemacs.org/article/spotlight-use-package-a-decla
 First, we disable ~package~ at startup so that we can ensure we set it up properly.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-  (require 'package)
-  (require 'cl)
+(require 'package)
+(require 'cl)
 
-  (setq package-enable-at-startup nil)
+(setq package-enable-at-startup nil)
 #+END_SRC
 
 Next, we set up the package archives that we want to pull from, and finally initialize the archive now that it has been properly set up. We wrap this in an eval-when-compile block to ensure that the archives are initialized for bytecompiling.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-  (eval-when-compile
-    ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
-    (add-to-list 'package-archives
-                 '("melpa" . "https://melpa.org/packages/"))
-    ;;(add-to-list 'package-archives
-    ;;             ("melpa-stable" . "https://stable.melpa.org/packages/") t)
-    (add-to-list 'package-archives
-                 '("marmalade" . "https://marmalade-repo.org/packages/"))
-    ;; For important compatibility libraries like cl-lib
-    (add-to-list 'package-archives
-                 '("gnu" . "https://elpa.gnu.org/packages/"))
-    (add-to-list 'package-archives
-                 '("org" . "https://orgmode.org/elpa/")))
+(eval-when-compile
+  ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
+  (add-to-list 'package-archives
+               '("melpa" . "https://melpa.org/packages/"))
+  ;;(add-to-list 'package-archives
+  ;;             ("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  (add-to-list 'package-archives
+               '("marmalade" . "https://marmalade-repo.org/packages/"))
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives
+               '("gnu" . "https://elpa.gnu.org/packages/"))
+  (add-to-list 'package-archives
+               '("org" . "https://orgmode.org/elpa/")))
 
-  (package-initialize)
+(package-initialize)
 
-  (when (not package-archive-contents)
-    (package-refresh-contents))
+(when (not package-archive-contents)
+  (package-refresh-contents))
 #+END_SRC
 
 Once this is done, we ensure that we have ~use-package~ installed and ready for the rest of our configuration (~diminish~ included as well just to ensure we can make emacs clean). We also configure ~use-package~ to integrate with ~init-file-debug~ (which is set to true if Emacs is invoked with ~--debug-init~).
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-  (unless (package-installed-p 'diminish)
-    (package-refresh-contents)
-    (package-install 'diminish))
+(unless (package-installed-p 'diminish)
+  (package-refresh-contents)
+  (package-install 'diminish))
 
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
-  (if init-file-debug
-      (setq use-package-verbose t
-            use-package-expand-minimally nil
-            use-package-compute-statistics t
-            debug-on-error t)
-    (setq use-package-verbose nil
-          use-package-expand-minimally t))
+(if init-file-debug
+    (setq use-package-verbose t
+          use-package-expand-minimally nil
+          use-package-compute-statistics t
+          debug-on-error t)
+  (setq use-package-verbose nil
+        use-package-expand-minimally t))
 
-  (eval-when-compile
-    (require 'use-package)
-    (setq use-package-always-ensure t
-          use-package-always-defer t))
-  (require 'diminish)
-  (require 'bind-key)
-  (require 'org)
+(eval-when-compile
+  (require 'use-package)
+  (setq use-package-always-ensure t
+        use-package-always-defer t))
+(require 'diminish)
+(require 'bind-key)
+(require 'org)
 #+END_SRC
 
 This variable tells Emacs to prefer the ~.el~ file if it's newer, even if there is a corresponding ~.elc~ file. Also, use ~auto-compile~ to autocompile files as needed.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-  (setq load-prefer-newer t)
-  (use-package auto-compile
-    :defer nil
-    :config (auto-compile-on-load-mode))
+(setq load-prefer-newer t)
+(use-package auto-compile
+  :defer nil
+  :config (auto-compile-on-load-mode))
 #+END_SRC
 
 ** Loading
@@ -188,23 +187,23 @@ This variable tells Emacs to prefer the ~.el~ file if it's newer, even if there 
 Since I am now writing much of my emacs configuration in ~org-mode~ files, and because I intend to break it up somewhat, I define a useful helper which can load my file.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-  (defun j/config/load-conf-dot-org (filename &optional extension)
-    "Load the configuration.org file located at filename.
+(defun j/config/load-conf-dot-org (filename &optional extension)
+  "Load the configuration.org file located at filename.
   This function assumes the convention that the tangled configuration lives at (basename filename)/tangles"
-    (unless extension (setq extension ".el"))
-    (let ((filename (expand-file-name filename)))
-      (if (file-readable-p filename)
-          (progn
-            ;; We expect that this file is getting tangled to a ./tangles directory located with it
-            (org-babel-tangle-file filename)
-            (load (concat (file-name-directory filename) "tangles/" (file-name-base filename) extension)))
-        (warn "Missing configuration file: %s"))))
+  (unless extension (setq extension ".el"))
+  (let ((filename (expand-file-name filename)))
+    (if (file-readable-p filename)
+        (progn
+          ;; We expect that this file is getting tangled to a ./tangles directory located with it
+          (org-babel-tangle-file filename)
+          (load (concat (file-name-directory filename) "tangles/" (file-name-base filename) extension)))
+      (warn "Missing configuration file: %s"))))
 #+END_SRC
 
 With the rest of the setup done, it is quite easy to load the rest of the configuration. I simply call ~org-babel-load-file~ in order to load my configs (and skip loading them if they're missing).
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-  (j/config/load-conf-dot-org "~/jconfig/.emacs.d/init.org")
+(j/config/load-conf-dot-org "~/jconfig/.emacs.d/init.org")
 #+END_SRC
 
 * Customized Variables
@@ -213,8 +212,8 @@ With the rest of the setup done, it is quite easy to load the rest of the config
 Emacs has its own [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Easy-Customization.html#Easy-Customization][customization mechanism]] for easily customizing many parameters. To make it easier to manage, I keep the customized variables and faces in a separate file and load it from the main file. A lot of my custom settings are configured from this init file as well, but there are always some which I change by hand for added flexibility.
 
 #+BEGIN_SRC emacs-lisp
-  (setq custom-file "~/jconfig/.emacs.d/.emacs-custom.el")
-  (load custom-file)
+(setq custom-file "~/jconfig/.emacs.d/.emacs-custom.el")
+(load custom-file)
 #+END_SRC
 
 #+INCLUDE: "~/jconfig/.emacs.d/.emacs-custom.el" src emacs-lisp
@@ -224,18 +223,18 @@ Emacs has its own [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Ea
 Over time I've gathered a lot of useful utilities which I want to be able to refer to. For now, this is going to be a bit of a catchall, but I hope to organize and clean it up as I move forwards.
 
 #+BEGIN_SRC emacs-lisp
-  (eval-and-compile
-    (defun emacs-path (path)
-      (expand-file-name path user-emacs-directory))
+(eval-and-compile
+  (defun emacs-path (path)
+    (expand-file-name path user-emacs-directory))
 
-    (defun j/infer-indentation-style ()
-      ;; If the current source file uses tabs, use tabs.
-      ;; If the current source file uses spaces, use spaces.
-      ;; Otherwise, default to the current indent-tabs-mode
-      (let ((space-count (how-many "^ "  (point-min) (point-max)))
-            (tab-count   (how-many "^\t" (point-min) (point-max))))
-        (if (> space-count tab-count) (customize-set-variable 'indent-tabs-mode nil))
-        (if (> tab-count space-count) (customize-set-variable 'indent-tabs-mode t)))))
+  (defun j/infer-indentation-style ()
+    ;; If the current source file uses tabs, use tabs.
+    ;; If the current source file uses spaces, use spaces.
+    ;; Otherwise, default to the current indent-tabs-mode
+    (let ((space-count (how-many "^ "  (point-min) (point-max)))
+          (tab-count   (how-many "^\t" (point-min) (point-max))))
+      (if (> space-count tab-count) (customize-set-variable 'indent-tabs-mode nil))
+      (if (> tab-count space-count) (customize-set-variable 'indent-tabs-mode t)))))
 #+END_SRC
 
 * Settings
@@ -244,35 +243,35 @@ Over time I've gathered a lot of useful utilities which I want to be able to ref
 I find it quite annoying how Emacs keeps autosaves locally, and so I wanted to create a nicer way to handle that. All that I do is store my autosaves in a sub-folder of my main ~.emacs.d~ folder.
 
 #+BEGIN_SRC emacs-lisp
-  ;; Create the autosave dir if necessary, since emacs won't
-  (make-directory "~/.emacs.d/autosaves/" t)
+;; Create the autosave dir if necessary, since emacs won't
+(make-directory "~/.emacs.d/autosaves/" t)
 
-  ;; Place all autosave files in ~/.emacs.d/autosaves/
-  (customize-set-variable 'auto-save-file-name-transforms '((".*"
-                                                            "~/.emacs.d/autosaves/"
-                                                            t)))
+;; Place all autosave files in ~/.emacs.d/autosaves/
+(customize-set-variable 'auto-save-file-name-transforms '((".*"
+                                                           "~/.emacs.d/autosaves/"
+                                                           t)))
 #+END_SRC
 
 I also wanted to make sure that I never keep backups, because they just take up space, and I manage my data-storage in other ways.
 
 #+BEGIN_SRC emacs-lisp
-  (setq-default backup-inhibited t)
+(setq-default backup-inhibited t)
 #+END_SRC
 
 Before I decided to turn off backups, I would keep them in check using the following utility.
 
 #+BEGIN_SRC emacs-lisp :tangle no
-  ;; Purge old backups over time to save space
-  (message "Deleting old backup files...")
-  (let ((week (* 60 60 24 7))
-        (current (float-time (current-time))))
-    (dolist (file (directory-files (emacs-path "backups/") t))
-      (when (and (backup-file-name-p file)
-                 (> (- current (float-time (nth 5 (file-attributes file))))
-                    week))
-        (message "\t%s" file)
-        (delete-file file))))
-  (message "Deleted old backup files successfully.")
+;; Purge old backups over time to save space
+(message "Deleting old backup files...")
+(let ((week (* 60 60 24 7))
+      (current (float-time (current-time))))
+  (dolist (file (directory-files (emacs-path "backups/") t))
+    (when (and (backup-file-name-p file)
+               (> (- current (float-time (nth 5 (file-attributes file))))
+                  week))
+      (message "\t%s" file)
+      (delete-file file))))
+(message "Deleted old backup files successfully.")
 #+END_SRC
 ** General
 
@@ -280,71 +279,71 @@ There are some general Emacs settings which I configure first:
 - I remove /beginner/ Emacs stuff that I don't want to worry about.
 
   #+BEGIN_SRC emacs-lisp
-    (tool-bar-mode -1)
-    (toggle-scroll-bar -1)
-    (setq-default initial-frame-alist '((fullscreen . maximized)))
-    ;; When at the beginning of the line, make C-k remove the whole line, instead of just emptying it.
-    (setq-default kill-whole-line t)
-    ;; Paste text where the cursor is, not where the mouse is.
-    (setq-default mouse-yank-at-point t)
-    ;; use y/n instead of yes/no
-    (fset 'yes-or-no-p 'y-or-n-p)
-    (setq-default inhibit-splash-screen t)
-    (setq-default inhibit-startup-message t)
-    (setq-default inhibit-startup-screen t)
-    (setq-default ring-bell-function 'ignore)
+(tool-bar-mode -1)
+(toggle-scroll-bar -1)
+(setq-default initial-frame-alist '((fullscreen . maximized)))
+;; When at the beginning of the line, make C-k remove the whole line, instead of just emptying it.
+(setq-default kill-whole-line t)
+;; Paste text where the cursor is, not where the mouse is.
+(setq-default mouse-yank-at-point t)
+;; use y/n instead of yes/no
+(fset 'yes-or-no-p 'y-or-n-p)
+(setq-default inhibit-splash-screen t)
+(setq-default inhibit-startup-message t)
+(setq-default inhibit-startup-screen t)
+(setq-default ring-bell-function 'ignore)
   #+END_SRC
 
 - I want my sentences to end with a single space, so that I can use M-e and M-a to navigate around actual sentences.
 
   #+BEGIN_SRC emacs-lisp
-    (setq-default sentence-end-double-space nil)
+(setq-default sentence-end-double-space nil)
   #+END_SRC
 
 - I increase the warning threshold for large files from 10MB to 100MB.
 
   #+BEGIN_SRC emacs-lisp
-    (setq-default large-file-warning-threshold 100000000)
+(setq-default large-file-warning-threshold 100000000)
   #+END_SRC
 
 - I don't know about other people, but my weeks start on Mondays; I specify that here.
 
   #+BEGIN_SRC emacs-lisp
-    (setq-default calendar-week-start-day 1)
+(setq-default calendar-week-start-day 1)
   #+END_SRC
 
 - I find it helpful to have column information when I work, so I enable it universally.
 
   #+BEGIN_SRC emacs-lisp
-    (column-number-mode t)
+(column-number-mode t)
   #+END_SRC
 
 - I like to be able to see my closing parens, so I tweak the paren settings slightly.
 
   #+BEGIN_SRC emacs-lisp
-    (show-paren-mode)
-    (setq show-paren-delay 0)
+(show-paren-mode)
+(setq show-paren-delay 0)
   #+END_SRC
 
 - Along these lines, I like to be able to see the whole character that I'm looking at. Setting `x-stretch-cursor' [[http://pragmaticemacs.com/emacs/adaptive-cursor-width/][achieves this]].
 
   #+BEGIN_SRC emacs-lisp
-    (setq x-stretch-cursor t)
+(setq x-stretch-cursor t)
   #+END_SRC
 
 - Highlight trailing whitespace in red so that it's easily visible.
 
   #+BEGIN_SRC emacs-lisp
-    (customize-set-variable 'show-trailing-whitespace t)
+(customize-set-variable 'show-trailing-whitespace t)
   #+END_SRC
 
 - Even though I use ~org-mode~, I also want to be able to keep track of changes on my other files. I set up emacs to timestamp every file at the top upon save. I also set up emacs so that it deletes any trailing whitespace that I have in my files; this keeps everything nice and neat :~)
 
   #+BEGIN_SRC emacs-lisp
-    (add-hook 'before-save-hook
-              `(lambda ()
-                 (time-stamp)
-                 (delete-trailing-whitespace)))
+(add-hook 'before-save-hook
+          `(lambda ()
+             (time-stamp)
+             (delete-trailing-whitespace)))
   #+END_SRC
 * Hooks
 
@@ -353,13 +352,13 @@ I have a variety of hooks that I want to register, so that everything works smoo
 - First, I ensure that if a file has a "Time-stamp: <>" at the top of the file, it gets updated upon saving.
 
   #+BEGIN_SRC emacs-lisp
-    (add-hook 'write-file-hooks 'time-stamp)
+(add-hook 'write-file-hooks 'time-stamp)
   #+END_SRC
 
 - Next, I ensure that trailing whitespace is always deleted when I save a file.
 
   #+BEGIN_SRC emacs-lisp
-    (add-hook 'before-save-hook 'delete-trailing-whitespace)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
   #+END_SRC
 
 * Keybindings
@@ -372,66 +371,66 @@ Below is all of the configuration for the various packages that I have added to 
 I like to have many windows open while I'm working, and I'll generally rearrange them throughout my sessions. Emacs has some support to do things like this, but I wanted something a bit nicer. I found a package called ~buffer-move~ which does some of this, and I added a few helpers as well.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package buffer-move
-    :preface
-    (defun j/2-windows-vertical-to-horizontal ()
-      "Swap from a vertical to a horizontal orientation"
-      (let ((buffers (mapcar 'window-buffer (window-list))))
-        (when (= 2 (length buffers))
-          (delete-other-windows)
-          (set-window-buffer (split-window-horizontally) (cadr buffers)))))
+(use-package buffer-move
+  :preface
+  (defun j/2-windows-vertical-to-horizontal ()
+    "Swap from a vertical to a horizontal orientation"
+    (let ((buffers (mapcar 'window-buffer (window-list))))
+      (when (= 2 (length buffers))
+        (delete-other-windows)
+        (set-window-buffer (split-window-horizontally) (cadr buffers)))))
 
-    (defun j/2-windows-horizontal-to-vertical ()
-      "Swap from a horizontal to a vertical orientation"
-      (let ((buffers (mapcar 'window-buffer (window-list))))
-        (when (= 2 (length buffers))
-          (delete-other-windows)
-          (set-window-buffer (split-window-vertically) (cadr buffers)))))
+  (defun j/2-windows-horizontal-to-vertical ()
+    "Swap from a horizontal to a vertical orientation"
+    (let ((buffers (mapcar 'window-buffer (window-list))))
+      (when (= 2 (length buffers))
+        (delete-other-windows)
+        (set-window-buffer (split-window-vertically) (cadr buffers)))))
 
-    (defun j/2-windows-switch-orientation ()
-      "Swap from a vertical to a horizontal orientation, or vice versa"
-      (interactive)
-      (if (or (window-in-direction 'above)
-              (window-in-direction 'below))
-          (j/2-windows-vertical-to-horizontal)
-        (j/2-windows-horizontal-to-vertical)))
+  (defun j/2-windows-switch-orientation ()
+    "Swap from a vertical to a horizontal orientation, or vice versa"
+    (interactive)
+    (if (or (window-in-direction 'above)
+            (window-in-direction 'below))
+        (j/2-windows-vertical-to-horizontal)
+      (j/2-windows-horizontal-to-vertical)))
 
-    (defun j/buf-send-up ()
-      "Send the currently selected buffer up, and retain the current focus"
-      (interactive)
-      (buf-move-up)
-      (select-window (windmove-find-other-window 'down)))
+  (defun j/buf-send-up ()
+    "Send the currently selected buffer up, and retain the current focus"
+    (interactive)
+    (buf-move-up)
+    (select-window (windmove-find-other-window 'down)))
 
-    (defun j/buf-send-down ()
-      "Send the currently selected buffer down, and retain the current focus"
-      (interactive)
-      (buf-move-down)
-      (select-window (windmove-find-other-window 'up)))
+  (defun j/buf-send-down ()
+    "Send the currently selected buffer down, and retain the current focus"
+    (interactive)
+    (buf-move-down)
+    (select-window (windmove-find-other-window 'up)))
 
-    (defun j/buf-send-left ()
-      "Send the currently selected buffer left, and retain the current focus"
-      (interactive)
-      (buf-move-left)
-      (select-window (windmove-find-other-window 'right)))
+  (defun j/buf-send-left ()
+    "Send the currently selected buffer left, and retain the current focus"
+    (interactive)
+    (buf-move-left)
+    (select-window (windmove-find-other-window 'right)))
 
-    (defun j/buf-send-right ()
-      "Send the currently selected buffer right, and retain the current focus"
-      (interactive)
-      (buf-move-right)
-      (select-window (windmove-find-other-window 'left)))
-    :init
-    (add-hook 'emacs-startup-hook 'j/2-windows-vertical-to-horizontal)
-    (global-unset-key (kbd "C-x o"))
-    :bind (("C-x <up>"          . buf-move-up)
-           ("C-x <down>"        . buf-move-down)
-           ("C-x <left>"        . buf-move-left)
-           ("C-x <right>"       . buf-move-right)
-           ;("M-<up>"            . j/buf-send-up)
-           ;("M-<down>"  	      . j/buf-send-down)
-           ;("M-<left>"          . j/buf-send-left)
-           ;("M-<right>"         . j/buf-send-right)
-           ;("M-<return>"        . j/2-windows-switch-orientation)
-           ("C-`"               . other-window)))
+  (defun j/buf-send-right ()
+    "Send the currently selected buffer right, and retain the current focus"
+    (interactive)
+    (buf-move-right)
+    (select-window (windmove-find-other-window 'left)))
+  :init
+  (add-hook 'emacs-startup-hook 'j/2-windows-vertical-to-horizontal)
+  (global-unset-key (kbd "C-x o"))
+  :bind (("C-x <up>"          . buf-move-up)
+         ("C-x <down>"        . buf-move-down)
+         ("C-x <left>"        . buf-move-left)
+         ("C-x <right>"       . buf-move-right)
+                                        ;("M-<up>"            . j/buf-send-up)
+                                        ;("M-<down>"  	      . j/buf-send-down)
+                                        ;("M-<left>"          . j/buf-send-left)
+                                        ;("M-<right>"         . j/buf-send-right)
+                                        ;("M-<return>"        . j/2-windows-switch-orientation)
+         ("C-`"               . other-window)))
 #+END_SRC
 ** git-gutter+
 
@@ -440,77 +439,77 @@ When I'm working on a project, I find it annoying to close emacs and work with g
 To get this working, we require some supplemental modes that [[https://github.com/magit/magit][Magit]] has created. I SHOULD LOOK INTO USING MAGIT IN THE FUTURE.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package gitattributes-mode)
-  (use-package gitconfig-mode)
-  (use-package gitignore-mode)
+(use-package gitattributes-mode)
+(use-package gitconfig-mode)
+(use-package gitignore-mode)
 #+END_SRC
 
 Now we can load git-gutter+ itself, and configure it to our liking.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package git-gutter+
-    :after (gitattributes-mode gitconfig-mode gitignore-mode)
-    :init (add-hook 'prog-mode-hook 'git-gutter+-mode)
-    :bind (("C-x g g" . git-gutter+-mode)
-           :map git-gutter+-mode-map
-                ("C-x n"   . git-gutter+-next-hunk)
-                ("C-x p"   . git-gutter+-previous-hunk)
-                ("C-x v =" . git-gutter+-show-hunk))
-    :custom (git-gutter+-hide-gutter t)
-    :diminish (git-gutter+-mode . "gg+"))
+(use-package git-gutter+
+  :after (gitattributes-mode gitconfig-mode gitignore-mode)
+  :init (add-hook 'prog-mode-hook 'git-gutter+-mode)
+  :bind (("C-x g g" . git-gutter+-mode)
+         :map git-gutter+-mode-map
+         ("C-x n"   . git-gutter+-next-hunk)
+         ("C-x p"   . git-gutter+-previous-hunk)
+         ("C-x v =" . git-gutter+-show-hunk))
+  :custom (git-gutter+-hide-gutter t)
+  :diminish (git-gutter+-mode . "gg+"))
 #+END_SRC
 
 We also require ~git-gutter-fringe+~, which is the actual package that allows us to display our git status in the buffer.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package git-gutter-fringe+
-    :config
-    ;; Currently hard-coded to be the solarized-yellow color
-    (set-face-attribute 'git-gutter-fr+-modified nil :foreground "#b58900")
-    (fring-helper-define 'git-gutter-fr+-modified nil
-                         "........"
-                         "........"
-                         "..XX...X"
-                         ".XXXX.XX"
-                         "XX.XXXX."
-                         "X...XX.."
-                         "........"
-                         "........"))
+(use-package git-gutter-fringe+
+  :config
+  ;; Currently hard-coded to be the solarized-yellow color
+  (set-face-attribute 'git-gutter-fr+-modified nil :foreground "#b58900")
+  (fring-helper-define 'git-gutter-fr+-modified nil
+                       "........"
+                       "........"
+                       "..XX...X"
+                       ".XXXX.XX"
+                       "XX.XXXX."
+                       "X...XX.."
+                       "........"
+                       "........"))
 #+END_SRC
 ** helm
 
 First, we need to set up the main ~helm~ package. I configure a few general things such as key bindings and global settings, but I mainly just get it loaded so that the other ~helm-xxx~ stuff can be loaded.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm
-    :bind (:map helm-map
-                ("C-i" . helm-execute-persistent-action)
-                ("C-z" . helm-select-action))
-    :custom
-    (helm-move-to-line-cycle-in-source t) ;; Cycle helm candidates
-    (helm-scroll-amount 8)                ;; Scroll 8 lines at a time
-    (helm-display-header-line nil)        ;; Cleaner helm interface
-    :init
-    (setq helm-command-prefix-key "C-c h")
-    (unbind-key "C-x c")
-    :config
-    (helm-adaptive-mode 1)                ;; Adaptive sorting in all sources
-    (helm-autoresize-mode t)              ;; Auto-resize helm-buffer
-    (add-to-list 'helm-sources-using-default-as-input
-                 'helm-source-man-pages))
+(use-package helm
+  :bind (:map helm-map
+              ("C-i" . helm-execute-persistent-action)
+              ("C-z" . helm-select-action))
+  :custom
+  (helm-move-to-line-cycle-in-source t) ;; Cycle helm candidates
+  (helm-scroll-amount 8)                ;; Scroll 8 lines at a time
+  (helm-display-header-line nil)        ;; Cleaner helm interface
+  :init
+  (setq helm-command-prefix-key "C-c h")
+  (unbind-key "C-x c")
+  :config
+  (helm-adaptive-mode 1)                ;; Adaptive sorting in all sources
+  (helm-autoresize-mode t)              ;; Auto-resize helm-buffer
+  (add-to-list 'helm-sources-using-default-as-input
+               'helm-source-man-pages))
 #+END_SRC
 
 I also set up ~helm-mode~ now, since they basically go together.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-mode
-    :ensure helm
-    :init (helm-mode 1)
-    :custom
-    (helm-mode-fuzzy-match t)
-    (helm-completion-in-region-fuzzy-match t)
-    (helm-split-window-in-side-p t)
-    :diminish helm-mode)
+(use-package helm-mode
+  :ensure helm
+  :init (helm-mode 1)
+  :custom
+  (helm-mode-fuzzy-match t)
+  (helm-completion-in-region-fuzzy-match t)
+  (helm-split-window-in-side-p t)
+  :diminish helm-mode)
 #+END_SRC
 
 
@@ -519,12 +518,12 @@ I also set up ~helm-mode~ now, since they basically go together.
 This package provides a front end for the ~ag~ executable, which can be useful if you want to search the filesystem for something.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-ag
-    :if (executable-find "ag")
-    :bind ("C-c h s" . helm-do-ag)
-    :custom
-    (helm-ag-fuzzy-match t)
-    (helm-ag-insert-at-point 'symbol))
+(use-package helm-ag
+  :if (executable-find "ag")
+  :bind ("C-c h s" . helm-do-ag)
+  :custom
+  (helm-ag-fuzzy-match t)
+  (helm-ag-insert-at-point 'symbol))
 #+END_SRC
 
 *** helm-bookmarks
@@ -532,23 +531,23 @@ This package provides a front end for the ~ag~ executable, which can be useful i
 Helm integration for bookmarks. I don't use bookmarks so I'm leaving this disabled for now.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-bookmarks
-    :ensure helm
-    :disabled
-    :bind ("C-x r l" . helm-filtered-bookmarks))
+(use-package helm-bookmarks
+  :ensure helm
+  :disabled
+  :bind ("C-x r l" . helm-filtered-bookmarks))
 #+END_SRC
 *** helm-buffers
 
 This package allows me to manage my buffers using helm. I find this alot nicer than using the built-in Emacs stuff.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-buffers
-    :ensure helm
-    :bind (("C-c C-b" . helm-buffers-list)
-           :map helm-buffer-map
-           ("C-k" . helm-buffer-run-kill-persistent))
-    :custom
-    (helm-buffers-fuzzy-matching t))
+(use-package helm-buffers
+  :ensure helm
+  :bind (("C-c C-b" . helm-buffers-list)
+         :map helm-buffer-map
+         ("C-k" . helm-buffer-run-kill-persistent))
+  :custom
+  (helm-buffers-fuzzy-matching t))
 #+END_SRC
 
 *** helm-c-yasnippet
@@ -556,21 +555,21 @@ This package allows me to manage my buffers using helm. I find this alot nicer t
 This is a helm source for yasnippet. I don't really know what yasnippet is, and I don't use it, so I'm leaving it disabled for now.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-c-yasnippet
-    :ensure helm
-    :after yasnippet
-    :disabled
-    :bind ("C-c h y" . helm-yas-complete)
-    :custom (helm-yas-space-match-any-greedy t))
+(use-package helm-c-yasnippet
+  :ensure helm
+  :after yasnippet
+  :disabled
+  :bind ("C-c h y" . helm-yas-complete)
+  :custom (helm-yas-space-match-any-greedy t))
 #+END_SRC
 *** helm-color
 
 This allows you to input colors interactively using helm.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-color
-    :ensure helm
-    :bind ("C-c h c" . helm-colors))
+(use-package helm-color
+  :ensure helm
+  :bind ("C-c h c" . helm-colors))
 #+END_SRC
 
 *** helm-command
@@ -578,10 +577,10 @@ This allows you to input colors interactively using helm.
 This replaces the default M-x that Emacs comes with, with a helm-enabled M-x. It makes it a lot nicer to discover new emacs functionality, and to use the tools that I already have at my fingertips.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-command
-    :ensure helm
-    :bind ([remap execute-extended-command] . helm-M-x)
-    :custom (helm-M-x-fuzzy-match t))
+(use-package helm-command
+  :ensure helm
+  :bind ([remap execute-extended-command] . helm-M-x)
+  :custom (helm-M-x-fuzzy-match t))
 #+END_SRC
 
 *** helm-company
@@ -589,14 +588,14 @@ This replaces the default M-x that Emacs comes with, with a helm-enabled M-x. It
 This is a frontend for company autocompletion using helm.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-company
-    :ensure helm
-    :after company
-    :bind (:map company-mode-map
-           ([remap completion-at-point] . helm-company)
-           ("C-:"                       . helm-company)
-           :map company-active-map
-           ("C-:"                       . helm-company)))
+(use-package helm-company
+  :ensure helm
+  :after company
+  :bind (:map company-mode-map
+              ([remap completion-at-point] . helm-company)
+              ("C-:"                       . helm-company)
+              :map company-active-map
+              ("C-:"                       . helm-company)))
 #+END_SRC
 
 *** helm-descbinds
@@ -604,9 +603,9 @@ This is a frontend for company autocompletion using helm.
 This package allows you to search through all current emacs keybindings using helm.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-descbinds
-    :ensure helm
-    :bind ("C-c h d" . helm-descbinds))
+(use-package helm-descbinds
+  :ensure helm
+  :bind ("C-c h d" . helm-descbinds))
 #+END_SRC
 
 *** helm-describe-modes
@@ -614,9 +613,9 @@ This package allows you to search through all current emacs keybindings using he
 This package allows you to search through all of the loaded modes in emacs, and get information about them.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-describe-modes
-    :ensure helm
-    :bind ("C-c h h d"))
+(use-package helm-describe-modes
+  :ensure helm
+  :bind ("C-c h h d"))
 #+END_SRC
 
 *** helm-elisp
@@ -624,13 +623,13 @@ This package allows you to search through all of the loaded modes in emacs, and 
 This sets up some useful helm commands for working with Emacs/ELisp.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-elisp
-    :ensure helm
-    :bind (("C-c h a" . helm-apropos)
-           ("C-c h l" . helm-locate-library))
-    :custom
-    (helm-apropos-fuzzy-match t)
-    (helm-lisp-fuzzy-completion t))
+(use-package helm-elisp
+  :ensure helm
+  :bind (("C-c h a" . helm-apropos)
+         ("C-c h l" . helm-locate-library))
+  :custom
+  (helm-apropos-fuzzy-match t)
+  (helm-lisp-fuzzy-completion t))
 #+END_SRC
 
 *** helm-eval
@@ -638,10 +637,10 @@ This sets up some useful helm commands for working with Emacs/ELisp.
 Evaluate expressions using helm.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-eval
-    :ensure helm
-    :bind (([remap eval-expression] . helm-eval-expression-with-eldoc)
-           ("M-*"                   . helm-calcul-expression)))
+(use-package helm-eval
+  :ensure helm
+  :bind (([remap eval-expression] . helm-eval-expression-with-eldoc)
+         ("M-*"                   . helm-calcul-expression)))
 #+END_SRC
 
 *** helm-external
@@ -649,9 +648,9 @@ Evaluate expressions using helm.
 This package allows you to asynchronously run commands through the shell.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-external
-    :ensure helm
-    :bind ("C-c h x" . helm-run-external-command))
+(use-package helm-external
+  :ensure helm
+  :bind ("C-c h x" . helm-run-external-command))
 #+END_SRC
 
 *** helm-files
@@ -659,20 +658,20 @@ This package allows you to asynchronously run commands through the shell.
 This replaces the build in find-file stuff that Emacs comes with, with helm-enabled stuff. Using helm is much nicer when navigating the file system.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-files
-    :ensure helm
-    :bind (([remap find-file] . helm-find-files)
-           ("C-x C-r"         . helm-recentf)
-           :map helm-find-files-map
-           ("C-k" . helm-ff-persistent-delete))
-    :custom
-    (helm-recentf-fuzzy-match t)
-    (helm-ff-file-name-history-use-recentf t)
-    (helm-ff-newfile-prompt-p nil)
-    (helm-input-idle-delay 0.1)
-    (helm-ff-skip-boring-files t)
-    (helm-ff-search-library-in-sexp t)
-    (helm-ff-auto-update-initial-value t))
+(use-package helm-files
+  :ensure helm
+  :bind (([remap find-file] . helm-find-files)
+         ("C-x C-r"         . helm-recentf)
+         :map helm-find-files-map
+         ("C-k" . helm-ff-persistent-delete))
+  :custom
+  (helm-recentf-fuzzy-match t)
+  (helm-ff-file-name-history-use-recentf t)
+  (helm-ff-newfile-prompt-p nil)
+  (helm-input-idle-delay 0.1)
+  (helm-ff-skip-boring-files t)
+  (helm-ff-search-library-in-sexp t)
+  (helm-ff-auto-update-initial-value t))
 #+END_SRC
 
 *** helm-flycheck
@@ -680,9 +679,9 @@ This replaces the build in find-file stuff that Emacs comes with, with helm-enab
 This enables flycheck to be used through helm.
 
 #+BEGIN_SRC emacs-lisp
-    (use-package helm-flycheck
-      :ensure helm
-      :bind ("C-c h h f" . helm-flycheck))
+(use-package helm-flycheck
+  :ensure helm
+  :bind ("C-c h h f" . helm-flycheck))
 #+END_SRC
 
 *** helm-flyspell
@@ -690,9 +689,9 @@ This enables flycheck to be used through helm.
 This allows us to use ~flyspell~ from within helm to correct our spelling.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-flyspell
-    :ensure helm
-    :bind ("C-c h f" . helm-flyspell-correct))
+(use-package helm-flyspell
+  :ensure helm
+  :bind ("C-c h f" . helm-flyspell-correct))
 #+END_SRC
 
 *** helm-gitignore
@@ -700,9 +699,9 @@ This allows us to use ~flyspell~ from within helm to correct our spelling.
 This package allows you to generate .gitignore files using gitignore.io.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-gitignore
-    :ensure helm
-    :bind ("C-c h v g" . helm-gitignore))
+(use-package helm-gitignore
+  :ensure helm
+  :bind ("C-c h v g" . helm-gitignore))
 #+END_SRC
 
 *** helm-gtags
@@ -710,30 +709,30 @@ This package allows you to generate .gitignore files using gitignore.io.
 Helm interface for GNU Global tag system. I don't use this currently, so I'm leaving it disabled.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-gtags
-    :ensure helm
-    :disabled
-    :diminish helm-gtags-mode
-    :custom
-    (helm-gtags-ignore-case t)
-    (helm-gtags-auto-update t)
-    (helm-gtags-use-input-at-cursor t)
-    (helm-gtags-pulse-at-cursor t)
-    (helm-gtags-prefix-key "\C-cg")
-    (helm-gtags-suggested-key-mapping t)
-    :init
-    (add-hook 'dired-mode-hook 'helm-gtags-mode)
-    (add-hook 'eshell-mode-hook 'helm-gtags-mode)
-    (add-hook 'c-mode-hook 'helm-gtags-mode)
-    (add-hook 'c++-mode-hook 'helm-gtags-mode)
-    (add-hook 'asm-mode-hook 'helm-gtags-mode)
-    :bind (:map helm-gtags-mode-map
-                ("C-c g a" . helm-gtags-tags-in-this-function)
-                ("C-c j"   . helm-gtags-select)
-                ("M-."     . helm-gtags-dwim)
-                ("M-,"     . helm-gtags-pop-stack)
-                ("C-c <"   . helm-gtags-previous-history)
-                ("C-c >"   . helm-gtags-next-history)))
+(use-package helm-gtags
+  :ensure helm
+  :disabled
+  :diminish helm-gtags-mode
+  :custom
+  (helm-gtags-ignore-case t)
+  (helm-gtags-auto-update t)
+  (helm-gtags-use-input-at-cursor t)
+  (helm-gtags-pulse-at-cursor t)
+  (helm-gtags-prefix-key "\C-cg")
+  (helm-gtags-suggested-key-mapping t)
+  :init
+  (add-hook 'dired-mode-hook 'helm-gtags-mode)
+  (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+  (add-hook 'c-mode-hook 'helm-gtags-mode)
+  (add-hook 'c++-mode-hook 'helm-gtags-mode)
+  (add-hook 'asm-mode-hook 'helm-gtags-mode)
+  :bind (:map helm-gtags-mode-map
+              ("C-c g a" . helm-gtags-tags-in-this-function)
+              ("C-c j"   . helm-gtags-select)
+              ("M-."     . helm-gtags-dwim)
+              ("M-,"     . helm-gtags-pop-stack)
+              ("C-c <"   . helm-gtags-previous-history)
+              ("C-c >"   . helm-gtags-next-history)))
 #+END_SRC
 
 *** helm-imenu
@@ -741,13 +740,13 @@ Helm interface for GNU Global tag system. I don't use this currently, so I'm lea
 This allows me to use imenu through helm.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-imenu
-    :ensure helm
-    :bind (("C-c n i" . helm-imenu-in-all-buffers)
-           ("C-c n t" . helm-imenu))
-    :custom
-    (helm-imenu-fuzzy-match t)
-    (helm-imenu-execute-action-at-once-if-one nil))
+(use-package helm-imenu
+  :ensure helm
+  :bind (("C-c n i" . helm-imenu-in-all-buffers)
+         ("C-c n t" . helm-imenu))
+  :custom
+  (helm-imenu-fuzzy-match t)
+  (helm-imenu-execute-action-at-once-if-one nil))
 #+END_SRC
 
 *** helm-info
@@ -755,10 +754,10 @@ This allows me to use imenu through helm.
 This package provides useful helm commands for getting info about installed packages, and about emacs itself.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-info
-    :ensure helm
-    :bind (("C-c h h e" . helm-info-emacs)
-           ("C-c h h i" . helm-info-at-point)))
+(use-package helm-info
+  :ensure helm
+  :bind (("C-c h h e" . helm-info-emacs)
+         ("C-c h h i" . helm-info-at-point)))
 #+END_SRC
 
 *** helm-ispell
@@ -766,10 +765,10 @@ This package provides useful helm commands for getting info about installed pack
 This allows us to complete words using ispell from within helm.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-ispell
-    :ensure helm
-    :bind (([remap ispell-word] . helm-ispell)
-           ("C-c h i"           . helm-ispell)))
+(use-package helm-ispell
+  :ensure helm
+  :bind (([remap ispell-word] . helm-ispell)
+         ("C-c h i"           . helm-ispell)))
 #+END_SRC
 
 *** helm-man
@@ -777,9 +776,9 @@ This allows us to complete words using ispell from within helm.
 This package exposes a searchable man-page for the system, and will pop up the man-page for the specified application in the other buffer.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-man
-    :ensure helm
-    :bind ("C-c h m" . helm-man-woman))
+(use-package helm-man
+  :ensure helm
+  :bind ("C-c h m" . helm-man-woman))
 #+END_SRC
 
 *** helm-pages
@@ -787,10 +786,10 @@ This package exposes a searchable man-page for the system, and will pop up the m
 This allows me to move between pages in the current buffer using helm. I don't use this, so I'm leaving it disabled for now.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-pages
-    :ensure helm
-    :disabled
-    :bind ("C-c n P" . helm-pages))
+(use-package helm-pages
+  :ensure helm
+  :disabled
+  :bind ("C-c n P" . helm-pages))
 #+END_SRC
 
 *** helm-projectile
@@ -798,21 +797,21 @@ This allows me to move between pages in the current buffer using helm. I don't u
 Projectile integration using helm. I don't use projectile very much, so I'm leaving this disabled for now.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-projectile
-    :after projectile
-    :disabled
-    :init (helm-projectile-on)
-    :custom (projectile-switch-project-action #'helm-projectile))
+(use-package helm-projectile
+  :after projectile
+  :disabled
+  :init (helm-projectile-on)
+  :custom (projectile-switch-project-action #'helm-projectile))
 #+END_SRC
 
 I believe that ace-jump also works with projectile (?) so I'm putting this here for now. I also don't use it, so I'm leaving it disabled still.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ace-jump-helm-line
-    :after helm
-    :disabled
-    :bind ("C-'" . ace-jump-helm-line)
-    :cusom (ace-jump-helm-line-default-action 'select))
+(use-package ace-jump-helm-line
+  :after helm
+  :disabled
+  :bind ("C-'" . ace-jump-helm-line)
+  :cusom (ace-jump-helm-line-default-action 'select))
 #+END_SRC
 
 *** helm-regex
@@ -820,11 +819,11 @@ I believe that ace-jump also works with projectile (?) so I'm putting this here 
 This package allows you to interactively search through a buffer using regular expressions and helm.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-regex
-    :ensure helm
-    :bind (("C-c M-o"     . helm-occur)
-           ([remap occur] . helm-occur)
-           ("C-c h o"     . helm-multi-occur)))
+(use-package helm-regex
+  :ensure helm
+  :bind (("C-c M-o"     . helm-occur)
+         ([remap occur] . helm-occur)
+         ("C-c h o"     . helm-multi-occur)))
 #+END_SRC
 
 *** helm-register
@@ -832,10 +831,10 @@ This package allows you to interactively search through a buffer using regular e
 This is something I'm not too familiar with. It looks like registers can be used to store pieces of text by assigning them to a register with a single-character name? Leaving it disabled until I need it again.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-register
-    :ensure helm
-    :disabled
-    :bind ([remap insert-register] . helm-register))
+(use-package helm-register
+  :ensure helm
+  :disabled
+  :bind ([remap insert-register] . helm-register))
 #+END_SRC
 
 *** helm-ring
@@ -843,11 +842,11 @@ This is something I'm not too familiar with. It looks like registers can be used
 This integrates the kill/yank ring with helm. For now, I have this disabled because I don't use the kill ring very much.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-ring
-    :ensure helm
-    :disabled
-    :bind (([remap yank-pop] . helm-show-kill-ring)
-           ("C-h SPC"        . helm-all-mark-rings)))
+(use-package helm-ring
+  :ensure helm
+  :disabled
+  :bind (([remap yank-pop] . helm-show-kill-ring)
+         ("C-h SPC"        . helm-all-mark-rings)))
 #+END_SRC
 
 *** helm-swoop
@@ -855,30 +854,30 @@ This integrates the kill/yank ring with helm. For now, I have this disabled beca
 This package provides the ability to search for lines in the current buffer, and interactively display a list of matches in another buffer. I don't really use it very much but it seems quite cool, so I'm remapping it to ~M-s~ so that I get in the habit.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-swoop
-    :ensure helm
-    :bind (("M-s"     . helm-swoop)
-           ("M-S"     . helm-swoop-back-to-last-point)
-           ("C-c M-s" . helm-multi-swoop)
-           ("C-x M-s" . helm-multi-swoop-all)
-           :map isearch-mode-map
-           ("M-s" . #'helm-swoop-from-isearch)
-           :map helm-swoop-map
-           ("M-s" . #'helm-multi-swoop-all-from-helm-swoop)
-           :map helm-swoop-map
-           ("C-r" . helm-previous-line)
-           ("C-s" . helm-next-line)
-           :map helm-multi-swoop-map
-           ("C-r" . helm-previous-line)
-           ("C-s" . helm-next-line))
-    :custom
-    (helm-multi-swoop-edit-save t)
-    (helm-multi-swoop-split-with-multiple-windows nil)
-    (helm-swoop-split-direction 'split-window-vertically)
-    (helm-swoop-speed-or-color t)
-    (helm-swoop-move-to-line-cycle t)
-    (helm-swoop-use-line-number-face t)
-    (helm-swoop-use-fuzzy-match t))
+(use-package helm-swoop
+  :ensure helm
+  :bind (("M-s"     . helm-swoop)
+         ("M-S"     . helm-swoop-back-to-last-point)
+         ("C-c M-s" . helm-multi-swoop)
+         ("C-x M-s" . helm-multi-swoop-all)
+         :map isearch-mode-map
+         ("M-s" . #'helm-swoop-from-isearch)
+         :map helm-swoop-map
+         ("M-s" . #'helm-multi-swoop-all-from-helm-swoop)
+         :map helm-swoop-map
+         ("C-r" . helm-previous-line)
+         ("C-s" . helm-next-line)
+         :map helm-multi-swoop-map
+         ("C-r" . helm-previous-line)
+         ("C-s" . helm-next-line))
+  :custom
+  (helm-multi-swoop-edit-save t)
+  (helm-multi-swoop-split-with-multiple-windows nil)
+  (helm-swoop-split-direction 'split-window-vertically)
+  (helm-swoop-speed-or-color t)
+  (helm-swoop-move-to-line-cycle t)
+  (helm-swoop-use-line-number-face t)
+  (helm-swoop-use-fuzzy-match t))
 #+END_SRC
 
 *** helm-unicode
@@ -886,28 +885,28 @@ This package provides the ability to search for lines in the current buffer, and
 This allows you to browse unicode characters by name through helm, and then insert them into the buffer.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm-unicode
-    :ensure helm
-    :bind ("C-c h 8" . helm-unicode))
+(use-package helm-unicode
+  :ensure helm
+  :bind ("C-c h 8" . helm-unicode))
 #+END_SRC
 ** Language-Specific
 
 First and foremost, I assume that if I'm loading a file with an extension in emacs, it is going to be a programming file. This is generally a safe assumption in my experience (although I do intend to look for a better way to handle this in the future).
 
 #+BEGIN_SRC emacs-lisp
-  ;; This will match any file which has an extension starting with a letter, and
-  ;; it will enable prog-mode
-  (add-to-list 'auto-mode-alist '("^\\.\\w.*\\'" . prog-mode))
+;; This will match any file which has an extension starting with a letter, and
+;; it will enable prog-mode
+(add-to-list 'auto-mode-alist '("^\\.\\w.*\\'" . prog-mode))
 #+END_SRC
 
 Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I also want to enable my custom [[*Utilities][j/infer-indentation-style]] function.
 
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook
-            `(lambda ()
-               (linum-mode)
-               (customize-set-variable 'indent-tabs-mode nil)
-               (j/infer-indentation-style)))
+(add-hook 'prog-mode-hook
+          `(lambda ()
+             (linum-mode)
+             (customize-set-variable 'indent-tabs-mode nil)
+             (j/infer-indentation-style)))
 #+END_SRC
 
 *** asm
@@ -915,11 +914,11 @@ Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I a
 This sets up emacs with minimal settings for working with assembly. I'm starting to do more of this for my OS project, so I may want to improve this.
 
 #+BEGIN_SRC emacs-lisp
-  (require 'asm-mode)
+(require 'asm-mode)
 
-  (add-hook 'asm-mode-hook (lambda ()
-                             (electric-indent-mode -1)
-                             (setq tab-stop-list (number-sequence 4 120 4))))
+(add-hook 'asm-mode-hook (lambda ()
+                           (electric-indent-mode -1)
+                           (setq tab-stop-list (number-sequence 4 120 4))))
 #+END_SRC
 
 *** haskell
@@ -927,8 +926,8 @@ This sets up emacs with minimal settings for working with assembly. I'm starting
 This enables haskell-mode; I need to add a lot to this, although I haven't been using haskell lately, so I'll do it in the future.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package haskell
-    :ensure haskell-mode)
+(use-package haskell
+  :ensure haskell-mode)
 #+END_SRC
 
 *** js
@@ -936,31 +935,31 @@ This enables haskell-mode; I need to add a lot to this, although I haven't been 
 This has some settings for working with javascript code. Like [[haskell]], I don't use js much nowadays, so I'm not worrying about the roughness of this.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package js2-mode
-    :init
-    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-    (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
-    :custom
-    (js2-basic-offset 4)
-    (js-indent-level 4))
+(use-package js2-mode
+  :init
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
+  :custom
+  (js2-basic-offset 4)
+  (js-indent-level 4))
 
-  (use-package js2-refactor
-    :after js2-mode
-    :init
-    (add-hook 'js2-mode-hook #'js2-refactor-mode)
-    (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
-    :config
-    (js2r-add-keybindings-with-prefix "C-c C-r"))
+(use-package js2-refactor
+  :after js2-mode
+  :init
+  (add-hook 'js2-mode-hook #'js2-refactor-mode)
+  (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+  :config
+  (js2r-add-keybindings-with-prefix "C-c C-r"))
 
-  (use-package xref-js2
-    :after js2-mode
-    :init
-    (define-key js2-mode-map (kbd "M-.") nil)
-    (add-hook 'js2-mode-hook (lambda ()
-                               (add-hook 'xref-backend-functions
-                                         #'xref-js2-xref-backend
-                                         nil
-                                         t))))
+(use-package xref-js2
+  :after js2-mode
+  :init
+  (define-key js2-mode-map (kbd "M-.") nil)
+  (add-hook 'js2-mode-hook (lambda ()
+                             (add-hook 'xref-backend-functions
+                                       #'xref-js2-xref-backend
+                                       nil
+                                       t))))
 #+END_SRC
 
 *** org-mode
@@ -970,7 +969,7 @@ While ~org-mode~ isn't necessarily a programming language, I consider it as such
 Since my org-mode configuration is so large, I've split it off into a separate file (inspired by jwiegley's configuration). I use the following code to load my org-mode configuration, and set up some default bindings. If my org config isn't present, I simply skip loading org-mode.
 
 #+BEGIN_SRC emacs-lisp
-  (j/config/load-conf-dot-org "~/jconfig/.emacs.d/j-dot-org.org")
+(j/config/load-conf-dot-org "~/jconfig/.emacs.d/j-dot-org.org")
 #+END_SRC
 
 *** rust
@@ -978,10 +977,10 @@ Since my org-mode configuration is so large, I've split it off into a separate f
 This sets up some basic rust features. I should really look into this more, because I'm doing a lot of rust work these days.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package rust-mode
-    :init
-    (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
-    (setq rust-format-on-save t))
+(use-package rust-mode
+  :init
+  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+  (setq rust-format-on-save t))
 #+END_SRC
 
 ** multiple-cursors
@@ -989,17 +988,17 @@ This sets up some basic rust features. I should really look into this more, beca
 I oftentimes find that I need to edit many lines of code which are already horizontally aligned. When I'm faced with this issue, I turn to my trusty ~multiple-cursors~. This simple package adds an easy-to-use multi-cursor tool.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package multiple-cursors
-    :bind ("C-. C-." . mc/edit-lines))
+(use-package multiple-cursors
+  :bind ("C-. C-." . mc/edit-lines))
 #+END_SRC
 ** saveplace
 
 This package will save the place of the cursor in each file, and restore it upon opening that file up again.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package saveplace
-    :defer nil
-    :config (save-place-mode))
+(use-package saveplace
+  :defer nil
+  :config (save-place-mode))
 #+END_SRC
 ** shell-pop
 
@@ -1008,91 +1007,91 @@ Shell pop is a neat little package that allows you to pop a shell up into your E
 To ensure that the terminal which pops up looks really nice (and more importantly, that it plays nicely with the bash config that I have), I need to get ~eterm-256color~.
 
 #+BEGIN_SRC emacs-lisp
-  ;; Add support for 256 colors to ansi-term
-  (use-package eterm-256color
-    :config (add-hook 'term-mode-hook #'eterm-256color-mode))
+;; Add support for 256 colors to ansi-term
+(use-package eterm-256color
+  :config (add-hook 'term-mode-hook #'eterm-256color-mode))
 #+END_SRC
 
 Now that we have the requisite color package, we can install and configure shell-pop itself.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package shell-pop
-    :after (xterm-color eterm-256color)
-    :bind ([f1] . shell-pop)
-    :custom
-    (shell-pop-window-size 40)
-    (shell-pop-full-span t)
-    (shell-pop-window-position "bottom")
-    (shell-pop-default-directory (getenv "HOME"))
-    (shell-pop-autocd-to-working-dir nil)
-    :config
-    (shell-pop--set-shell-type 'ansi-term '("ansi-term"
-                                            "*ansi-term*"
-                                            (lambda ()
-                                              (ansi-term shell-pop-term-shell))))
-    (add-hook 'shell-pop-in-hook
-              (lambda ()
-                (setq shell-pop-default-directory default-directory)))
-    (add-hook 'shell-pop-in-after-hook
-              (lambda ()
-                (set-process-query-on-exit-flag (get-process "*ansi-term*") nil))))
+(use-package shell-pop
+  :after (xterm-color eterm-256color)
+  :bind ([f1] . shell-pop)
+  :custom
+  (shell-pop-window-size 40)
+  (shell-pop-full-span t)
+  (shell-pop-window-position "bottom")
+  (shell-pop-default-directory (getenv "HOME"))
+  (shell-pop-autocd-to-working-dir nil)
+  :config
+  (shell-pop--set-shell-type 'ansi-term '("ansi-term"
+                                          "*ansi-term*"
+                                          (lambda ()
+                                            (ansi-term shell-pop-term-shell))))
+  (add-hook 'shell-pop-in-hook
+            (lambda ()
+              (setq shell-pop-default-directory default-directory)))
+  (add-hook 'shell-pop-in-after-hook
+            (lambda ()
+              (set-process-query-on-exit-flag (get-process "*ansi-term*") nil))))
 #+END_SRC
 ** smooth-scrolling
 
 This package will scroll line-by-line instead of jumping by half-screens.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package smooth-scrolling
-    :config (smooth-scrolling-mode 1))
+(use-package smooth-scrolling
+  :config (smooth-scrolling-mode 1))
 #+END_SRC
 ** solarized
 
 I enjoy using solarized-dark, and so I load that theme here.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package solarized-theme
-    :if (display-graphic-p)
-    :init
-    (defun j/solarized/toggle-theme ()
-      "Switch between Solarized variants."
-      (interactive)
-      (cond
-       ((member 'solarized-dark custom-enabled-themes)
-        (disable-theme 'solarized-dark)
-        (load-theme 'solarized-light t))
-       ((member 'solarized-light custom-enabled-themes)
-        (disable-theme 'solarized-light)
-        (load-theme 'solarized-dark t))))
-    (load-theme 'solarized-dark t))
+(use-package solarized-theme
+  :if (display-graphic-p)
+  :init
+  (defun j/solarized/toggle-theme ()
+    "Switch between Solarized variants."
+    (interactive)
+    (cond
+     ((member 'solarized-dark custom-enabled-themes)
+      (disable-theme 'solarized-dark)
+      (load-theme 'solarized-light t))
+     ((member 'solarized-light custom-enabled-themes)
+      (disable-theme 'solarized-light)
+      (load-theme 'solarized-dark t))))
+  (load-theme 'solarized-dark t))
 #+END_SRC
 ** symon
 
 [[https://github.com/zk-phi/symon][Symon]] is a really cool package which adds a tiny graphical system monitor into emacs. It will appear on the lower status bar, and can be configured to display a variety of different information. Check out the repo for more details about configuring this.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package symon
-    :if window-system
-    :custom
-    (symon-monitors (cond
-                     ((eq system-type 'gnu/linux)
-                      '(symon-current-time-monitor
-                        symon-linux-battery-monitor
-                        symon-linux-cpu-monitor
-                        symon-linux-memory-monitor
-                        symon-linux-network-rx-monitor
-                        symon-linux-network-tx-monitor))
-                     ((eq system-type 'darwin)
-                      '(symon-current-time-monitor
-                        symon-darwin-battery-monitor
-                        symon-darwin-cpu-monitor
-                        symon-darwin-memory-monitor
-                        symon-darwin-network-rx-monitor
-                        symon-darwin-network-tx-monitor))
-                     (t
-                      (error "Unsupported OS for Symon Package: `%s'"
-                             (symbol-name system-type)))))
-    (symon-refresh-rate 0.5)
-    (symon-history-size 25)
-    (symon-sparkline-type 'bounded)
-    :config (symon-mode))
+(use-package symon
+  :if window-system
+  :custom
+  (symon-monitors (cond
+                   ((eq system-type 'gnu/linux)
+                    '(symon-current-time-monitor
+                      symon-linux-battery-monitor
+                      symon-linux-cpu-monitor
+                      symon-linux-memory-monitor
+                      symon-linux-network-rx-monitor
+                      symon-linux-network-tx-monitor))
+                   ((eq system-type 'darwin)
+                    '(symon-current-time-monitor
+                      symon-darwin-battery-monitor
+                      symon-darwin-cpu-monitor
+                      symon-darwin-memory-monitor
+                      symon-darwin-network-rx-monitor
+                      symon-darwin-network-tx-monitor))
+                   (t
+                    (error "Unsupported OS for Symon Package: `%s'"
+                           (symbol-name system-type)))))
+  (symon-refresh-rate 0.5)
+  (symon-history-size 25)
+  (symon-sparkline-type 'bounded)
+  :config (symon-mode))
 #+END_SRC

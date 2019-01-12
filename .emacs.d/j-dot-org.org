@@ -1,5 +1,4 @@
-#+pPROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/") (file-name-base) ".el") :noweb-ref org-utils
-#+PROPERTY: header-args :mkdirp yes :comments no
+#+PROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/") (file-name-base) ".el") :noweb-ref org-utils :mkdirp yes :comments no
 #+STARTUP: indent overview
 
 #+TITLE: My Org-Mode config for Emacs
@@ -46,26 +45,26 @@ Just as Emacs config is an art, Org mode config is an art, and I've learned a lo
 I use ~:noweb~ snippets below in order to keep the organization of this file nice. Check out the tangled j-dot-org.el file if you want to see how this looks in entirety.
 
 #+BEGIN_SRC emacs-lisp :noweb yes :noweb-ref
-  <<org-utils>>
+<<org-utils>>
 
-  <<org-mode>>
+<<org-mode>>
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :noweb yes :noweb-ref org-mode
-    (use-package org
-      :ensure solarized-theme
-      :diminish org-indent-mode
-      :delight org-mode "Org"
-      :bind
-      <<org-mode-keybindings>>
-      :custom
-      <<org-mode-custom-vars>>
-      :custom-face
-      <<org-mode-custom-faces>>
-      :hook
-      <<org-mode-hooks>>
-      :config
-      <<org-mode-config>>)
+(use-package org
+  :ensure solarized-theme
+  :diminish org-indent-mode
+  :delight org-mode "Org"
+  :bind
+  <<org-mode-keybindings>>
+  :custom
+  <<org-mode-custom-vars>>
+  :custom-face
+  <<org-mode-custom-faces>>
+  :hook
+  <<org-mode-hooks>>
+  :config
+  <<org-mode-config>>)
 #+END_SRC
 ** Aesthetics
 
@@ -76,22 +75,22 @@ I (intend to) use ~org-mode~ a lot, and so I want it to look as nice and aesthet
 There are some things about the layout and design of ~org~ that I want to change. First, I want to get rid of the gross emphasis markers.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-  (org-hide-emphasis-markers t)
+(org-hide-emphasis-markers t)
 #+END_SRC
 
 Next, I want to replace the regular list symbol ('-') with a centered-dot, which looks a lot cleaner.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+(font-lock-add-keywords 'org-mode
+                        '(("^ *\\([-]\\) "
+                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 #+END_SRC
 
 Going further with this idea, we can replace all of the asterisks at the beginning of headings with bullets, using the wonderful ~org-bullets~ package.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package org-bullets
-    :hook (org-mode . (lambda () (org-bullets-mode 1))))
+(use-package org-bullets
+  :hook (org-mode . (lambda () (org-bullets-mode 1))))
 #+END_SRC
 
 *** Font/Color
@@ -99,82 +98,82 @@ Going further with this idea, we can replace all of the asterisks at the beginni
 Just as I like to tweak my terminal and editor colors to look really nice, I want to tweak ~org-mode~ to look really nice. We can start by changing the colors of the [[*Tasks][Tasks]] that we've defined elsewhere.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-vars
-  (org-todo-keyword-faces '(("TODO"      :foreground "lightblue"    :weight bold)
-                            ("NEXT"      :foreground "red"          :weight bold)
-                            ("DONE"      :foreground "forest green" :weight bold)
-                            ("WAITING"   :foreground "orange"       :weight bold)
-                            ("HOLD"      :foreground "magenta"      :weight bold)
-                            ("CANCELLED" :foreground "forest green" :weight bold)
-                            ("MEETING"   :foreground "forest green" :weight bold)
-                            ("PHONE"     :foreground "forest green" :weight bold)))
+(org-todo-keyword-faces '(("TODO"      :foreground "lightblue"    :weight bold)
+                          ("NEXT"      :foreground "red"          :weight bold)
+                          ("DONE"      :foreground "forest green" :weight bold)
+                          ("WAITING"   :foreground "orange"       :weight bold)
+                          ("HOLD"      :foreground "magenta"      :weight bold)
+                          ("CANCELLED" :foreground "forest green" :weight bold)
+                          ("MEETING"   :foreground "forest green" :weight bold)
+                          ("PHONE"     :foreground "forest green" :weight bold)))
 #+END_SRC
 
 I also tweak the font for the DONE task based on [[https://lists.gnu.org/archive/html/emacs-orgmode/2007-03/msg00179.html][this]] discussion.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq org-fontify-done-headline t)
+(setq org-fontify-done-headline t)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-custom-faces
-  (org-done ((t (:foreground "Cyan" :weight normal :strike-through t))))
-  (org-headline-done ((((class color) (min-colors 16) (background dark))
-                       (:foreground "LightSalmon" :strike-through t))))
+(org-done ((t (:foreground "Cyan" :weight normal :strike-through t))))
+(org-headline-done ((((class color) (min-colors 16) (background dark))
+                     (:foreground "LightSalmon" :strike-through t))))
 #+END_SRC
 
 With this done, we also set up the standard fonts that we need to variable and fixed pitch. NOTE: We need to manually install these fonts onto the system.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (custom-theme-set-faces
-   'user
-   '(variable-pitch ((t (:family "Source Sans Pro" :height 150 :weight normal))))
-   '(fixed-pitch ((t (:family "Inconsolata"
-                      :slant normal
-                      :weight normal
-                      :height 1.0
-                      :width normal)))))
+(custom-theme-set-faces
+ 'user
+ '(variable-pitch ((t (:family "Source Sans Pro" :height 150 :weight normal))))
+ '(fixed-pitch ((t (:family "Inconsolata"
+                            :slant normal
+                            :weight normal
+                            :height 1.0
+                            :width normal)))))
 #+END_SRC
 
 We also want to configure the fonts for other org-elements so that we don't get stuck with the variable pitch for everything (since it can be kinda annoying).
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (custom-theme-set-faces
-   'user
-   '(org-block                 ((t (:inherit fixed-pitch))))
-   '(org-document-info         ((t (:foreground "dark orange"))))
-   '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-   '(org-link                  ((t (:foreground "royal blue" :underline t))))
-   '(org-meta-line             ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-   '(org-property-value        ((t (:inherit fixed-pitch))) t)
-   '(org-special-keyword       ((t (:inherit (font-locked-comment-face fixed-pitch)))))
-   '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weigth bold :height 0.8))))
-   '(org-verbatim              ((t (:inherit (shadow fixed-pitch))))))
+(custom-theme-set-faces
+ 'user
+ '(org-block                 ((t (:inherit fixed-pitch))))
+ '(org-document-info         ((t (:foreground "dark orange"))))
+ '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+ '(org-link                  ((t (:foreground "royal blue" :underline t))))
+ '(org-meta-line             ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+ '(org-property-value        ((t (:inherit fixed-pitch))) t)
+ '(org-special-keyword       ((t (:inherit (font-locked-comment-face fixed-pitch)))))
+ '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weigth bold :height 0.8))))
+ '(org-verbatim              ((t (:inherit (shadow fixed-pitch))))))
 #+END_SRC
 
 Next, we set up a nice proportional font, in different sizes, for the headlines. The fonts listed will be tried in sequence, and the first one found will be used. Add more if you so desire. This doesn't work right now, so I'm leaving it disabled; add ':noweb-ref org-mode-config' if you want to use it again.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref
-  (let ((variable-tuple
-         (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
-               ((x-list-fonts "Lucida Grande")   '(:font "Lucia Grande"))
-               ((x-list-fonts "Verdana")         '(:font "Verdana"))
-               ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
-               (nil (warn "Cannot find a Sans Serif font. Install Source Sans Pro."))))
-        (get-headline
-         (lambda (level)
-           (let ((base-font-color (face-foreground level nil 'default)))
-             (warn "%s: %s" level base-font-color)
-             `(:inherit default :weight bold :foreground ,base-font-color)))))
-    (custom-theme-set-faces
-     'user
-     `(org-level-8 ((t (,@(funcall get-headline 'org-level-8) ,@variable-tuple))))
-     `(org-level-7 ((t (,@(funcall get-headline 'org-level-7) ,@variable-tuple))))
-     `(org-level-6 ((t (,@(funcall get-headline 'org-level-6) ,@variable-tuple))))
-     `(org-level-5 ((t (,@(funcall get-headline 'org-level-5) ,@variable-tuple))))
-     `(org-level-4 ((t (,@(funcall get-headline 'org-level-4) ,@variable-tuple :height 1.1))))
-     `(org-level-3 ((t (,@(funcall get-headline 'org-level-3) ,@variable-tuple :height 1.25))))
-     `(org-level-2 ((t (,@(funcall get-headline 'org-level-2) ,@variable-tuple :height 1.5))))
-     `(org-level-1 ((t (,@(funcall get-headline 'org-level-1) ,@variable-tuple :height 1.75))))
-     `(org-document-title ((t (,@(funcall get-headline 'org-document-title) ,@variable-tuple :height 2.0 :underline nil))))))
+(let ((variable-tuple
+       (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+             ((x-list-fonts "Lucida Grande")   '(:font "Lucia Grande"))
+             ((x-list-fonts "Verdana")         '(:font "Verdana"))
+             ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+             (nil (warn "Cannot find a Sans Serif font. Install Source Sans Pro."))))
+      (get-headline
+       (lambda (level)
+         (let ((base-font-color (face-foreground level nil 'default)))
+           (warn "%s: %s" level base-font-color)
+           `(:inherit default :weight bold :foreground ,base-font-color)))))
+  (custom-theme-set-faces
+   'user
+   `(org-level-8 ((t (,@(funcall get-headline 'org-level-8) ,@variable-tuple))))
+   `(org-level-7 ((t (,@(funcall get-headline 'org-level-7) ,@variable-tuple))))
+   `(org-level-6 ((t (,@(funcall get-headline 'org-level-6) ,@variable-tuple))))
+   `(org-level-5 ((t (,@(funcall get-headline 'org-level-5) ,@variable-tuple))))
+   `(org-level-4 ((t (,@(funcall get-headline 'org-level-4) ,@variable-tuple :height 1.1))))
+   `(org-level-3 ((t (,@(funcall get-headline 'org-level-3) ,@variable-tuple :height 1.25))))
+   `(org-level-2 ((t (,@(funcall get-headline 'org-level-2) ,@variable-tuple :height 1.5))))
+   `(org-level-1 ((t (,@(funcall get-headline 'org-level-1) ,@variable-tuple :height 1.75))))
+   `(org-document-title ((t (,@(funcall get-headline 'org-document-title) ,@variable-tuple :height 2.0 :underline nil))))))
 #+END_SRC
 
 ** Bindings
@@ -182,36 +181,36 @@ Next, we set up a nice proportional font, in different sizes, for the headlines.
 I'm not convinced that these are the binding for me, but I'm going to use them for now, because I'm trying out the workflow from [[http://doc.norang.ca/org-mode.html#CaptureTasksAreFast][norang's]] GTD tutorial.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-keybindings
-  (("<f12>"     . 'org-agenda)
-   ("<f5>"      . 'j/org/org-todo)
-   ("S-<f5>"    . 'j/org/widen)
-   ("<f7>"      . 'j/org/set-truncate-lines)
-   ("<f8>"      . 'org-cycle-agenda-files)
-   ("<f9> <f9>" . 'j/org/show-org-agenda)
-   ("<f9> c"    . 'calendar)
-   ("<f9> h"    . 'j/org/hide-other)
-   ("<f9> n"    . 'j/org/toggle-next-task-display)
+(("<f12>"     . 'org-agenda)
+ ("<f5>"      . 'j/org/org-todo)
+ ("S-<f5>"    . 'j/org/widen)
+ ("<f7>"      . 'j/org/set-truncate-lines)
+ ("<f8>"      . 'org-cycle-agenda-files)
+ ("<f9> <f9>" . 'j/org/show-org-agenda)
+ ("<f9> c"    . 'calendar)
+ ("<f9> h"    . 'j/org/hide-other)
+ ("<f9> n"    . 'j/org/toggle-next-task-display)
 
-   ("<f9> I"    . 'j/org/punch-in)
-   ("<f9> O"    . 'j/org/punch-out)
+ ("<f9> I"    . 'j/org/punch-in)
+ ("<f9> O"    . 'j/org/punch-out)
 
-   ("<f9> o"    . 'j/org/make-org-scratch)
-   ("<f9> s"    . 'j/org/switch-to-scratch)
+ ("<f9> o"    . 'j/org/make-org-scratch)
+ ("<f9> s"    . 'j/org/switch-to-scratch)
 
-   ("<f9> t"    . 'j/org/insert-inactive-timestamp)
-   ("<f9> T"    . 'j/org/toggle-insert-inactive-timestamp)
+ ("<f9> t"    . 'j/org/insert-inactive-timestamp)
+ ("<f9> T"    . 'j/org/toggle-insert-inactive-timestamp)
 
-   ("<f9> v"    . 'visible-mode)
-   ("<f9> l"    . 'org-toggle-link-display)
-   ("C-<f9>"    . 'previous-buffer)
-   ("M-<f9>"    . 'org-toggle-inline-images)
-   ("C-x n r"   . 'narrow-to-region)
-   ("C-<f10>"   . 'next-buffer)
-   ("<f11>"     . 'org-clock-goto)
-   ("C-<f11>"   . 'org-clock-in)
+ ("<f9> v"    . 'visible-mode)
+ ("<f9> l"    . 'org-toggle-link-display)
+ ("C-<f9>"    . 'previous-buffer)
+ ("M-<f9>"    . 'org-toggle-inline-images)
+ ("C-x n r"   . 'narrow-to-region)
+ ("C-<f10>"   . 'next-buffer)
+ ("<f11>"     . 'org-clock-goto)
+ ("C-<f11>"   . 'org-clock-in)
 
-   ("C-c c"     . 'org-capture)
-   ("C-c l"     . 'org-store-link))
+ ("C-c c"     . 'org-capture)
+ ("C-c l"     . 'org-store-link))
 #+END_SRC
 
 ** Configuration
@@ -223,12 +222,12 @@ I have a large number of different configurations that I add to org-mode so that
 [[http://doc.norang.ca/org-mode.html#CustomAgendaViews][The Agenda]] can be a very powerful tool, and I need to experiment more with it. However, I'm quite intrigued by [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]] and I want to explore that before I worry about learning all this junk.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq org-agenda-files '("~/Dropbox/org/" "~/dev/exorust/xo/xo.org")
-        org-agenda-window-setup 'current-window
-        ;; I can look at the week view deliberately if I want
-        org-agenda-span 'day
-        org-agenda-dim-blocked-tasks nil
-        org-agenda-compact-blocks t)
+(setq org-agenda-files '("~/Dropbox/org/" "~/dev/exorust/xo/xo.org")
+      org-agenda-window-setup 'current-window
+      ;; I can look at the week view deliberately if I want
+      org-agenda-span 'day
+      org-agenda-dim-blocked-tasks nil
+      org-agenda-compact-blocks t)
 #+END_SRC
 
 *** Archive
@@ -237,8 +236,8 @@ I have a large number of different configurations that I add to org-mode so that
 [[http://doc.norang.ca/org-mode.html#Archiving][Archiving]] is something which I'm not really worrying about yet. For now, I've copied the code from norang's tutorial and added the configs, but I'm not sure when I'll use them. I should return to this later.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq org-archive-mark-done nil
-        org-archive-location "%s_archive::* Archived Tasks")
+(setq org-archive-mark-done nil
+      org-archive-location "%s_archive::* Archived Tasks")
 #+END_SRC
 
 *** Babel
@@ -251,36 +250,38 @@ First, however, we need to ensure that we have the necessary extension packages 
 - I've been doing a lot of rust programming lately for my exokernel project, so I want to be able to write literate-rust files. For that, I turn to ~ob-rust~, although I don't enable rust-code execution bc I'm only intending to tangle src-blocks for now.
 
   #+BEGIN_SRC emacs-lisp
-    (use-package ob-rust)
+(use-package ob-rust)
   #+END_SRC
 - ~ob-restclient~: [[https://github.com/pashky/restclient.el][restclient.el]] is an interesting package that lets you execute REST commands from inside emacs, and then display the restuls. This wrapper allows you to write REST commands in ~org-mode~ source blocks, like this:
 
   #+BEGIN_EXAMPLE
-  #+BEGIN_SRC restclient
-    GET http://example.com
-  #+END_SRC
+,#+BEGIN_SRC restclient
+  GET http://example.com
+,#+END_SRC
   #+END_EXAMPLE
 
   This is a weird hack. Usually, I would use-pacakge org-babel, but because org is now standard in emacs I can't do this. Since I need ob-restclient, I simply set the babel variables in the ob-restclient config block.
 
   #+BEGIN_SRC emacs-lisp
-        (use-package ob-restclient
-          :config
-          (org-babel-do-load-languages
-           'org-babel-load-languages
-           '((calc       . t) ; this is a built in calculator
-             (emacs-lisp . t)
-             (haskell    . t)
-             (python     . t)
-             (restclient . t)
-             (shell      . t))))
+(use-package ob-restclient
+  :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((calc       . t) ; this is a built in calculator
+     (emacs-lisp . t)
+     (haskell    . t)
+     (python     . t)
+     (restclient . t)
+     (shell      . t))))
   #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq org-src-window-setup 'current-window
-        org-src-fontify-natively t
-        org-src-tabs-act-natively t
-        org-confirm-babel-evaluate nil)
+(setq org-src-window-setup 'current-window
+      org-src-fontify-natively t
+      org-src-tab-acts-natively t
+      org-src-preserve-indentation t
+      org-edit-src-content-indentation 0
+      org-confirm-babel-evaluate nil)
 #+END_SRC
 
 *** Capture
@@ -290,56 +291,56 @@ First, however, we need to ensure that we have the necessary extension packages 
 Since I am going to be prompting myself for data to fill in my templates, I want to create a history to save myself some keystrokes.
 
 #+BEGIN_SRC emacs-lisp
-  (defvar j/org/capture/prompt-history nil
-    "History of prompt answers for org capture.")
+(defvar j/org/capture/prompt-history nil
+  "History of prompt answers for org capture.")
 #+END_SRC
 
 Now I create prompts for various types of input.
 
 #+BEGIN_SRC emacs-lisp
-  (defun j/org/capture/prompt (prompt variable)
-    "PROMPT for string, save it to VARIABLE, and insert it."
-    (make-local-variable variable)
-    (set variable (read-string (concat prompt ": ") nil j/org/capture/prompt-history)))
+(defun j/org/capture/prompt (prompt variable)
+  "PROMPT for string, save it to VARIABLE, and insert it."
+  (make-local-variable variable)
+  (set variable (read-string (concat prompt ": ") nil j/org/capture/prompt-history)))
 
-  (defun j/org/capture/prompt-date (prompt variable)
-    "PROMPT for a date, save it to VARIABLE, and insert it."
-    (make-local-variable variable)
-    (set variable
-         (format-time-string
-          (org-time-stamp-format nil nil)
-          (org-read-date nil t nil prompt))))
+(defun j/org/capture/prompt-date (prompt variable)
+  "PROMPT for a date, save it to VARIABLE, and insert it."
+  (make-local-variable variable)
+  (set variable
+       (format-time-string
+        (org-time-stamp-format nil nil)
+        (org-read-date nil t nil prompt))))
 
-  (defun j/org/capture/insert (variable)
-    "Insert contents of VARIABLE."
-    (symbol-value variable))
+(defun j/org/capture/insert (variable)
+  "Insert contents of VARIABLE."
+  (symbol-value variable))
 
-  (defun j/org/capture/optional (what text)
-    "Ask user to include WHAT. If user agrees return TEXT."
-    (when (y-or-n-p (concat "Include " what "?"))
-      text))
+(defun j/org/capture/optional (what text)
+  "Ask user to include WHAT. If user agrees return TEXT."
+  (when (y-or-n-p (concat "Include " what "?"))
+    text))
 
-  (defun j/org/capture/selection (list variable)
-    "Let the user choose between a pre-defined set of strings."
-    (make-local-variable variable)
-    (let ((selected-value (ido-completing-read "Select from list: " list)))
-      (set variable selected-value)
-      selected-value))
+(defun j/org/capture/selection (list variable)
+  "Let the user choose between a pre-defined set of strings."
+  (make-local-variable variable)
+  (let ((selected-value (ido-completing-read "Select from list: " list)))
+    (set variable selected-value)
+    selected-value))
 #+END_SRC
 
 I also create a function which constructs the properties that I want for capture tasks.
 
 #+BEGIN_SRC emacs-lisp
-  (defun j/org/capture/template/properties (&optional extra-properties)
-    (or extra-properties (setq extra-properties ""))
-    (concat ":PROPERTIES:\n:CREATED: %U\n:FROM: \%a\n" extra-properties "\n:END:\n\n"))
+(defun j/org/capture/template/properties (&optional extra-properties)
+  (or extra-properties (setq extra-properties ""))
+  (concat ":PROPERTIES:\n:CREATED: %U\n:FROM: \%a\n" extra-properties "\n:END:\n\n"))
 #+END_SRC
 
 Now, I create a shortcut for a simple NEXT task, which I use more below. I also create a test task so I can play around with the prompts that I have.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq j/org/capture/template/next (concat "* NEXT %?\nDEADLINE: %(j/org/capture/prompt-date \"Due Date\" 'j/org/capture/next/date)\n" (j/org/capture/template/properties))
-        j/org/capture/template/test "** Capture test
+(setq j/org/capture/template/next (concat "* NEXT %?\nDEADLINE: %(j/org/capture/prompt-date \"Due Date\" 'j/org/capture/next/date)\n" (j/org/capture/template/properties))
+      j/org/capture/template/test "** Capture test
 
   - Entering values: %(j/org/capture/prompt \"Please enter FOO\" 'j/foo) %(j/org/capture/prompt \"Please enter BAR\" 'j/bar)
   - Entering a date: %(j/org/capture/prompt-date \"Enter a date\" 'j/date)
@@ -357,46 +358,46 @@ Now, I create a shortcut for a simple NEXT task, which I use more below. I also 
 Now that I have my shortcuts, I proceed to actually write my templates.
 
 #+BEGIN_SRC emacs-lisp :tangle-no :noweb-ref org-mode-config
-  (setq org-capture-templates
-        `(("s" "shorts-todo" entry (file+headline "~/Dropbox/org/refile.org" "Shorts")
-           ,j/org/capture/template/next :clock-in t :clock-resume t)
-          ("t" "todo")
-          ("tn" "dateless todo" entry (file "~/Dropbox/org/refile.org")
-           ,(concat "* TODO %?\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-          ("td" "dated todo" entry (file "~/Dropbox/org/refile.org")
-           ,(concat "* TODO %?\nDEADLINE: %(j/org/capture/prompt-date \"Due Date\" 'j/org/capture/next/date)\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-          ("r" "respond" entry (file "~/Dropbox/org/refile.org")
-           ,(concat "* NEXT RESPOND to %:from on %:subject\nSCHEDULED: %t\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t :immediate-finish t)
-          ("n" "note" entry (file "~/Dropbox/org/refile.org")
-           ,(concat "* %? :NOTE:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-          ("j" "Journal" entry (file+olp+datetree "~/Dropbox/org/diary.org")
-           "* %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n" :clock-in t :clock-resume t)
-          ("m" "Meeting" entry (file "~/Dropbox/org/refile.org")
-           ,(concat "MEETING with %? :MEETING:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-          ("p" "Phone Call" entry (file "~/Dropbox/org/refile.org")
-           ,(concat "PHONE %? :PHONE:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-          ("h" "Habit" entry (file "~/Dropbox/org/refile.org")
-           ,(j/org/capture/template/properties "SCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT"))
-          ("X" "test" entry (file+headline "~/Dropbox/org/refile.org" "Tests")
-           ,j/org/capture/template/test :empty-lines 1)))
+(setq org-capture-templates
+      `(("s" "shorts-todo" entry (file+headline "~/Dropbox/org/refile.org" "Shorts")
+         ,j/org/capture/template/next :clock-in t :clock-resume t)
+        ("t" "todo")
+        ("tn" "dateless todo" entry (file "~/Dropbox/org/refile.org")
+         ,(concat "* TODO %?\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+        ("td" "dated todo" entry (file "~/Dropbox/org/refile.org")
+         ,(concat "* TODO %?\nDEADLINE: %(j/org/capture/prompt-date \"Due Date\" 'j/org/capture/next/date)\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+        ("r" "respond" entry (file "~/Dropbox/org/refile.org")
+         ,(concat "* NEXT RESPOND to %:from on %:subject\nSCHEDULED: %t\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t :immediate-finish t)
+        ("n" "note" entry (file "~/Dropbox/org/refile.org")
+         ,(concat "* %? :NOTE:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+        ("j" "Journal" entry (file+olp+datetree "~/Dropbox/org/diary.org")
+         "* %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n" :clock-in t :clock-resume t)
+        ("m" "Meeting" entry (file "~/Dropbox/org/refile.org")
+         ,(concat "MEETING with %? :MEETING:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+        ("p" "Phone Call" entry (file "~/Dropbox/org/refile.org")
+         ,(concat "PHONE %? :PHONE:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+        ("h" "Habit" entry (file "~/Dropbox/org/refile.org")
+         ,(j/org/capture/template/properties "SCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT"))
+        ("X" "test" entry (file+headline "~/Dropbox/org/refile.org" "Tests")
+         ,j/org/capture/template/test :empty-lines 1)))
 #+END_SRC
 *** Clocking
 
 [[http://doc.norang.ca/org-mode.html#Clocking][Time]] [[http://doc.norang.ca/org-mode.html#TimeReportingAndTracking][Clocking]] is something that I am extremely excited about with ~org-mode~. I am awful at tracking how long I work on things, and I'm awful at estimating how long things will take. Hopefully, but tracking all of my work in a streamlined way, I'll be able to get a better handle on that sort of stuff. Plus I'm a data nerd, so I'm really freaking excited about generating a bunch of data about myself.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq org-clock-history-length 23
-        org-clock-in-resume t
-        org-clock-in-switch-to-state 'j/org/clock-in-to-next
-        org-drawers '("PROPERTIES" "LOGBOOK")
-        org-clock-into-drawer t
-        org-clock-out-remove-zero-time-clocks t
-        org-clock-out-when-done t
-        org-clock-persist t
-        org-clock-persist-query-resume nil
-        org-clock-auto-clock-resolution 'when-no-clock-is-running
-        org-clock-report-include-clocking-task t
-        j/org/keep-clock-running nil)
+(setq org-clock-history-length 23
+      org-clock-in-resume t
+      org-clock-in-switch-to-state 'j/org/clock-in-to-next
+      org-drawers '("PROPERTIES" "LOGBOOK")
+      org-clock-into-drawer t
+      org-clock-out-remove-zero-time-clocks t
+      org-clock-out-when-done t
+      org-clock-persist t
+      org-clock-persist-query-resume nil
+      org-clock-auto-clock-resolution 'when-no-clock-is-running
+      org-clock-report-include-clocking-task t
+      j/org/keep-clock-running nil)
 #+END_SRC
 
 *** General
@@ -404,19 +405,19 @@ Now that I have my shortcuts, I proceed to actually write my templates.
 These are general ~org-mode~ configurations that didn't have a better home.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq org-directory "~/Dropbox/org"
-        org-default-notes-file "~/Dropbox/org/refile.org"
-        org-ellipsis "…"
-        org-log-done 'time
-        org-return-follows-link t
-        org-imenu-depth 3
-        org-startup-folded t
-        org-startup-truncated nil
-        org-use-property-inheritance t)
-  (advice-add 'org-serc--construct-edit-buffer-name :override #'j/org/org-src-buffer-name)
-  ;; Resume clocking task when emacs is restarted
-  (org-clock-persistence-insinuate)
-  (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
+(setq org-directory "~/Dropbox/org"
+      org-default-notes-file "~/Dropbox/org/refile.org"
+      org-ellipsis "…"
+      org-log-done 'time
+      org-return-follows-link t
+      org-imenu-depth 3
+      org-startup-folded t
+      org-startup-truncated nil
+      org-use-property-inheritance t)
+(advice-add 'org-serc--construct-edit-buffer-name :override #'j/org/org-src-buffer-name)
+;; Resume clocking task when emacs is restarted
+(org-clock-persistence-insinuate)
+(add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
 #+END_SRC
 
 *** Refile
@@ -424,15 +425,15 @@ These are general ~org-mode~ configurations that didn't have a better home.
 [[http://doc.norang.ca/org-mode.html#Refiling][Refiling]] tasks allows you to quickly and painlessly move things around in/between org files. In confunction with [[Caputre][capturing]] it serves to make it nearly painless to jot things down into emacs. I have the convention that my ~/Dropbox/org/refile.org file contains all of my refile tasks (and it marks all of them with a FILETAGS: refile).
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq org-refile-targets '((nil :maxlevel . 9)
-                             (j/org/org-files-list :maxlevel . 9)
-                             (org-agenda-files :maxlevel . 9))
-        org-refile-use-outline-path t
-        ;; needed to use helm for completion
-        org-outline-path-complete-in-steps nil
-        org-refile-allow-creating-parent-nodes 'confirm
-        org-completion-use-ido nil
-        org-refile-target-verify-function 'j/org/verify-refile-target)
+(setq org-refile-targets '((nil :maxlevel . 9)
+                           (j/org/org-files-list :maxlevel . 9)
+                           (org-agenda-files :maxlevel . 9))
+      org-refile-use-outline-path t
+      ;; needed to use helm for completion
+      org-outline-path-complete-in-steps nil
+      org-refile-allow-creating-parent-nodes 'confirm
+      org-completion-use-ido nil
+      org-refile-target-verify-function 'j/org/verify-refile-target)
 #+END_SRC
 
 *** Tasks
@@ -444,21 +445,21 @@ This is an outline of my task-flow:
 [[file:~/Dropbox/org/normal_task_states.png][Normal Task States]]
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)"
-                                      "|"
-                                      "DONE(d)")
-                            (sequence "WAITING(w@/!)" "HOLD(h@/!)"
-                                      "|"
-                                      "CANCELLED(c@/!)" "PHONE" "MEETING"))
-        org-todo-state-tags-triggers '(("CANCELLED" ("CANCELLED" . t))
-                                       ("WAITING" ("WAITING" . t))
-                                       ("HOLD" ("WAITING") ("HOLD" . t))
-                                       (done ("WAITING") ("HOLD"))
-                                       ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
-                                       ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
-                                       ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))
-        org-treat-S-cursor-todo-selection-as-state-change nil
-        org-use-fast-todo-selection t)
+(setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)"
+                                    "|"
+                                    "DONE(d)")
+                          (sequence "WAITING(w@/!)" "HOLD(h@/!)"
+                                    "|"
+                                    "CANCELLED(c@/!)" "PHONE" "MEETING"))
+      org-todo-state-tags-triggers '(("CANCELLED" ("CANCELLED" . t))
+                                     ("WAITING" ("WAITING" . t))
+                                     ("HOLD" ("WAITING") ("HOLD" . t))
+                                     (done ("WAITING") ("HOLD"))
+                                     ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+                                     ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+                                     ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))
+      org-treat-S-cursor-todo-selection-as-state-change nil
+      org-use-fast-todo-selection t)
 #+END_SRC
 
 ** Helper Functions
@@ -470,255 +471,255 @@ There are a variety of helper functions which I need to get my ~org-mode~ setup 
 This section contains functions that are used when working with the agenda.
 
 #+BEGIN_SRC emacs-lisp
-  (defun j/org/is-project-p ()
-    "Any task with a todo keyword subtask"
-    (save-restriction
-      (widen)
-      (let ((has-subtask)
-            (subtree-end (save-excursion (org-end-of-subtree t)))
-            (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-        (save-excursion
-          (forward-line 1)
-          (while (and (not has-subtask)
-                      (< (point) subtree-end)
-                      (re-search-forward "^\*+ " subtree-end t))
-            (when (member (org-get-todo-state) org-todo-keywords-1)
-              (setq has-subtask t))))
-        (and is-a-task has-subtask))))
-
-  (defun j/org/is-project-subtree-p ()
-    "Any task with a todo keyword that is in a project subtree. Callers of this function already widen the buffer view."
-    (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
-                                (point))))
-      (save-excursion
-        (j/org/find-project-task)
-        (if (equal (point) task)
-            nil
-          t))))
-
-  (defun j/org/is-task-p ()
-    "Any task with a todo keyword and no subtask."
-    (save-restriction
-      (widen)
-      (let ((has-subtask)
-            (subtree-end (save-excursion (org-end-of-subtree t)))
-            (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-        (save-excursion
-          (forward-line 1)
-          (while (and (not has-subtask)
-                      (< (point) subtree-end)
-                      (re-search-forward "^\*+ " subtree-end t))
-            (when (member (org-get-todo-state) org-todo-keywords-1)
-              (setq has-subtask t))))
-        (and is-a-task (not has-subtask)))))
-
-  (defun j/org/is-subproject-p ()
-    "Any task which is a subtask of another project."
-    (let ((is-subproject)
+(defun j/org/is-project-p ()
+  "Any task with a todo keyword subtask"
+  (save-restriction
+    (widen)
+    (let ((has-subtask)
+          (subtree-end (save-excursion (org-end-of-subtree t)))
           (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
       (save-excursion
-        (while (and (not is-subproject) (org-up-heading-safe))
-          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-            (setq is-subproject t))))
-      (and is-a-task is-subproject)))
+        (forward-line 1)
+        (while (and (not has-subtask)
+                    (< (point) subtree-end)
+                    (re-search-forward "^\*+ " subtree-end t))
+          (when (member (org-get-todo-state) org-todo-keywords-1)
+            (setq has-subtask t))))
+      (and is-a-task has-subtask))))
 
-  (defun j/org/list-sublevels-for-projects-indented ()
-    "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
+(defun j/org/is-project-subtree-p ()
+  "Any task with a todo keyword that is in a project subtree. Callers of this function already widen the buffer view."
+  (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
+                              (point))))
+    (save-excursion
+      (j/org/find-project-task)
+      (if (equal (point) task)
+          nil
+        t))))
+
+(defun j/org/is-task-p ()
+  "Any task with a todo keyword and no subtask."
+  (save-restriction
+    (widen)
+    (let ((has-subtask)
+          (subtree-end (save-excursion (org-end-of-subtree t)))
+          (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+      (save-excursion
+        (forward-line 1)
+        (while (and (not has-subtask)
+                    (< (point) subtree-end)
+                    (re-search-forward "^\*+ " subtree-end t))
+          (when (member (org-get-todo-state) org-todo-keywords-1)
+            (setq has-subtask t))))
+      (and is-a-task (not has-subtask)))))
+
+(defun j/org/is-subproject-p ()
+  "Any task which is a subtask of another project."
+  (let ((is-subproject)
+        (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+    (save-excursion
+      (while (and (not is-subproject) (org-up-heading-safe))
+        (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+          (setq is-subproject t))))
+    (and is-a-task is-subproject)))
+
+(defun j/org/list-sublevels-for-projects-indented ()
+  "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
   This is normally used by skipping functions where this variable is already local to the agenda."
-    (if (marker-buffer org-agenda-restrict-begin)
-        (setq org-tags-match-list-sublevels 'indented)
-      (setq org-tags-match-list-sublevels nil))
-    nil)
+  (if (marker-buffer org-agenda-restrict-begin)
+      (setq org-tags-match-list-sublevels 'indented)
+    (setq org-tags-match-list-sublevels nil))
+  nil)
 
-  (defun j/org/list-sublevels-for-projects ()
-    "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
+(defun j/org/list-sublevels-for-projects ()
+  "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
   This is normally used by skipping functions where this variable is already local to the agenda."
-    (if (marker-buffer org-agenda-restrict-begin)
-        (setq org-tags-match-list-sublevels t)
-      (setq org-tags-match-list-levels nil))
-    nil)
+  (if (marker-buffer org-agenda-restrict-begin)
+      (setq org-tags-match-list-sublevels t)
+    (setq org-tags-match-list-levels nil))
+  nil)
 
-  (defvar j/org/hide-scheduled-and-waiting-next-tasks t)
+(defvar j/org/hide-scheduled-and-waiting-next-tasks t)
 
-  (defun j/org/toggle-next-task-display ()
-    (interactive)
-    (setq j/org/hide-scheduled-and-waiting-next-tasks (not j/org/hide-scheduled-and-waiting-next-tasks))
-    (when (equal major-mode 'org-agenda-mode)
-      (org-agenda-redo))
-    (message "%s WAITING and SCHEDULED NEXT tasks" (if j/org/hide-scheduled-and-waiting-next-tasks "Hide" "Show")))
+(defun j/org/toggle-next-task-display ()
+  (interactive)
+  (setq j/org/hide-scheduled-and-waiting-next-tasks (not j/org/hide-scheduled-and-waiting-next-tasks))
+  (when (equal major-mode 'org-agenda-mode)
+    (org-agenda-redo))
+  (message "%s WAITING and SCHEDULED NEXT tasks" (if j/org/hide-scheduled-and-waiting-next-tasks "Hide" "Show")))
 
-  (defun j/org/skip-stuck-projects ()
-    "Skip trees that are stuck projects"
-    (save-restriction
-      (widen)
-      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-        (if (j/org/is-project-p)
-            (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-                   (has next))
-              (save-excursion
-                (forward-line 1)
-                (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
-                  (unless (member "WAITING" (org-get-tags-at))
-                    (setq has-next t))))
-              (if has-next
-                  nil
-                next-headline)) ; a non stuck project, has subtasks but no next task
-          nil))))
+(defun j/org/skip-stuck-projects ()
+  "Skip trees that are stuck projects"
+  (save-restriction
+    (widen)
+    (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+      (if (j/org/is-project-p)
+          (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                 (has next))
+            (save-excursion
+              (forward-line 1)
+              (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
+                (unless (member "WAITING" (org-get-tags-at))
+                  (setq has-next t))))
+            (if has-next
+                nil
+              next-headline)) ; a non stuck project, has subtasks but no next task
+        nil))))
 
-  (defun j/org/skip-non-stuck-projects ()
-    "Skip trees that are not stuck projects"
-    (j/org/list-sublevels-for-projects-indented)
-    (save-restriction
-      (widen)
-      (let ((next-headling (save-excursion (or (outline-next-heading) (point-max)))))
-        (if (j/org/is-project-p)
-            (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-                   (has-next))
-              (save-excursion
-                (forward-line 1)
-                (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
-                  (unless (member "WAITING" (org-get-tags-at))
-                    (setq has-next t))))
-              (if has-next
-                  next-headline
-                nil)) ; a stuck project, has subtasks but no next task
-          next-headline))))
+(defun j/org/skip-non-stuck-projects ()
+  "Skip trees that are not stuck projects"
+  (j/org/list-sublevels-for-projects-indented)
+  (save-restriction
+    (widen)
+    (let ((next-headling (save-excursion (or (outline-next-heading) (point-max)))))
+      (if (j/org/is-project-p)
+          (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                 (has-next))
+            (save-excursion
+              (forward-line 1)
+              (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
+                (unless (member "WAITING" (org-get-tags-at))
+                  (setq has-next t))))
+            (if has-next
+                next-headline
+              nil)) ; a stuck project, has subtasks but no next task
+        next-headline))))
 
-  (defun j/org/skip-non-projects ()
-    "Skip trees that are not projects."
-    (j/org/list-sublevels-for-projects-indented)
-    (if (save-excursion (j/org/skip-non-stuck-projects))
-        (save-restriction
-          (widen)
-          (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-            (cond
-             ((j/org/is-project-p)
-              nil)
-             ((and (j/org/is-project-subtree-p) (not (j/org/is-task-p)))
-              nil)
-             (t
-              subtree-end))))
-      (save-excursion (org-end-of-subtree t))))
+(defun j/org/skip-non-projects ()
+  "Skip trees that are not projects."
+  (j/org/list-sublevels-for-projects-indented)
+  (if (save-excursion (j/org/skip-non-stuck-projects))
+      (save-restriction
+        (widen)
+        (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+          (cond
+           ((j/org/is-project-p)
+            nil)
+           ((and (j/org/is-project-subtree-p) (not (j/org/is-task-p)))
+            nil)
+           (t
+            subtree-end))))
+    (save-excursion (org-end-of-subtree t))))
 
-  (defun j/org/skip-non-tasks ()
-    "Show non-project tasks. Skip project and sub-project tasks, habits, and project related tasks."
-    (save-restriction
-      (widen)
-      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-        (cond
-         ((j/org/is-task-p)
-          nil)
-         (t
-          next-headline)))))
+(defun j/org/skip-non-tasks ()
+  "Show non-project tasks. Skip project and sub-project tasks, habits, and project related tasks."
+  (save-restriction
+    (widen)
+    (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+      (cond
+       ((j/org/is-task-p)
+        nil)
+       (t
+        next-headline)))))
 
-  (defun j/org/skip-project-trees-and-habits ()
-    "Skip trees that are projects"
-    (save-restriction
-      (widen)
-      (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-        (cond
-         ((j/org/is-project-p)
-          subtree-end)
-         ((org-is-habit-p)
-          subtree-end)
-         (t
-          nil)))))
+(defun j/org/skip-project-trees-and-habits ()
+  "Skip trees that are projects"
+  (save-restriction
+    (widen)
+    (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+      (cond
+       ((j/org/is-project-p)
+        subtree-end)
+       ((org-is-habit-p)
+        subtree-end)
+       (t
+        nil)))))
 
-  (defun j/org/skip-projects-and-habits-and-single-tasks ()
-    "Skip trees that are projects, tasks that are habits, and single non-project tasks"
-    (save-restriction
-      (widen)
-      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-        (cond
-         ((org-is-habit-p)
-          next-headline)
-         ((and j/hide-scheduled-and-waiting-next-tasks
-               (member "WAITING" (org-get-tags-at)))
-          next-headline)
-         ((j/org/is-project-p)
-          next-headline)
-         ((and (j/org/is-task-p) (not (j/org/is-project-subtree-p)))
-          next-headline)
-         (t
-          nil)))))
+(defun j/org/skip-projects-and-habits-and-single-tasks ()
+  "Skip trees that are projects, tasks that are habits, and single non-project tasks"
+  (save-restriction
+    (widen)
+    (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+      (cond
+       ((org-is-habit-p)
+        next-headline)
+       ((and j/hide-scheduled-and-waiting-next-tasks
+             (member "WAITING" (org-get-tags-at)))
+        next-headline)
+       ((j/org/is-project-p)
+        next-headline)
+       ((and (j/org/is-task-p) (not (j/org/is-project-subtree-p)))
+        next-headline)
+       (t
+        nil)))))
 
-  (defun j/org/skip-project-tasks-maybe ()
-    "Show tasks related to the current restriction.
+(defun j/org/skip-project-tasks-maybe ()
+  "Show tasks related to the current restriction.
   When restricted to a project, skip project and sub-project tasks, habits, NEXT tasks, and loose tasks.
   When not restricted, skip project and sub-project tasks, habits, and project related tasks."
-    (save-restriction
-      (widen)
-      (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-             (next-headline (save-excursion (or (outline-next-heading) (point-max))))
-             (limit-to-project (marker-buffer org-agenda-restrict-begin)))
-        (cond
-         ((j/org/is-project-p)
-          next-headline)
-         ((org-is-habit-p)
-          subtree-end)
-         ((and (not limit-to-project)
-               (j/org/is-project-subtree-p))
-          subtree-end)
-         ((and limit-to-project
-               (j/org/is-project-subtree-p)
-               (member (org-get-todo-states) (list "NEXT")))
-          subtree-end)
-         (t
-          nil)))))
+  (save-restriction
+    (widen)
+    (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+           (next-headline (save-excursion (or (outline-next-heading) (point-max))))
+           (limit-to-project (marker-buffer org-agenda-restrict-begin)))
+      (cond
+       ((j/org/is-project-p)
+        next-headline)
+       ((org-is-habit-p)
+        subtree-end)
+       ((and (not limit-to-project)
+             (j/org/is-project-subtree-p))
+        subtree-end)
+       ((and limit-to-project
+             (j/org/is-project-subtree-p)
+             (member (org-get-todo-states) (list "NEXT")))
+        subtree-end)
+       (t
+        nil)))))
 
-  (defun j/org/skip-project-tasks ()
-    "Show non-project-tasks. Skip project and sub-project tasks, habits, and project related tasks."
-    (save-restriction
-      (widen)
-      (let* ((subtree-end (save-excursion (org-end-of-subtree t))))
-        (cond
-         ((j/org/is-project-p)
-          subtree-end)
-         ((org-is-habit-p)
-          subtree-end)
-         ((j/org/is-project-subtree-p)
-          subtree-end)
-         (t
-          nil)))))
+(defun j/org/skip-project-tasks ()
+  "Show non-project-tasks. Skip project and sub-project tasks, habits, and project related tasks."
+  (save-restriction
+    (widen)
+    (let* ((subtree-end (save-excursion (org-end-of-subtree t))))
+      (cond
+       ((j/org/is-project-p)
+        subtree-end)
+       ((org-is-habit-p)
+        subtree-end)
+       ((j/org/is-project-subtree-p)
+        subtree-end)
+       (t
+        nil)))))
 
-  (defun j/org/skip-project-tasks ()
-    "Show project tasks. Skip project and sub-project tasks, habits, and loose non-project tasks."
-    (save-restriction
-      (widen)
-      (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-             (next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-        (cond
-         ((j/org/is-project-p)
-          next-headline)
-         ((org-is-habit-p)
-          subtree-end)
-         ((and (j/org/is-project-subtree-p)
-               (member (org-get-todo-state) (list "NEXT")))
-          subtree-end)
-         ((not (j/org/is-project-subtree-p))
-          subtree-end)
-         (t
-          nil)))))
+(defun j/org/skip-project-tasks ()
+  "Show project tasks. Skip project and sub-project tasks, habits, and loose non-project tasks."
+  (save-restriction
+    (widen)
+    (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+           (next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+      (cond
+       ((j/org/is-project-p)
+        next-headline)
+       ((org-is-habit-p)
+        subtree-end)
+       ((and (j/org/is-project-subtree-p)
+             (member (org-get-todo-state) (list "NEXT")))
+        subtree-end)
+       ((not (j/org/is-project-subtree-p))
+        subtree-end)
+       (t
+        nil)))))
 
-  (defun j/org/skip-projects-and-habits ()
-    "Skip trees that are projects and tasks that are habits"
-    (save-restriction
-      (widen)
-      (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-        (cond
-         ((j/org/is-project-p)
-          subtree-end)
-         ((org-is-habit-p)
-          subtree-end)
-         (t
-          nil)))))
+(defun j/org/skip-projects-and-habits ()
+  "Skip trees that are projects and tasks that are habits"
+  (save-restriction
+    (widen)
+    (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+      (cond
+       ((j/org/is-project-p)
+        subtree-end)
+       ((org-is-habit-p)
+        subtree-end)
+       (t
+        nil)))))
 
-  (defun j/org/skip-non-subprojects ()
-    "Skip trees that are not subprojects"
-    (let ((next-headline (save-excursion (outline-next-heading))))
-      (if (j/org/is-subproject-p)
-          nil
-        next-headline)))
+(defun j/org/skip-non-subprojects ()
+  "Skip trees that are not subprojects"
+  (let ((next-headline (save-excursion (outline-next-heading))))
+    (if (j/org/is-subproject-p)
+        nil
+      next-headline)))
 #+END_SRC
 
 *** Archiving
@@ -726,27 +727,27 @@ This section contains functions that are used when working with the agenda.
 I have some code that will automatically filter out the trees which are available for archiving.
 
 #+BEGIN_SRC emacs-lisp
-  (defun j/org/skip-non-archivable-tasks ()
-    "Skip trees that are not available for archiving"
-    (save-restriction
-      (widen)
-      ;; consider only tasks with done todo headings as archivable candidates
-      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max))))
-            (subtree-end (save-excursion (org-end-of-subtree t))))
-        (if (member (org-get-todo-state) org-todo-keywords-1)
-            (if (member (org-get-todo-state) org-done-keywords)
-                (let* ((daynr (string-to-int (format-time-string "%d" (current-time))))
-                       (a-month-ago (format-time-string "%Y-%m-" (time-subtract (current-time) (seconds-to-time-a-month-ago))))
-                       (this-month (format-time-string "%Y-%m-" (current-time)))
-                       (subtree-is-current (save-excursion
-                                             (forward-line 1)
-                                             (and (< (point) subtree-end)
-                                                  (re-search-forward (concat last-month "\\|" this-month) subtree-end t)))))
-                  (if subtree-is-current
-                      subtree-end ; Has a date in this month or last, so skip it
-                    nil)) ; abailable to archive bc it is old
-              (or subtree-end (point-max)))
-          next-headline))))
+(defun j/org/skip-non-archivable-tasks ()
+  "Skip trees that are not available for archiving"
+  (save-restriction
+    (widen)
+    ;; consider only tasks with done todo headings as archivable candidates
+    (let ((next-headline (save-excursion (or (outline-next-heading) (point-max))))
+          (subtree-end (save-excursion (org-end-of-subtree t))))
+      (if (member (org-get-todo-state) org-todo-keywords-1)
+          (if (member (org-get-todo-state) org-done-keywords)
+              (let* ((daynr (string-to-int (format-time-string "%d" (current-time))))
+                     (a-month-ago (format-time-string "%Y-%m-" (time-subtract (current-time) (seconds-to-time-a-month-ago))))
+                     (this-month (format-time-string "%Y-%m-" (current-time)))
+                     (subtree-is-current (save-excursion
+                                           (forward-line 1)
+                                           (and (< (point) subtree-end)
+                                                (re-search-forward (concat last-month "\\|" this-month) subtree-end t)))))
+                (if subtree-is-current
+                    subtree-end ; Has a date in this month or last, so skip it
+                  nil)) ; abailable to archive bc it is old
+            (or subtree-end (point-max)))
+        next-headline))))
 #+END_SRC
 
 *** Clocking
@@ -754,94 +755,94 @@ I have some code that will automatically filter out the trees which are availabl
 This contains helpers for use with the clocking code in my ~org-mode~ configs.
 
 #+BEGIN_SRC emacs-lisp
-  (defun j/org/clock-in-to-next (kw)
-    "Switch a task from TODO to NEXT when clocking in.
+(defun j/org/clock-in-to-next (kw)
+  "Switch a task from TODO to NEXT when clocking in.
   Skips capture tasks, projects, and subprojects.
   Switch projects and subprojects from NEXT back to TODO"
-    (when (not (and (boundp 'org-capture-mode) org-capture-mode))
-      (cond
-       ((and (member (org-get-todo-state) (list "TODO"))
-             (j/org/is-task-p))
-        "NEXT")
-       ((and (member (org-get-todo-state) (list "NEXT"))
-             (j/org/is-project-p))
-        "TODO"))))
+  (when (not (and (boundp 'org-capture-mode) org-capture-mode))
+    (cond
+     ((and (member (org-get-todo-state) (list "TODO"))
+           (j/org/is-task-p))
+      "NEXT")
+     ((and (member (org-get-todo-state) (list "NEXT"))
+           (j/org/is-project-p))
+      "TODO"))))
 
-  (defun j/org/find-project-task ()
-    "Move point to the parent (project) if any"
+(defun j/org/find-project-task ()
+  "Move point to the parent (project) if any"
+  (save-restriction
+    (widen)
+    (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
+      (while (org-up-heading-safe)
+        (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+          (setq parent-task (point))))
+      (goto-char parent-task)
+      parent-task)))
+
+(defun j/org/punch-in (arg)
+  "Start continuous clocking and set the default task to the selected task.
+  If no task is selected set the Organization task as the default task."
+  (interactive "p")
+  (setq j/org/keep-clock-running t)
+  (if (equal major-mode 'org-agenda-mode)
+      ;;
+      ;; we're in the agenda
+      ;;
+      (let* ((marker (org-get-at-bol 'org-hd-marker))
+             (tags (org-with-point-at marker (org-get-tags-at))))
+        (if (and (eq arg 4) tags)
+            (org-agenda-clock-in '(16))
+          (j/org/clock-in-organization-task-as-default)))
+    ;;
+    ;; we're not in the agenda
+    ;;
     (save-restriction
       (widen)
-      (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
-        (while (org-up-heading-safe)
-          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-            (setq parent-task (point))))
-        (goto-char parent-task)
-        parent-task)))
+      ;; find the tags on the current task
+      (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
+          (org-clock-in '(16))
+        (j/org/clock-in-organization-task-as-default)))))
 
-  (defun j/org/punch-in (arg)
-    "Start continuous clocking and set the default task to the selected task.
-  If no task is selected set the Organization task as the default task."
-    (interactive "p")
-    (setq j/org/keep-clock-running t)
-    (if (equal major-mode 'org-agenda-mode)
-        ;;
-        ;; we're in the agenda
-        ;;
-        (let* ((marker (org-get-at-bol 'org-hd-marker))
-               (tags (org-with-point-at marker (org-get-tags-at))))
-          (if (and (eq arg 4) tags)
-              (org-agenda-clock-in '(16))
-            (j/org/clock-in-organization-task-as-default)))
-      ;;
-      ;; we're not in the agenda
-      ;;
+(defun j/org/punch-out ()
+  (interactive)
+  (setq j/org/keep-clock-running nil)
+  (when (org-clock-is-active)
+    (org-clock-out))
+  (org-agenda-remove-restriction-lock))
+
+(defun j/org/clock-in-default-task ()
+  (save-excursion
+    (org-with-point-at org-clock-default-task
+      (org-clock-in))))
+
+(defun j/org/clock-in-parent-task ()
+  "Move point to the parent (project) task if any, and clock in."
+  (let ((parent-task))
+    (save-excursion
       (save-restriction
         (widen)
-        ;; find the tags on the current task
-        (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
-            (org-clock-in '(16))
-          (j/org/clock-in-organization-task-as-default)))))
+        (while (and (not parent-task) (org-heading-up-safe))
+          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+            (setq parent-task (point))))
+        (if parent-task
+            (org-with-point-at parent-task
+              (org-clock-in))
+          (when j/org/keep-clock-running
+            (j/org/clock-in-default-task)))))))
 
-  (defun j/org/punch-out ()
-    (interactive)
-    (setq j/org/keep-clock-running nil)
-    (when (org-clock-is-active)
-      (org-clock-out))
-    (org-agenda-remove-restriction-lock))
+(defvar j/org/organization-task-id "eb155a82-92b2-4f25-a3c6-0304591af2f9")
 
-  (defun j/org/clock-in-default-task ()
-    (save-excursion
-      (org-with-point-at org-clock-default-task
-        (org-clock-in))))
+(defun j/org/clock-in-organization-task-as-default ()
+  (interactive)
+  (org-with-point-at (org-id-find j/org/organization-task-id 'marker)
+    (org-clock-in '(16))))
 
-  (defun j/org/clock-in-parent-task ()
-    "Move point to the parent (project) task if any, and clock in."
-    (let ((parent-task))
-      (save-excursion
-        (save-restriction
-          (widen)
-          (while (and (not parent-task) (org-heading-up-safe))
-            (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-              (setq parent-task (point))))
-          (if parent-task
-              (org-with-point-at parent-task
-                (org-clock-in))
-            (when j/org/keep-clock-running
-              (j/org/clock-in-default-task)))))))
-
-  (defvar j/org/organization-task-id "eb155a82-92b2-4f25-a3c6-0304591af2f9")
-
-  (defun j/org/clock-in-organization-task-as-default ()
-    (interactive)
-    (org-with-point-at (org-id-find j/org/organization-task-id 'marker)
-      (org-clock-in '(16))))
-
-  (defun j/org/clock-out-maybe ()
-    (when (and j/org/keep-clock-running
-               (not org-clock-clockin-in)
-               (marker-buffer org-clock-default-task)
-               (not org-clock-resolving-clocks-due-to-idleness))
-      (j/org/clock-in-parent-task)))
+(defun j/org/clock-out-maybe ()
+  (when (and j/org/keep-clock-running
+             (not org-clock-clockin-in)
+             (marker-buffer org-clock-default-task)
+             (not org-clock-resolving-clocks-due-to-idleness))
+    (j/org/clock-in-parent-task)))
 #+END_SRC
 
 *** Focus
@@ -849,197 +850,197 @@ This contains helpers for use with the clocking code in my ~org-mode~ configs.
 This sections contains functions which can focus in on certain parts of the org structure.
 
 #+BEGIN_SRC emacs-lisp
-  (defun j/org/focus-todo (arg)
-    (interactive "p")
-    (if (equal arg 4)
-        (save-restriction
-          (j/org/narrow-to-org-subtree)
-          (org-show-todo-tree nil))
-      (j/org/narrow-to-org-subtree)
-      (org-show-todo-tree nil)))
-
-  (defun j/org/narrow-to-org-subtree ()
-    (widen)
-    (org-narrow-to-subtree)
-    (save-restriction
-      (org-agenda-set-restriction-lock)))
-
-  (defun j/org/narrow-to-subtree ()
-    (interactive)
-    (if (equal major-mode 'org-agenda-mode)
-        (progn
-          (org-with-point-at (org-get-at-bol 'org-hd-marker)
-            (j/org/narrow-to-org-subtree))
-          (when org-agenda-sticky
-            (org-agenda-redo)))
-      'j/org/narrow-to-org-subtree))
-
-  (defun j/org/narrow-up-one-org-level ()
-    (widen)
-    (save-excursion
-      (outline-up-heading 1 'invisible-ok)
-      (j/org/narrow-to-org-subtree)))
-
-  (defun j/org/get-pom-from-agenda-restriction-or-point ()
-    (or (and (marker-poisition org-agenda-restrict-begin) org-agenda-restrict-begin)
-        (org-get-at-bol 'org-hd-marker)
-        (and (equal major-mode 'org-mode) (point))
-        org-clock-marker))
-
-  (defun j/org/narrow-up-one-level ()
-    (interactive)
-    (if (equal major-mode 'org-agenda-mode)
-        (progn
-          (org-with-point-at (j/org/get-pom-from-agenda-restriction-or-point)
-            (j/org/narrow-up-one-org-level))
-          (org-agenda-redo))
-      (j/org/narrow-up-one-org-level)))
-
-  (defun j/org/narrow-to-org-project ()
-    (widen)
-    (save-excursion
-      (j/org/find-project-task)
-      (j/org/narrow-to-org-subtree)))
-
-  (defun j/org/narrow-to-project ()
-    (interactive)
-    (if (equal major-mode 'org-agenda-mode)
-        (progn
-          (org-with-point-at (j/org/get-pom-from-agenda-restriction-or-point)
-            (j/org/narrow-to-org-project)
-            (save-excursion
-              (j/org/find-project-task)
-              (org-agenda-set-restriction-lock)))
-          (org-agenda-redo)
-          (beginning-of-buffer))
-      (j/org/narrow-to-org-project)
+(defun j/org/focus-todo (arg)
+  (interactive "p")
+  (if (equal arg 4)
       (save-restriction
-        (org-agenda-set-restriction-lock))))
+        (j/org/narrow-to-org-subtree)
+        (org-show-todo-tree nil))
+    (j/org/narrow-to-org-subtree)
+    (org-show-todo-tree nil)))
 
-  (defvar j/org/project-list nil)
+(defun j/org/narrow-to-org-subtree ()
+  (widen)
+  (org-narrow-to-subtree)
+  (save-restriction
+    (org-agenda-set-restriction-lock)))
 
-  (defun j/org/view-next-project ()
-    (interactive)
-    (let (num-project-left current-project)
-      (unless (marker-position org-agenda-restrict-begin)
-        (goto-char (point-min))
-        ;; clear all of the existing markers on the list
-        (while j/org/project-list
-          (set-marker (pop j/org/project-list) nil))
-        (re-search-forward "Tasks to Refile")
-        (forward-visible-line 1))
+(defun j/org/narrow-to-subtree ()
+  (interactive)
+  (if (equal major-mode 'org-agenda-mode)
+      (progn
+        (org-with-point-at (org-get-at-bol 'org-hd-marker)
+          (j/org/narrow-to-org-subtree))
+        (when org-agenda-sticky
+          (org-agenda-redo)))
+    'j/org/narrow-to-org-subtree))
 
-      ;; build a new project marker list
-      (unless j/org/project-list
-        (while (< (point) (point-max))
-          (while (and (< (point) (point-max))
-                      (or (not (org-get-at-bol 'org-hd-marker))
-                          (org-with-point-at (org-get-at-bol 'org-hd-marker)
-                            (or (not (j/org/is-project-p))
-                                (j/org/is-project-subtree-p)))))
-            (forward-visible-line 1))
-          (when (< (point) (point-max))
-            (add-to-list 'j/org/project-list (copy-marker (org-get-at-bol 'org-hd-marker)) 'append))
-          (forward-visible-line 1)))
+(defun j/org/narrow-up-one-org-level ()
+  (widen)
+  (save-excursion
+    (outline-up-heading 1 'invisible-ok)
+    (j/org/narrow-to-org-subtree)))
 
-      ;; pop off the first marker on the list and display
-      (setq current-project (pop j/org/project-list))
-      (when current-project
-        (org-with-point-at current-project
-          (setq j/org/hide-scheduled-and-waiting-next-tasks nil)
-          (j/org/narrow-to-project))
-        ;; remove the marker
-        (setq current-project nil)
+(defun j/org/get-pom-from-agenda-restriction-or-point ()
+  (or (and (marker-poisition org-agenda-restrict-begin) org-agenda-restrict-begin)
+      (org-get-at-bol 'org-hd-marker)
+      (and (equal major-mode 'org-mode) (point))
+      org-clock-marker))
+
+(defun j/org/narrow-up-one-level ()
+  (interactive)
+  (if (equal major-mode 'org-agenda-mode)
+      (progn
+        (org-with-point-at (j/org/get-pom-from-agenda-restriction-or-point)
+          (j/org/narrow-up-one-org-level))
+        (org-agenda-redo))
+    (j/org/narrow-up-one-org-level)))
+
+(defun j/org/narrow-to-org-project ()
+  (widen)
+  (save-excursion
+    (j/org/find-project-task)
+    (j/org/narrow-to-org-subtree)))
+
+(defun j/org/narrow-to-project ()
+  (interactive)
+  (if (equal major-mode 'org-agenda-mode)
+      (progn
+        (org-with-point-at (j/org/get-pom-from-agenda-restriction-or-point)
+          (j/org/narrow-to-org-project)
+          (save-excursion
+            (j/org/find-project-task)
+            (org-agenda-set-restriction-lock)))
         (org-agenda-redo)
-        (beginning-of-buffer)
-        (setq num-projects-left (length j/org/project-list))
-        (if (> num-projects-left 0)
-            (message "%s projects left to view" num-projects-left)
-          (beginning-of-buffer)
-          (setq j/org/hide-scheduled-and-waiting-next-tasks t)
-          (error "All projects viewed.")))))
+        (beginning-of-buffer))
+    (j/org/narrow-to-org-project)
+    (save-restriction
+      (org-agenda-set-restriction-lock))))
 
-  (defun j/org/restrict-to-file-or-follow (arg)
-    "Set agenda restriction to 'file (or with argument invoke follow mode).
+(defvar j/org/project-list nil)
+
+(defun j/org/view-next-project ()
+  (interactive)
+  (let (num-project-left current-project)
+    (unless (marker-position org-agenda-restrict-begin)
+      (goto-char (point-min))
+      ;; clear all of the existing markers on the list
+      (while j/org/project-list
+        (set-marker (pop j/org/project-list) nil))
+      (re-search-forward "Tasks to Refile")
+      (forward-visible-line 1))
+
+    ;; build a new project marker list
+    (unless j/org/project-list
+      (while (< (point) (point-max))
+        (while (and (< (point) (point-max))
+                    (or (not (org-get-at-bol 'org-hd-marker))
+                        (org-with-point-at (org-get-at-bol 'org-hd-marker)
+                          (or (not (j/org/is-project-p))
+                              (j/org/is-project-subtree-p)))))
+          (forward-visible-line 1))
+        (when (< (point) (point-max))
+          (add-to-list 'j/org/project-list (copy-marker (org-get-at-bol 'org-hd-marker)) 'append))
+        (forward-visible-line 1)))
+
+    ;; pop off the first marker on the list and display
+    (setq current-project (pop j/org/project-list))
+    (when current-project
+      (org-with-point-at current-project
+        (setq j/org/hide-scheduled-and-waiting-next-tasks nil)
+        (j/org/narrow-to-project))
+      ;; remove the marker
+      (setq current-project nil)
+      (org-agenda-redo)
+      (beginning-of-buffer)
+      (setq num-projects-left (length j/org/project-list))
+      (if (> num-projects-left 0)
+          (message "%s projects left to view" num-projects-left)
+        (beginning-of-buffer)
+        (setq j/org/hide-scheduled-and-waiting-next-tasks t)
+        (error "All projects viewed.")))))
+
+(defun j/org/restrict-to-file-or-follow (arg)
+  "Set agenda restriction to 'file (or with argument invoke follow mode).
   I don't use follow mode very often but I restrict to file all the time
   so change the default 'F' binding in the agenda to allow both."
-    (interactive "p")
-    (if (equal arg 4)
-        (org-agenda-follow-mode)
-      (widen)
-      (j/org/set-agenda-restriction-lock 4)
-      (org-agenda-redo)
-      (beginning-of-buffer)))
+  (interactive "p")
+  (if (equal arg 4)
+      (org-agenda-follow-mode)
+    (widen)
+    (j/org/set-agenda-restriction-lock 4)
+    (org-agenda-redo)
+    (beginning-of-buffer)))
 
-  (defun j/org/widen ()
-    (interactive)
-    (if (equal major-mode 'org-agenda-mode)
-        (progn
-          (org-agenda-remove-restriction-lock)
-          (when org-agenda-stick
-            (org-agenda-redo)))
-      (widen)))
+(defun j/org/widen ()
+  (interactive)
+  (if (equal major-mode 'org-agenda-mode)
+      (progn
+        (org-agenda-remove-restriction-lock)
+        (when org-agenda-stick
+          (org-agenda-redo)))
+    (widen)))
 #+END_SRC
 *** General
 
 These functions aren't specific to any portion of my ~org-mode~ setup, and so I stow them here.
 
 #+BEGIN_SRC emacs-lisp
-  (defun j/org/src-buffer-name (org-buffer-name language)
-    "Construct the buffer name for a source editing buffer.
+(defun j/org/src-buffer-name (org-buffer-name language)
+  "Construct the buffer name for a source editing buffer.
   See `org-src--construct-edit-buffer-name'."
-    (format "*%s" org-buffer-name))
+  (format "*%s" org-buffer-name))
 
-  ;; Remove empty LOGBOOK drawers on clock out
-  (defun j/org/remove-empty-drawer-on-clock-out ()
-    (interactive)
-    (save-excursion
-      (beginning-of-line 0)
-      (org-remove-empty-drawer-at (point))))
+;; Remove empty LOGBOOK drawers on clock out
+(defun j/org/remove-empty-drawer-on-clock-out ()
+  (interactive)
+  (save-excursion
+    (beginning-of-line 0)
+    (org-remove-empty-drawer-at (point))))
 
-  ;; Refile filtering
-  ;; exclude DONE state tasks from refile targets
-  (defun j/org/verify-refile-target ()
-    "Exclude todo keywords with a done state from refile targets."
-    (not (member (nth 2 (org-heading-components)) org-done-keywords)))
+;; Refile filtering
+;; exclude DONE state tasks from refile targets
+(defun j/org/verify-refile-target ()
+  "Exclude todo keywords with a done state from refile targets."
+  (not (member (nth 2 (org-heading-components)) org-done-keywords)))
 #+END_SRC
 *** Miscellaneous
 
 These are some miscellaneous helper functions that I need for my ~org-mode~ setup.
 
 #+BEGIN_SRC emacs-lisp
-  (defun j/org/hide-other ()
-    (interactive)
-    (save-excursion
-      (org-back-to-heading 'invisible-ok)
-      (hide-other)
-      (org-cycle)
-      (org-cycle)
-      (org-cycle)))
+(defun j/org/hide-other ()
+  (interactive)
+  (save-excursion
+    (org-back-to-heading 'invisible-ok)
+    (hide-other)
+    (org-cycle)
+    (org-cycle)
+    (org-cycle)))
 
-  (defun j/org/set-truncate-lines ()
-    "Toggle value of truncate-lines and refresh window display."
-    (interactive)
-    (setq truncate-lines (not truncate-lines))
-    ;; now refresh window display (an idiom from simple.el):
-    (save-excursion
-      (set-window-start (selected-window)
-                        (window-start (selected-window)))))
+(defun j/org/set-truncate-lines ()
+  "Toggle value of truncate-lines and refresh window display."
+  (interactive)
+  (setq truncate-lines (not truncate-lines))
+  ;; now refresh window display (an idiom from simple.el):
+  (save-excursion
+    (set-window-start (selected-window)
+                      (window-start (selected-window)))))
 
-  (defun j/org/org-files-list ()
-    (delq nil
-          (mapcar (lambda (buffer)
-                    (buffer-file-name buffer))
-                  (org-buffer-list 'files t))))
+(defun j/org/org-files-list ()
+  (delq nil
+        (mapcar (lambda (buffer)
+                  (buffer-file-name buffer))
+                (org-buffer-list 'files t))))
 
-  (defun j/org/make-org-scratch ()
-    (interactive)
-    (find-file "/tmp/publish/scratch.org")
-    (gnus-make-directory "/tmp/publish"))
+(defun j/org/make-org-scratch ()
+  (interactive)
+  (find-file "/tmp/publish/scratch.org")
+  (gnus-make-directory "/tmp/publish"))
 
-  (defun j/org/switch-to-scratch ()
-    (interactive)
-    (switch-to-buffer "*scratch*"))
+(defun j/org/switch-to-scratch ()
+  (interactive)
+  (switch-to-buffer "*scratch*"))
 #+END_SRC
 ** Hooks
 
@@ -1047,83 +1048,83 @@ I have a variety of hooks that I want to register for ~org-mode~, so that everyt
 - ~sticky-header-mode~ displays the current header you're in at the top, so you don't lose your place.
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-  ((org-mode               . org-sticky-header-mode)
+((org-mode               . org-sticky-header-mode)
   #+END_SRC
 
 - ~toc-org-mode~ enables auto-updating Table-of-Contents, which can be enabled with the ~:TOC:~ tag.
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-  (org-mode                . toc-org-enable)
+(org-mode                . toc-org-enable)
   #+END_SRC
 
 - I always want my ~org-mode~ files to be indented; I may want to look into the 'org-startup-indented` variable.
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-  (org-mode                . org-indent-mode)
+(org-mode                . org-indent-mode)
   #+END_SRC
 
 - I always want my ~org-mode~ buffers to use variable-pitch-mode, because it looks a lot nicer for prose.
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-  (org-mode                . variable-pitch-mode)
+(org-mode                . variable-pitch-mode)
   #+END_SRC
 
   However, I need to be careful because this adds a modeline indicator, so I disable that manually with diminish.
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-    (eval-after-load 'face-remap '(diminish 'buffer-face-mode))
+(eval-after-load 'face-remap '(diminish 'buffer-face-mode))
   #+END_SRC
 
 - I always want my ~org-mode~ files to have word-wrapping enabled.
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-  (org-mode                . visual-line-mode)
+(org-mode                . visual-line-mode)
   #+END_SRC
 
   However, I need to be careful because this adds a modeline indicator, so I disable that manually with diminish.
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-    (eval-after-load 'simple '(diminish 'visual-line-mode))
+(eval-after-load 'simple '(diminish 'visual-line-mode))
   #+END_SRC
 
 - I use a custom agenda with custom views and navigations. I define those keys here.
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-    (org-agenda-mode         . (lambda ()
-                                 (org-defkey org-agenda-mode-map
-                                             "F"
-                                             'j/org/restrict-to-file-or-follow)
-                                 (org-defkey org-agenda-mode-map
-                                             "N"
-                                             'j/org/narrow-to-subtree)
-                                 (org-defkey org-agenda-mode-map
-                                             "P"
-                                             'j/org/narrow-to-project)
-                                 (org-defkey org-agenda-mode-map
-                                             "U"
-                                             'j/org/narrow-up-one-level)
-                                 (org-defkey org-agenda-mode-map
-                                             "V"
-                                             'j/org/view-next-project)
-                                 (org-defkey org-agenda-mode-map
-                                             "W"
-                                             (lambda ()
-                                               (interactive)
-                                               (setq j/org/hide-scheduled-and-waiting-next-tasks t)
-                                               (j/org/widen)))))
+(org-agenda-mode         . (lambda ()
+                             (org-defkey org-agenda-mode-map
+                                         "F"
+                                         'j/org/restrict-to-file-or-follow)
+                             (org-defkey org-agenda-mode-map
+                                         "N"
+                                         'j/org/narrow-to-subtree)
+                             (org-defkey org-agenda-mode-map
+                                         "P"
+                                         'j/org/narrow-to-project)
+                             (org-defkey org-agenda-mode-map
+                                         "U"
+                                         'j/org/narrow-up-one-level)
+                             (org-defkey org-agenda-mode-map
+                                         "V"
+                                         'j/org/view-next-project)
+                             (org-defkey org-agenda-mode-map
+                                         "W"
+                                         (lambda ()
+                                           (interactive)
+                                           (setq j/org/hide-scheduled-and-waiting-next-tasks t)
+                                           (j/org/widen)))))
   #+END_SRC
 
 - When I clock out, I want to be sure to remove any empty clocks, and I also want to invoke my custom clock-out function (to ensure that I automatically clock into another task).
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-     (org-clock-out           . j/org/remove-empty-drawer-on-clock-out)
-     (org-clock-out           . j/org/clock-out-maybe)
+(org-clock-out           . j/org/remove-empty-drawer-on-clock-out)
+(org-clock-out           . j/org/clock-out-maybe)
   #+END_SRC
 
 - If I ever use org-mode for literate programming, I may want to display output images inline. This hook will automatically deal with that for me.
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
-     (org-babel-after-execute . org-display-inline-images))
+(org-babel-after-execute . org-display-inline-images))
   #+END_SRC
 ** Packages
 
@@ -1134,14 +1135,14 @@ I have a variety of hooks that I want to register for ~org-mode~, so that everyt
 This package displays the header for the current subtree you are in, in a bar along the top of the buffer. It is useful when you're editing large .org files, since you probably won't be able to see the actual header.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package org-sticky-header
-    :after org
-    :custom
-    (org-sticky-header-heading-star "λ")
-    (org-sticky-header-prefix nil)
-    (org-sticky-header-always-show-header t)
-    (org-sticky-header-full-path 'full)
-    (org-sticky-header-outline-path-separator "|"))
+(use-package org-sticky-header
+  :after org
+  :custom
+  (org-sticky-header-heading-star "λ")
+  (org-sticky-header-prefix nil)
+  (org-sticky-header-always-show-header t)
+  (org-sticky-header-full-path 'full)
+  (org-sticky-header-outline-path-separator "|"))
 #+END_SRC
 *** org-super-agenda
 
@@ -1152,25 +1153,36 @@ This package displays the header for the current subtree you are in, in a bar al
     :custom
     (org-super-agenda-groups
      '(;; Each group has an implicit boolean OR operator between its selectors.
-       (:name "Today"        ; Optionally specify section name
-              :deadline 'today
-              :time-grid t)  ; Items that appear on the time grid
-       (:name "Important" :priority "A" :order 1)
-       (:todo "NEXT" :order 2)
+       (:name "Habits" :habit t :order 0)
+       (:order-multi (1
+                      (:name "Today's Work" ; Optionally specify section name
+                             :deadline past
+                             :and (:deadline today
+                                             :time-grid t ; Items that appear on the time grid
+                                             :not (:todo ("DONE"
+                                                          "CANCELLED"
+                                                          "PHONE"
+                                                          "MEETING"))))
+                      (:name "Today's Progress"
+                             :log close)))
+       (:name "Important" :priority "A" :order 2)
+       (:todo "NEXT" :order 3)
        (:name "DEADLINES"
-              :auto-parent t
               :and (:deadline t
                               :not (:todo ("DONE"
                                            "CANCELLED"
                                            "PHONE"
                                            "MEETING")))
-              :order 3)
+              :order 4)
        (:priority<= "B"
                     ;; Show this section after "Today" and "Important", because
                     ;; their order is unspecified, defaulting to 0. Sections
                     ;; are displayed lowest-number-first.
-                    :order 4)
-       (:name "Habits" :habit t :order 5)))
+                    :order 5)
+       (:name "Catchall" :not (:todo ("DONE"
+                                      "CANCELLED"
+                                      "PHONE"
+                                      "MEETING")) :order 6)))
     :config
     (require 'org-habit)
     (org-super-agenda-mode)
@@ -1182,6 +1194,6 @@ This package displays the header for the current subtree you are in, in a bar al
 This package creates nice auto-updating tables of contents. You can enable them by adding :TOC_N: to any top-level header (where N represents the number of levels down that you want the TOC to display).
 
 #+BEGIN_SRC emacs-lisp
-    (use-package toc-org
-      :after org)
+(use-package toc-org
+  :after org)
 #+END_SRC
