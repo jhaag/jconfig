@@ -409,6 +409,8 @@ These are general ~org-mode~ configurations that didn't have a better home.
       org-default-notes-file "~/Dropbox/org/refile.org"
       org-ellipsis "…"
       org-log-done 'time
+      org-log-redeadline t
+      org-log-reschedule t
       org-return-follows-link t
       org-imenu-depth 3
       org-startup-folded t
