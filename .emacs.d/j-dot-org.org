@@ -1158,15 +1158,18 @@ This package displays the header for the current subtree you are in, in a bar al
        (:name "Habits" :habit t :order 0)
        (:order-multi (1
                       (:name "Today's Work" ; Optionally specify section name
+                             :time-grid t
                              :deadline past
                              :and (:deadline today
-                                             :time-grid t ; Items that appear on the time grid
                                              :not (:todo ("DONE"
                                                           "CANCELLED"
                                                           "PHONE"
                                                           "MEETING"))))
+                      (:name "Today's Done"
+                             :and (:regexp "State \"DONE\""
+                                           :log t))
                       (:name "Today's Progress"
-                             :log close)))
+                             :log t)))
        (:name "Important" :priority "A" :order 2)
        (:todo "NEXT" :order 3)
        (:name "DEADLINES"
@@ -1187,9 +1190,7 @@ This package displays the header for the current subtree you are in, in a bar al
                                       "MEETING")) :order 6)))
     :config
     (require 'org-habit)
-    (org-super-agenda-mode)
-    :hook
-    (org-mode . org-super-agenda-mode))
+    (org-super-agenda-mode))
 #+END_SRC
 *** toc-org
 
