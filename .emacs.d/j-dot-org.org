@@ -1183,8 +1183,8 @@ This package displays the header for the current subtree you are in, in a bar al
                       (:name "LESS IMPORTANT" :priority<= "B")))
        (:name "CATCHALL" :todo t :order 6)
        (:name "PROGRESS" :log t :order 7)))
-    :config
-    (org-super-agenda-mode))
+    :hook
+    (org-mode . org-super-agenda-mode))
 #+END_SRC
 *** toc-org
 
