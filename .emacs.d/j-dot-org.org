@@ -398,6 +398,8 @@ Now that I have my shortcuts, I proceed to actually write my templates.
       org-clock-auto-clock-resolution 'when-no-clock-is-running
       org-clock-report-include-clocking-task t
       j/org/keep-clock-running nil)
+;; Resume clocking task when emacs is restarted
+(org-clock-persistence-insinuate)
 #+END_SRC
 
 *** General
@@ -416,9 +418,7 @@ These are general ~org-mode~ configurations that didn't have a better home.
       org-startup-folded t
       org-startup-truncated nil
       org-use-property-inheritance t)
-(advice-add 'org-serc--construct-edit-buffer-name :override #'j/org/org-src-buffer-name)
-;; Resume clocking task when emacs is restarted
-(org-clock-persistence-insinuate)
+(advice-add 'org-src--construct-edit-buffer-name :override #'j/org/org-src-buffer-name)
 (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
 #+END_SRC
 
@@ -1035,6 +1035,11 @@ These are some miscellaneous helper functions that I need for my ~org-mode~ setu
                   (buffer-file-name buffer))
                 (org-buffer-list 'files t))))
 
+(defun j/org/org-src-buffer-name (org-buffer-name language)
+  "Construct the buffer name for a source editing buffer. See
+`org-src--construct-edit-buffer-name'."
+  (format "*%s*" org-buffer-name))
+
 (defun j/org/make-org-scratch ()
   (interactive)
   (find-file "/tmp/publish/scratch.org")
@@ -1155,36 +1160,26 @@ This package displays the header for the current subtree you are in, in a bar al
     :custom
     (org-super-agenda-groups
      '(;; Each group has an implicit boolean OR operator between its selectors.
-       (:name "Habits" :habit t :order 0)
-       (:order-multi (1
-                      (:name "Today's Work" ; Optionally specify section name
-                             :deadline past
-                             :and (:deadline today
-                                             :time-grid t ; Items that appear on the time grid
-                                             :not (:todo ("DONE"
-                                                          "CANCELLED"
-                                                          "PHONE"
-                                                          "MEETING"))))
-                      (:name "Today's Progress"
-                             :log close)))
-       (:name "Important" :priority "A" :order 2)
-       (:todo "NEXT" :order 3)
-       (:name "DEADLINES"
-              :and (:deadline t
-                              :not (:todo ("DONE"
-                                           "CANCELLED"
-                                           "PHONE"
-                                           "MEETING")))
+       (:name "HABITS" :habit t :order 0)
+       (:name "LATE" :deadline past :order 1)
+       (:todo "NEXT" :order 2)
+       (:name "TODAY" :and (:deadline today
+                                      :not (:todo ("DONE"
+                                                   "CANCELLED"
+                                                   "PHONE"
+                                                   "MEETING")))
+              :order 3)
+       (:name "UPCOMING" :and (:deadline t
+                                         :not (:todo ("DONE"
+                                                      "CANCELLED"
+                                                      "PHONE"
+                                                      "MEETING")))
               :order 4)
-       (:priority<= "B"
-                    ;; Show this section after "Today" and "Important", because
-                    ;; their order is unspecified, defaulting to 0. Sections
-                    ;; are displayed lowest-number-first.
-                    :order 5)
-       (:name "Catchall" :not (:todo ("DONE"
-                                      "CANCELLED"
-                                      "PHONE"
-                                      "MEETING")) :order 6)))
+       (:order-multi (5
+                      (:name "IMPORTANT" :priority "A")
+                      (:name "LESS IMPORTANT" :priority<= "B")))
+       (:name "CATCHALL" :todo t :order 6)
+       (:name "PROGRESS" :log t :order 7)))
     :config
     (require 'org-habit)
     (org-super-agenda-mode)
