@@ -6,10 +6,10 @@
  '(auto-save-file-name-transforms (quote ((".*" "~/.emacs.d/autosaves/" t))))
  '(backup-directory-alist (quote ((".*" . "~/.emacs.d/backups/"))))
  '(git-gutter+-hide-gutter t)
- '(helm-M-x-fuzzy-match t)
+ '(helm-M-x-fuzzy-match t t)
  '(helm-ag-fuzzy-match t t)
  '(helm-ag-insert-at-point (quote symbol) t)
- '(helm-apropos-fuzzy-match t)
+ '(helm-apropos-fuzzy-match t t)
  '(helm-buffers-fuzzy-matching t)
  '(helm-completion-in-region-fuzzy-match t)
  '(helm-display-header-line nil)
@@ -28,7 +28,7 @@
  '(helm-imenu-execute-action-at-once-if-one nil t)
  '(helm-imenu-fuzzy-match t t)
  '(helm-input-idle-delay 0.1)
- '(helm-lisp-fuzzy-completion t)
+ '(helm-lisp-fuzzy-completion t t)
  '(helm-mode-fuzzy-match t)
  '(helm-move-to-line-cycle-in-source t)
  '(helm-multi-swoop-edit-save t t)
@@ -55,11 +55,33 @@
  '(org-hide-emphasis-markers t)
  '(org-stick-header-full-path (quote full) t)
  '(org-stick-header-outline-path-separator "|" t)
- '(org-sticky-header-always-show-header t)
- '(org-sticky-header-full-path (quote full))
- '(org-sticky-header-heading-star "λ")
- '(org-sticky-header-outline-path-separator "|")
- '(org-sticky-header-prefix nil)
+ '(org-sticky-header-always-show-header t t)
+ '(org-sticky-header-full-path (quote full) t)
+ '(org-sticky-header-heading-star "λ" t)
+ '(org-sticky-header-outline-path-separator "|" t)
+ '(org-sticky-header-prefix nil t)
+ '(org-super-agenda-groups
+   (quote
+    ((:name "Habits" :habit t :order 0)
+     (:order-multi
+      (1
+       (:name "Today's Work" :deadline past :and
+              (:deadline today :time-grid t :not
+                         (:todo
+                          ("DONE" "CANCELLED" "PHONE" "MEETING"))))
+       (:name "Today's Progress" :log close)))
+     (:name "Important" :priority "A" :order 2)
+     (:todo "NEXT" :order 3)
+     (:name "DEADLINES" :and
+            (:deadline t :not
+                       (:todo
+                        ("DONE" "CANCELLED" "PHONE" "MEETING")))
+            :order 4)
+     (:priority<= "B" :order 5)
+     (:name "Catchall" :not
+            (:todo
+             ("DONE" "CANCELLED" "PHONE" "MEETING"))
+            :order 6))) t)
  '(org-todo-keyword-faces
    (quote
     (("TODO" :foreground "lightblue" :weight bold)

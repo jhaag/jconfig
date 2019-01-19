@@ -1182,9 +1182,7 @@ This package displays the header for the current subtree you are in, in a bar al
        (:name "PROGRESS" :log t :order 7)))
     :config
     (require 'org-habit)
-    (org-super-agenda-mode)
-    :hook
-    (org-mode . org-super-agenda-mode))
+    (org-super-agenda-mode))
 #+END_SRC
 *** toc-org
 
