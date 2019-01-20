@@ -1181,8 +1181,13 @@ This package displays the header for the current subtree you are in, in a bar al
        (:order-multi (5
                       (:name "IMPORTANT" :priority "A")
                       (:name "LESS IMPORTANT" :priority<= "B")))
-       (:name "CATCHALL" :todo t :order 6)
-       (:name "PROGRESS" :log t :order 7)))
+       (:name "PROGRESS" :and (:deadline today
+                                         :todo ("DONE"
+                                                "CANCELLED"
+                                                "PHONE"
+                                                "MEETING"))
+              :order 6)
+       (:name "CATCHALL" :todo t :order 7)))
     :hook
     (org-mode . org-super-agenda-mode))
 #+END_SRC
