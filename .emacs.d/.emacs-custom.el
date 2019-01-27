@@ -45,8 +45,8 @@
  '(helm-yas-space-match-any-greedy t)
  '(indent-tabs-mode nil)
  '(initial-frame-alist (quote ((fullscreen . maximized))))
- '(js-indent-level 4 t)
- '(js2-basic-offset 4 t)
+ '(js-indent-level 4)
+ '(js2-basic-offset 4)
  '(kill-whole-line t)
  '(mouse-yank-at-point t)
  '(org-agenda-files
@@ -62,26 +62,28 @@
  '(org-sticky-header-prefix nil t)
  '(org-super-agenda-groups
    (quote
-    ((:name "Habits" :habit t :order 0)
-     (:order-multi
-      (1
-       (:name "Today's Work" :deadline past :and
-              (:deadline today :time-grid t :not
-                         (:todo
-                          ("DONE" "CANCELLED" "PHONE" "MEETING"))))
-       (:name "Today's Progress" :log close)))
-     (:name "Important" :priority "A" :order 2)
-     (:todo "NEXT" :order 3)
-     (:name "DEADLINES" :and
+    ((:name "HABITS" :habit t :order 0)
+     (:name "LATE" :deadline past :order 1)
+     (:todo "NEXT" :order 2)
+     (:name "TODAY" :and
+            (:deadline today :not
+                       (:todo
+                        ("DONE" "CANCELLED" "PHONE" "MEETING")))
+            :order 3)
+     (:name "UPCOMING" :and
             (:deadline t :not
                        (:todo
                         ("DONE" "CANCELLED" "PHONE" "MEETING")))
             :order 4)
-     (:priority<= "B" :order 5)
-     (:name "Catchall" :not
-            (:todo
-             ("DONE" "CANCELLED" "PHONE" "MEETING"))
-            :order 6))) t)
+     (:order-multi
+      (5
+       (:name "IMPORTANT" :priority "A")
+       (:name "LESS IMPORTANT" :priority<= "B")))
+     (:name "PROGRESS" :and
+            (:deadline today :todo
+                       ("DONE" "CANCELLED" "PHONE" "MEETING"))
+            :order 6)
+     (:name "CATCHALL" :todo t :order 7))) t)
  '(org-todo-keyword-faces
    (quote
     (("TODO" :foreground "lightblue" :weight bold)

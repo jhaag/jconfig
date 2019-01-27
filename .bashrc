@@ -11,6 +11,8 @@ case "${unameOut}" in
                 ;;
 esac
 
+eval `dircolors ~/.dir_colors/dircolors`
+
 export JCONFIG_ROOT="$HOME/jconfig"
 export PATH=$PATH:/usr/local/bin
 
