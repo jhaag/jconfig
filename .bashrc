@@ -11,7 +11,15 @@ case "${unameOut}" in
                 ;;
 esac
 
+# setup the dircolors to work for solarized
 eval `dircolors ~/.dir_colors/dircolors`
+
+# setup thefuck to correct commands
+if [ -x "$(command -v thefuck)" ]; then
+    eval $(thefuck --alias fuck)
+else
+    echo "Error: thefuck is not installed\n" >&2
+fi
 
 export JCONFIG_ROOT="$HOME/jconfig"
 export PATH=$PATH:/usr/local/bin
