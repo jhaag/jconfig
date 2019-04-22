@@ -36,6 +36,7 @@ Just as Emacs config is an art, Org mode config is an art, and I've learned a lo
 - [[https://orgmode.org/worg/org-tutorials/][Org tutorials]]
 - [[http://pragmaticemacs.com/org-mode-tutorials/][Pragmatic Emacs: Org-Mode Tutorials]]
 - [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][Beautifying Org Mode in Emacs]]
+- [[http://cachestocaches.com/2017/3/complete-guide-email-emacs-using-mu-and-/][Guide to Email in Emacs]]
 
 ** Random Notes
 
@@ -138,6 +139,7 @@ We also want to configure the fonts for other org-elements so that we don't get 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
 (custom-theme-set-faces
  'user
+ '(org-table                 ((t (:inherit fixed-pitch))))
  '(org-block                 ((t (:inherit fixed-pitch))))
  '(org-document-info         ((t (:foreground "dark orange"))))
  '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
@@ -229,7 +231,6 @@ I have a large number of different configurations that I add to org-mode so that
       org-agenda-dim-blocked-tasks nil
       org-agenda-compact-blocks t)
 #+END_SRC
-
 *** Archive
 
 
@@ -288,47 +289,7 @@ First, however, we need to ensure that we have the necessary extension packages 
 
 [[http://doc.norang.ca/org-mode.html#Capture][Org Capture]] makes it painless to write down things as they pop into your head. You can configure various templates, bind them to hotkeys, and then quickly generate them - without breaking your workflow in anything else. +For now, I've taken most of my configuration from the link at the beginning of this section, but I hope to refine this once I get the dot-file overhaul completed.+ I'm going off of [[https://github.com/novoid/dot-emacs/blob/master/config.org#my-capture----functions-for-prompting-for-different-things][Novoid's Capture stuff]]. IMPORTANT: Note the use of ~:noweb-ref~ on these blocks; the configuration section is being spliced into the use-package block for org, but I want these to be defined globally, so I need to make sure that they actually get tangled to the toplevel of the file.
 
-Since I am going to be prompting myself for data to fill in my templates, I want to create a history to save myself some keystrokes.
-
-#+BEGIN_SRC emacs-lisp
-(defvar j/org/capture/prompt-history nil
-  "History of prompt answers for org capture.")
-#+END_SRC
-
-Now I create prompts for various types of input.
-
-#+BEGIN_SRC emacs-lisp
-(defun j/org/capture/prompt (prompt variable)
-  "PROMPT for string, save it to VARIABLE, and insert it."
-  (make-local-variable variable)
-  (set variable (read-string (concat prompt ": ") nil j/org/capture/prompt-history)))
-
-(defun j/org/capture/prompt-date (prompt variable)
-  "PROMPT for a date, save it to VARIABLE, and insert it."
-  (make-local-variable variable)
-  (set variable
-       (format-time-string
-        (org-time-stamp-format nil nil)
-        (org-read-date nil t nil prompt))))
-
-(defun j/org/capture/insert (variable)
-  "Insert contents of VARIABLE."
-  (symbol-value variable))
-
-(defun j/org/capture/optional (what text)
-  "Ask user to include WHAT. If user agrees return TEXT."
-  (when (y-or-n-p (concat "Include " what "?"))
-    text))
-
-(defun j/org/capture/selection (list variable)
-  "Let the user choose between a pre-defined set of strings."
-  (make-local-variable variable)
-  (let ((selected-value (ido-completing-read "Select from list: " list)))
-    (set variable selected-value)
-    selected-value))
-#+END_SRC
-
-I also create a function which constructs the properties that I want for capture tasks.
+To start, I create a function which constructs the properties that I want for capture tasks.
 
 #+BEGIN_SRC emacs-lisp
 (defun j/org/capture/template/properties (&optional extra-properties)
@@ -339,33 +300,25 @@ I also create a function which constructs the properties that I want for capture
 Now, I create a shortcut for a simple NEXT task, which I use more below. I also create a test task so I can play around with the prompts that I have.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-(setq j/org/capture/template/next (concat "* NEXT %?\nDEADLINE: %(j/org/capture/prompt-date \"Due Date\" 'j/org/capture/next/date)\n" (j/org/capture/template/properties))
-      j/org/capture/template/test "** Capture test
-
-  - Entering values: %(j/org/capture/prompt \"Please enter FOO\" 'j/foo) %(j/org/capture/prompt \"Please enter BAR\" 'j/bar)
-  - Entering a date: %(j/org/capture/prompt-date \"Enter a date\" 'j/date)
-  - Selection %(j/org/capture/selection '(\"one\" \"two\" \"three\") 'j/number)
-  - Optional: %(j/org/capture/optional \"an optional snippet\" \"The content for the optional thing\")
-
-  Re-using:
-  - Here comes %(j/org/capture/insert 'j/foo) and %(j/org/capture/insert 'j/bar)
-  - The date: %(j/org/capture/insert 'j/date)
-  - Your number choice: %(j/org/capture/insert 'j/number)
-
-  \n\n")
+(setq j/org/capture/template/next (concat "* NEXT %?\nDEADLINE: %^{Due Date}t\n" (j/org/capture/template/properties)))
 #+END_SRC
 
 Now that I have my shortcuts, I proceed to actually write my templates.
 
 #+BEGIN_SRC emacs-lisp :tangle-no :noweb-ref org-mode-config
 (setq org-capture-templates
-      `(("s" "shorts-todo" entry (file+headline "~/Dropbox/org/refile.org" "Shorts")
-         ,j/org/capture/template/next :clock-in t :clock-resume t)
+      `(("s" "schedule")
+        ("ss" "schedule single" entry (file "~/Dropbox/org/refile.org")
+         "* TODO %?\nSCHEDULED: %^{When}T\n")
+        ("sr" "schedule repeat" entry (file "~/Dropbox/org/refile.org")
+         "* TODO \nSCHEDULED: %^{When}T%?\n")
         ("t" "todo")
+        ("ts" "short todo" entry (file+headline "~/Dropbox/org/refile.org" "Shorts")
+         ,j/org/capture/template/next :clock-in t :clock-resume t)
         ("tn" "dateless todo" entry (file "~/Dropbox/org/refile.org")
          ,(concat "* TODO %?\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
         ("td" "dated todo" entry (file "~/Dropbox/org/refile.org")
-         ,(concat "* TODO %?\nDEADLINE: %(j/org/capture/prompt-date \"Due Date\" 'j/org/capture/next/date)\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
+         ,(concat "* TODO %?\nDEADLINE: %^{Due Date}t\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
         ("r" "respond" entry (file "~/Dropbox/org/refile.org")
          ,(concat "* NEXT RESPOND to %:from on %:subject\nSCHEDULED: %t\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t :immediate-finish t)
         ("n" "note" entry (file "~/Dropbox/org/refile.org")
@@ -376,10 +329,8 @@ Now that I have my shortcuts, I proceed to actually write my templates.
          ,(concat "MEETING with %? :MEETING:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
         ("p" "Phone Call" entry (file "~/Dropbox/org/refile.org")
          ,(concat "PHONE %? :PHONE:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-        ("h" "Habit" entry (file "~/Dropbox/org/refile.org")
-         ,(j/org/capture/template/properties "SCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT"))
-        ("X" "test" entry (file+headline "~/Dropbox/org/refile.org" "Tests")
-         ,j/org/capture/template/test :empty-lines 1)))
+        ("h" "Habit" entry (file+headline "~/Dropbox/org/todo.org" "Habits")
+         "%?\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT")))
 #+END_SRC
 *** Clocking
 
@@ -417,11 +368,32 @@ These are general ~org-mode~ configurations that didn't have a better home.
       org-imenu-depth 3
       org-startup-folded t
       org-startup-truncated nil
+      org-cycle-include-plain-lists 'integrate
+      org-agenda-window-setup 'only-window
       org-use-property-inheritance t)
 (advice-add 'org-src--construct-edit-buffer-name :override #'j/org/org-src-buffer-name)
 (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
 #+END_SRC
 
+*** LaTeX
+#+begin_src emacs-lisp :tangle no :noweb-ref org-mode-config
+(setq org-latex-create-formula-image-program 'dvipng
+      org-format-latex-options (plist-put
+                                org-format-latex-options
+                                :scale 3.0)
+      org-preview-latex-image-directory "/tmp/ltximg/")
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :noweb-ref org-mode-config
+(with-eval-after-load 'ox-latex
+    (add-to-list 'org-latex-classes
+                 '("6046" "\\documentclass{6046}"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+#+end_src
 *** Refile
 
 [[http://doc.norang.ca/org-mode.html#Refiling][Refiling]] tasks allows you to quickly and painlessly move things around in/between org files. In confunction with [[Caputre][capturing]] it serves to make it nearly painless to jot things down into emacs. I have the convention that my ~/Dropbox/org/refile.org file contains all of my refile tasks (and it marks all of them with a FILETAGS: refile).
@@ -841,7 +813,7 @@ This contains helpers for use with the clocking code in my ~org-mode~ configs.
 
 (defun j/org/clock-out-maybe ()
   (when (and j/org/keep-clock-running
-             (not org-clock-clockin-in)
+             (not org-clock-clocking-in)
              (marker-buffer org-clock-default-task)
              (not org-clock-resolving-clocks-due-to-idleness))
     (j/org/clock-in-parent-task)))
@@ -1121,6 +1093,11 @@ I have a variety of hooks that I want to register for ~org-mode~, so that everyt
                                            (j/org/widen)))))
   #+END_SRC
 
+- I also want to highligh the current line I'm on in the agenda, so that it's easy to see where I am.
+ #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
+(org-agenda-mode . hl-line-mode)
+ #+END_SRC
+
 - When I clock out, I want to be sure to remove any empty clocks, and I also want to invoke my custom clock-out function (to ensure that I automatically clock into another task).
 
   #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-hooks
@@ -1163,7 +1140,25 @@ This package displays the header for the current subtree you are in, in a bar al
     :custom
     (org-super-agenda-groups
      '(;; Each group has an implicit boolean OR operator between its selectors.
-       (:name "HABITS" :habit t :order 0)
+       (:name "PROGRESS" :and (:deadline today
+                                         :todo ("DONE"
+                                                "CANCELLED"
+                                                "PHONE"
+                                                "MEETING"))
+              :order 0)
+       ;; My hobby projects, which I want to organize, but which I don't want to include in my daily workflow
+       (:order-multi (99
+                      (:name "EXORUST" :and (:tag "exorust"
+                                                  :not (:todo ("DONE"
+                                                               "CANCELLED"
+                                                               "PHONE"
+                                                               "MEETING"))
+                                                  :not (:tag ("HOLD"
+                                                              "CANCELLED"))))
+                      (:name "HOLD" :tag "HOLD")))
+       (:order-multi (0
+                      (:name "AGENDA" :time-grid t)
+                      (:name "HABITS" :habit t)))
        (:name "LATE" :deadline past :order 1)
        (:todo "NEXT" :order 2)
        (:name "TODAY" :and (:deadline today
@@ -1171,25 +1166,200 @@ This package displays the header for the current subtree you are in, in a bar al
                                                    "CANCELLED"
                                                    "PHONE"
                                                    "MEETING")))
-              :order 3)
+              :order 4)
        (:name "UPCOMING" :and (:deadline t
                                          :not (:todo ("DONE"
                                                       "CANCELLED"
                                                       "PHONE"
                                                       "MEETING")))
-              :order 4)
-       (:order-multi (5
+              :order 5)
+       (:order-multi (6
                       (:name "IMPORTANT" :priority "A")
                       (:name "LESS IMPORTANT" :priority<= "B")))
-       (:name "PROGRESS" :and (:deadline today
-                                         :todo ("DONE"
-                                                "CANCELLED"
-                                                "PHONE"
-                                                "MEETING"))
-              :order 6)
-       (:name "CATCHALL" :todo t :order 7)))
+       (:name "CATCHALL" :todo t :order 8)))
     :hook
     (org-mode . org-super-agenda-mode))
+#+END_SRC
+*** mu4e
+mu4e is an emacs wrapper around mu, which is used to query a mailbox. In order to use mu/mu4e, we need to use some other application which can keep our mailboxes synced; I choose:
++ OfflineIMAP
+  [[http://www.offlineimap.org/][OfflineIMAP]] is a tool which allows you to keep local mailboxes in sync with the actual canonical server mailbox. We require two supplemental files in order to get things rolling.
+
+  #+BEGIN_SRC text :tangle (expand-file-name "~/.offlineimaprc")
+[general]
+accounts = Gmail, MIT
+pythonfile = ~/.offlineimap.py
+maxsyncaccounts = 1
+
+[Account Gmail]
+localrepository = LocalGmail
+remoterepository = RemoteGmail
+autorefresh = 3
+quick = 30
+postsynchook = mu index --maildir ~/Maildir
+
+[Repository LocalGmail]
+type = GmailMaildir
+localfolders = ~/Maildir/Gmail
+nametrans = lambda folder: re.sub('~', ' ', folder)
+
+[Repository RemoteGmail]
+type = Gmail
+folderfilter = lambda foldername: foldername not in [
+             '[Gmail]/All Mail',
+             '[Gmail]/Drafts',
+             '[Gmail]/Spam',
+             'Notes'
+             ]
+nametrans = lambda folder: re.sub(' ', '~', folder)
+remoteuser = jasperhaag16@gmail.com
+remotepasseval = mailpasswd("gmail")
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+
+# These are effectively the same as the above
+[Account MIT]
+localrepository = LocalMIT
+remoterepository = RemoteMIT
+autorefresh = 3
+quick = 30
+postsynchook = mu index --maildir ~/Maildir
+
+[Repository LocalMIT]
+type = Maildir
+localfolders = ~/Maildir/MIT
+nametrans = lambda folder: re.sub('~', ' ', folder)
+
+[Repository RemoteMIT]
+type = IMAP
+folderfilter = lambda folder: folder not in [
+             'Calendar',
+             'Contacts',
+             'Deleted Items',
+             'Deleted Items/Long Term',
+             'Deleted Items/TODO',
+             'Drafts',
+             'Journal',
+             'Junk E-Mail',
+             'Notes',
+             'Outbox',
+             'RSS Feeds',
+             'Sync Issues',
+             'Sync Issues/Conflicts',
+             'Sync Issues/Local Failures',
+             'Sync Issues/Server Failures',
+             'Tasks',
+             ]
+nametrans = lambda folder: re.sub(' ', '~', folder)
+remotehost = imap.exchange.mit.edu
+remoteuser = jhaag@mit.edu
+remoteport = 993
+remotepasseval = mailpasswd("mit")
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+#+END_SRC
+
+  #+BEGIN_SRC python :tangle (expand-file-name "~/.offlineimap.py")
+import os
+import subprocess
+
+def mailpasswd(acct):
+  acct = os.path.basename(acct)
+  path = "/home/jhaag/.passwords/%s.gpg" % acct
+  args = ["gpg", "--use-agent", "--quiet", "--batch", "-d", path]
+  try:
+    return subprocess.check_output(args).strip()
+  except subprocess.CalledProcessError:
+    return ""
+#+END_SRC
+
+  We use a systemd daemon so that we can sync in the background; manually add this at ~/etc/systemd/user/offlineimap@.service~.
+
+  #+BEGIN_SRC text
+[Unit]
+Description=Offlineimap Service for account %i
+Documentation=man:offlineimap(1)
+
+[Service]
+ExecStart=/usr/bin/offlineimap -a %i -u basic
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=default.target
+#+END_SRC
+because I found an [[*References][email tutorial]]  which uses it.
+
+*NOTE*: Make sure to install mu (either from source or from the git repo).
+
+~mu4e~:
+#+BEGIN_SRC emacs-lisp
+(use-package eww
+  :hook (eww-mode . (lambda () (setq show-trailing-whitespace nil))))
+
+(use-package mu4e
+  :load-path "/usr/local/share/emacs/site-lisp/mu4e"
+  :init
+  (require 'mu4e)
+  ;; Call EWW to display HTML messages
+  (defun j/mu4e/view-in-eww (msg)
+    (eww-browse-url (concat "file://" (mu4e~write-body-to-html msg))))
+  ;; Arrange to view messages in either the default browser or EWW
+  (add-to-list 'mu4e-view-actions '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+  (add-to-list 'mu4e-view-actions '("Eww view" . j/mu4e/view-in-eww) t)
+
+  (when (fboundp 'imagemagick-register-types)
+    (imagemagick-register-types))
+  :custom
+  (mu4e-compose-signature "~Jasper")
+  (mu4e-confirm-quit nil)
+  ;; Call mu every 3 minutes to update and index Maildir
+  (mu4e-update-interval 180)
+  ;; Set format=flowed
+  ;; mu4e sets up visual-line-mode and also fill (M-q) to do the right thing
+  ;; each paragraph is a single long line; at sending, emacs will add the
+  ;; special line continuation characters.
+  (mu4e-compose-format-flowed t)
+  ;; give me ISO(ish) format date-time stamps in the header list
+  (mu4e-headers-date-format "%Y-%m-%d %H:%M")
+  ;; use html
+  (mu4e-view-prefer-html t)
+  ;; show full addresses in view message (instead of just names)
+  ;; toggle per name with M-RET
+  (mu4e-view-show-addresses t)
+  ;; path to our Maildir directory
+  (mu4e-maildir "~/Maildir")
+  ;; path for saving our attachments
+  (mu4e-attachment-dir "~/Downloads")
+  ;; the list of all of my e-mail addresses
+  (mu4e-user-mail-address-list '("jasperhaag16@gmail.com"
+                                 "jhaag@mit.edu"))
+  ;; the headers to show in the headers list -- a pair of a field
+  ;; and its width, with `nil' meaning 'unlimited'
+  ;; (better only use that for the last field.
+  ;; These are the defaults:
+  (mu4e-headers-fields
+   '((:human-date    .  25)
+     (:flags         .   6)
+     (:from-or-to    .  22)
+     (:subject       .  nil)))
+  :commands (mu4e)
+  :bind ("C-<f12>" . mu4e)
+  :hook ((mu4e-view-mode . (lambda ()
+                             (progn
+                               (visual-line-mode)
+                               (setq  show-trailing-whitespace nil
+                                      mu4e-view-show-images t))))
+         ;; From Ben Maughan: Get some Org functionality in compose buffer
+         (mu4e-message-mode-hook . 'turn-on-orgtbl)
+         (mu4e-message-mode-hook . 'turn-on-orgstruct++)))
+#+END_SRC
+
+~org-mu4e~:
+#+BEGIN_SRC emacs-lisp
+(use-package org-mu4e
+  :load-path "/usr/local/share/emacs/site-lisp/mu4e"
+  :custom
+  ;; store link to message if in header view, not to header query
+  (org-mu4e-link-query-in-headers-mode nil))
 #+END_SRC
 *** toc-org
 

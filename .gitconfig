@@ -41,15 +41,15 @@
   # shortcut for grepping git stuff
   gr 	    = grep -I
 
-  # view a pretty git log with branch tree
-  lg 	    = !git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %CGreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --data=relative
+  # ascii-art graph of the log
+  lol       = log --graph --oneline --decorate --color --all
 
   # push-pull to rectify whatever git issue you got yourself into
   pp 	    = !"echo 'Pull'; git pull; echo 'Push'; git push"
 
   # remove deleted files
   r 	    = !git ls-files -z --deleted | xargs -0 git rm
-  
+
   # shortcut for git rebase --continue
   rc 	    = rebase --continue
 
@@ -76,15 +76,15 @@
 
   # unstage current changes
   unstage   = reset HEAD --
-	
-[apply]	
+
+[apply]
   whitespace = fix
-	
+
 [branch]
   autosetupmerge  = true
   autosetuprebase = always
-	
-[core]	
+
+[core]
   autocrlf   = input
   editor     = vi
   ;editor     = emacs -nw

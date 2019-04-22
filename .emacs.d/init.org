@@ -905,6 +905,7 @@ Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I a
 (add-hook 'prog-mode-hook
           `(lambda ()
              (linum-mode)
+             (setq electric-indent-mode nil)
              (customize-set-variable 'indent-tabs-mode nil)
              (j/infer-indentation-style)))
 #+END_SRC
@@ -921,12 +922,27 @@ This sets up emacs with minimal settings for working with assembly. I'm starting
                            (setq tab-stop-list (number-sequence 4 120 4))))
 #+END_SRC
 
+*** coq
+I use [[https://proofgeneral.github.io/][Proof General]] for emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package proof-general
+  :init
+  (custom-set-variables '(coq-prog-args '("-emacs" "-R" "~/dev/coq/cpdt/src" "Cpdt")))
+  :custom
+  (proof-electric-terminator-enable t)
+  (proof-splash-enable nil)
+  (proof-keep-response-history t))
+#+END_SRC
+
 *** haskell
 
 This enables haskell-mode; I need to add a lot to this, although I haven't been using haskell lately, so I'll do it in the future.
 
 #+BEGIN_SRC emacs-lisp
 (use-package haskell
+  :init (use-package intero
+          :hook haskell-mode)
   :ensure haskell-mode)
 #+END_SRC
 
