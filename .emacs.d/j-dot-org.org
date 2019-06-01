@@ -1156,10 +1156,12 @@ This package displays the header for the current subtree you are in, in a bar al
                                                                "MEETING"))
                                                   :not (:tag ("HOLD"
                                                               "CANCELLED"))))
-                      (:name "HOLD" :tag "HOLD")))
+                      (:name "HOLD" :tag "HOLD")
+                      (:name "EMACS" :tag "emacs")))
        (:order-multi (0
                       (:name "AGENDA" :time-grid t)
-                      (:name "HABITS" :habit t)))
+                      (:name "HABITS" :habit t)
+                      (:name "REFILE" :tag "REFILE")))
        (:name "LATE" :deadline past :order 1)
        (:todo "NEXT" :order 2)
        (:name "TODAY" :and (:deadline today

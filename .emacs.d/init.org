@@ -184,26 +184,30 @@ This variable tells Emacs to prefer the ~.el~ file if it's newer, even if there 
 
 ** Loading
 
-Since I am now writing much of my emacs configuration in ~org-mode~ files, and because I intend to break it up somewhat, I define a useful helper which can load my file.
+Since I am now writing much of my emacs configuration in ~org-mode~ files, and because I intend to break it up somewhat, I define a useful helper which can load my file. I also use this helper to conditionally tangle the configs only when they've been changed.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
 (defun j/config/load-conf-dot-org (filename &optional extension)
   "Load the configuration.org file located at filename.
   This function assumes the convention that the tangled configuration lives at (basename filename)/tangles"
   (unless extension (setq extension ".el"))
-  (let ((filename (expand-file-name filename)))
+  (let ((filename (expand-file-name filename))
+        (target (concat (file-name-directory filename) "tangles/" (file-name-base filename) extension)))
     (if (file-readable-p filename)
         (progn
-          ;; We expect that this file is getting tangled to a ./tangles directory located with it
-          (org-babel-tangle-file filename)
-          (load (concat (file-name-directory filename) "tangles/" (file-name-base filename) extension)))
-      (warn "Missing configuration file: %s"))))
+          (if (file-newer-than-file-p filename target)
+              ;; We expect that this file is getting tangled to a ./tangles directory located with it,
+              ;; but we only want to tangle if it's necessary.
+              (org-babel-tangle-file filename))
+          (load target))
+      (warn "Missing configuration file: %s" (filename)))))
 #+END_SRC
 
 With the rest of the setup done, it is quite easy to load the rest of the configuration. I simply call ~org-babel-load-file~ in order to load my configs (and skip loading them if they're missing).
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
 (j/config/load-conf-dot-org "~/jconfig/.emacs.d/init.org")
+(j/config/load-conf-dot-org "~/jconfig/.emacs.d/j-dot-org.org")
 #+END_SRC
 
 * Customized Variables
@@ -304,6 +308,11 @@ There are some general Emacs settings which I configure first:
 
   #+BEGIN_SRC emacs-lisp
 (setq-default large-file-warning-threshold 100000000)
+  #+END_SRC
+
+- I want emacs to start maximized
+  #+BEGIN_SRC emacs-lisp
+(toggle-frame-maximized)
   #+END_SRC
 
 - I don't know about other people, but my weeks start on Mondays; I specify that here.
@@ -419,7 +428,9 @@ I like to have many windows open while I'm working, and I'll generally rearrange
     (buf-move-right)
     (select-window (windmove-find-other-window 'left)))
   :init
-  (add-hook 'emacs-startup-hook 'j/2-windows-vertical-to-horizontal)
+  (add-hook 'emacs-startup-hook (lambda () (progn
+                                             (j/2-windows-vertical-to-horizontal)
+                                             (j/buf-send-right))))
   (global-unset-key (kbd "C-x o"))
   :bind (("C-x <up>"          . buf-move-up)
          ("C-x <down>"        . buf-move-down)
@@ -444,29 +455,27 @@ To get this working, we require some supplemental modes that [[https://github.co
 (use-package gitignore-mode)
 #+END_SRC
 
-Now we can load git-gutter+ itself, and configure it to our liking.
+Now we can load git-gutter+ itself, and configure it to our liking. We also require ~git-gutter-fringe+~, which is the actual package that allows us to display our git status in the buffer.
 
 #+BEGIN_SRC emacs-lisp
 (use-package git-gutter+
+  :ensure t
   :after (gitattributes-mode gitconfig-mode gitignore-mode)
-  :init (add-hook 'prog-mode-hook 'git-gutter+-mode)
-  :bind (("C-x g g" . git-gutter+-mode)
+  :init (add-hook 'prog-mode-hook #'git-gutter+-mode)
+  :bind (("C-x G" . global-git-gutter+-mode)
+         ("C-x g" . git-gutter+-mode)
          :map git-gutter+-mode-map
          ("C-x n"   . git-gutter+-next-hunk)
          ("C-x p"   . git-gutter+-previous-hunk)
          ("C-x v =" . git-gutter+-show-hunk))
   :custom (git-gutter+-hide-gutter t)
-  :diminish (git-gutter+-mode . "gg+"))
-#+END_SRC
-
-We also require ~git-gutter-fringe+~, which is the actual package that allows us to display our git status in the buffer.
-
-#+BEGIN_SRC emacs-lisp
-(use-package git-gutter-fringe+
+  :diminish (git-gutter+-mode . "gg+")
   :config
+  (require 'fringe-helper)
+  (require 'git-gutter-fringe+)
   ;; Currently hard-coded to be the solarized-yellow color
   (set-face-attribute 'git-gutter-fr+-modified nil :foreground "#b58900")
-  (fring-helper-define 'git-gutter-fr+-modified nil
+  (fringe-helper-define 'git-gutter-fr+-modified nil
                        "........"
                        "........"
                        "..XX...X"
@@ -986,6 +995,24 @@ Since my org-mode configuration is so large, I've split it off into a separate f
 
 #+BEGIN_SRC emacs-lisp
 (j/config/load-conf-dot-org "~/jconfig/.emacs.d/j-dot-org.org")
+#+END_SRC
+
+*** python
+For now I want to get something up and running quickly, so I'm just using the default [[https://github.com/jorgenschaefer/elpy#quick-installation][elpy]] package.
+
+#+BEGIN_SRC emacs-lisp
+(use-package elpy
+  :ensure t
+  :init (elpy-enable))
+#+END_SRC
+
+However, we want to be sure to configure this properly so we don't get a bunch of bogus errors and warnings.
+
+#+BEGIN_SRC text :tangle (expand-file-name "~/.config/flake8")
+[flake8]
+ignore = E501,E226,W503
+max-line-length = 160
+max-complexity = 10
 #+END_SRC
 
 *** rust
