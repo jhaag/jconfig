@@ -207,7 +207,6 @@ With the rest of the setup done, it is quite easy to load the rest of the config
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
 (j/config/load-conf-dot-org "~/jconfig/.emacs.d/init.org")
-(j/config/load-conf-dot-org "~/jconfig/.emacs.d/j-dot-org.org")
 #+END_SRC
 
 * Customized Variables
@@ -1003,6 +1002,7 @@ For now I want to get something up and running quickly, so I'm just using the de
 #+BEGIN_SRC emacs-lisp
 (use-package elpy
   :ensure t
+  :bind ("C-x R P" . elpy-rpc-restart)
   :init (elpy-enable))
 #+END_SRC
 
