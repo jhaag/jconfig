@@ -35,6 +35,7 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
   - [[#smooth-scrolling][smooth-scrolling]]
   - [[#solarized][solarized]]
   - [[#symon][symon]]
+  - [[#undo-tree][undo-tree]]
 
 * Tasks [/]
 * References
@@ -1148,4 +1149,13 @@ I enjoy using solarized-dark, and so I load that theme here.
   (symon-history-size 25)
   (symon-sparkline-type 'bounded)
   :config (symon-mode))
+#+END_SRC
+** undo-tree
+
+I've finally started using [[https://elpa.gnu.org/packages/undo-tree.html][undo-tree]] and I think it's much nicer than the default emacs undo features. I may want to configure this more later, but for now I leave the defaults as is.
+
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :init (global-undo-tree-mode)
+  :diminish)
 #+END_SRC
