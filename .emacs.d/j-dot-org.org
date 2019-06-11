@@ -148,7 +148,8 @@ We also want to configure the fonts for other org-elements so that we don't get 
  '(org-property-value        ((t (:inherit fixed-pitch))) t)
  '(org-special-keyword       ((t (:inherit (font-locked-comment-face fixed-pitch)))))
  '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weigth bold :height 0.8))))
- '(org-verbatim              ((t (:inherit (shadow fixed-pitch))))))
+ '(org-verbatim              ((t (:inherit (shadow fixed-pitch)))))
+ '(org-indent                ((t (:inherit (org-hide fixed-pitch))))))
 #+END_SRC
 
 Next, we set up a nice proportional font, in different sizes, for the headlines. The fonts listed will be tried in sequence, and the first one found will be used. Add more if you so desire. This doesn't work right now, so I'm leaving it disabled; add ':noweb-ref org-mode-config' if you want to use it again.
