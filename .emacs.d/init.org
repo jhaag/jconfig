@@ -473,6 +473,7 @@ Now we can load git-gutter+ itself, and configure it to our liking. We also requ
   (require 'fringe-helper)
   (require 'git-gutter-fringe+)
   ;; Currently hard-coded to be the solarized-yellow color
+  (setq git-gutter-fr+-side 'right-fringe)
   (set-face-attribute 'git-gutter-fr+-modified nil :foreground "#b58900")
   (fringe-helper-define 'git-gutter-fr+-modified nil
                        "........"
@@ -1003,7 +1004,10 @@ For now I want to get something up and running quickly, so I'm just using the de
 (use-package elpy
   :ensure t
   :bind ("C-x R P" . elpy-rpc-restart)
-  :init (elpy-enable))
+  :init (elpy-enable)
+  :config
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "-i --simple-prompt --pprint"))
 #+END_SRC
 
 However, we want to be sure to configure this properly so we don't get a bunch of bogus errors and warnings.
