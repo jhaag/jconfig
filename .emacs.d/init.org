@@ -466,9 +466,8 @@ Now we can load git-gutter+ itself, and configure it to our liking. We also requ
          ("C-x n"   . git-gutter+-next-hunk)
          ("C-x p"   . git-gutter+-previous-hunk)
          ("C-x v =" . git-gutter+-show-hunk))
-  :custom
-  (git-gutter+-hide-gutter t)
-  :diminish (git-gutter+-mode . "gg+"))
+  :init (setq git-gutter+-lighter " gg+")
+  :custom (git-gutter+-hide-gutter t))
 
 (use-package git-gutter-fringe+
   :demand t
@@ -489,7 +488,8 @@ Now we can load git-gutter+ itself, and configure it to our liking. We also requ
                         "XX.XXXX."
                         "X...XX.."
                         "........"
-                        "........"))
+                        "........")
+  :diminish (git-gutter+-mode . "gg+"))
 #+END_SRC
 ** helm
 
