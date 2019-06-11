@@ -920,6 +920,7 @@ Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I a
 (add-hook 'prog-mode-hook
           `(lambda ()
              (linum-mode)
+             (hl-line-mode)
              (setq electric-indent-mode nil)
              (customize-set-variable 'indent-tabs-mode nil)
              (j/infer-indentation-style)))
