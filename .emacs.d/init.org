@@ -460,7 +460,6 @@ Now we can load git-gutter+ itself, and configure it to our liking. We also requ
 (use-package git-gutter+
   :ensure t
   :after (gitattributes-mode gitconfig-mode gitignore-mode)
-  :init (add-hook 'prog-mode-hook #'git-gutter+-mode)
   :bind (("C-x G" . global-git-gutter+-mode)
          ("C-x g" . git-gutter+-mode)
          :map git-gutter+-mode-map
@@ -470,6 +469,7 @@ Now we can load git-gutter+ itself, and configure it to our liking. We also requ
   :custom (git-gutter+-hide-gutter t)
   :diminish (git-gutter+-mode . "gg+")
   :config
+  (global-git-gutter+-mode)
   (require 'fringe-helper)
   (require 'git-gutter-fringe+)
   ;; Currently hard-coded to be the solarized-yellow color
