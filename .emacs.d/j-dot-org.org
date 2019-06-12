@@ -291,6 +291,12 @@ First, however, we need to ensure that we have the necessary extension packages 
       org-confirm-babel-evaluate nil)
 #+END_SRC
 
+It seems as if ~org-src-mode~ is not running the `before-save-hook` when saving, so trailing whitespace is not being deleted. This is a workaround to re-add that functionality.
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+(advice-add 'org-edit-src-save :before (lambda (&rest _args) (delete-trailing-whitespace)))
+#+END_SRC
+
 *** Capture
 
 [[http://doc.norang.ca/org-mode.html#Capture][Org Capture]] makes it painless to write down things as they pop into your head. You can configure various templates, bind them to hotkeys, and then quickly generate them - without breaking your workflow in anything else. +For now, I've taken most of my configuration from the link at the beginning of this section, but I hope to refine this once I get the dot-file overhaul completed.+ I'm going off of [[https://github.com/novoid/dot-emacs/blob/master/config.org#my-capture----functions-for-prompting-for-different-things][Novoid's Capture stuff]]. IMPORTANT: Note the use of ~:noweb-ref~ on these blocks; the configuration section is being spliced into the use-package block for org, but I want these to be defined globally, so I need to make sure that they actually get tangled to the toplevel of the file.

@@ -340,19 +340,10 @@ There are some general Emacs settings which I configure first:
 (setq x-stretch-cursor t)
   #+END_SRC
 
-- Highlight trailing whitespace in red so that it's easily visible.
+- Even though I use ~org-mode~, I also want to be able to keep track of changes on my other files. I set up emacs to timestamp every file at the top upon save.
 
   #+BEGIN_SRC emacs-lisp
-(customize-set-variable 'show-trailing-whitespace t)
-  #+END_SRC
-
-- Even though I use ~org-mode~, I also want to be able to keep track of changes on my other files. I set up emacs to timestamp every file at the top upon save. I also set up emacs so that it deletes any trailing whitespace that I have in my files; this keeps everything nice and neat :~)
-
-  #+BEGIN_SRC emacs-lisp
-(add-hook 'before-save-hook
-          `(lambda ()
-             (time-stamp)
-             (delete-trailing-whitespace)))
+(add-hook 'before-save-hook 'time-stamp)
   #+END_SRC
 * Hooks
 
@@ -364,10 +355,12 @@ I have a variety of hooks that I want to register, so that everything works smoo
 (add-hook 'write-file-hooks 'time-stamp)
   #+END_SRC
 
-- Next, I ensure that trailing whitespace is always deleted when I save a file.
+- Next, I ensure that trailing whitespace is always deleted when I save a file. Furthermore, I ensure that in special modes (and calendar mode in particular) we don't display trailing whitespace, since they usually are read-only.
 
   #+BEGIN_SRC emacs-lisp
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
+(add-hook 'special-mode-hook (function (lambda () (setq show-trailing-whitespace nil))))
+(add-hook 'calendar-mode-hook (function (lambda () (setq show-trailing-whitespace nil))))
   #+END_SRC
 
 * Keybindings
@@ -915,7 +908,7 @@ First and foremost, I assume that if I'm loading a file with an extension in ema
 (add-to-list 'auto-mode-alist '("^\\.\\w.*\\'" . prog-mode))
 #+END_SRC
 
-Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I also want to enable my custom [[*Utilities][j/infer-indentation-style]] function.
+Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I also want to enable my custom [[*Utilities][j/infer-indentation-style]] function. I also set up emacs so that it highlights trailing whitespace and deletes any trailing whitespace that I have in my files; this keeps everything nice and neat :~)
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'prog-mode-hook
@@ -923,8 +916,10 @@ Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I a
              (linum-mode)
              (hl-line-mode)
              (setq electric-indent-mode nil)
+             (setq show-trailing-whitespace t)
              (customize-set-variable 'indent-tabs-mode nil)
-             (j/infer-indentation-style)))
+             (j/infer-indentation-style)
+             (add-hook 'before-save-hook 'delete-trailing-whitespace)))
 #+END_SRC
 
 *** asm
