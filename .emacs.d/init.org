@@ -1209,5 +1209,5 @@ I like to have my screen do fun stuff if I'm idle :~)
 
 #+begin_src emacs-lisp
 (require 'zone)
-(zone-when-idle 45)
+(zone-when-idle 90)
 #+end_src
