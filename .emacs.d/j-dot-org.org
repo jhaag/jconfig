@@ -126,8 +126,13 @@ With this done, we also set up the standard fonts that we need to variable and f
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
 (custom-theme-set-faces
  'user
+ '(default ((t (:family "Iosevka"
+                        :slant normal
+                        :weight normal
+                        :height 150
+                        :width normal))))
  '(variable-pitch ((t (:family "Source Sans Pro" :height 150 :weight normal))))
- '(fixed-pitch ((t (:family "Inconsolata"
+ '(fixed-pitch ((t (:family "Iosevka"
                             :slant normal
                             :weight normal
                             :height 1.0
@@ -148,7 +153,8 @@ We also want to configure the fonts for other org-elements so that we don't get 
  '(org-property-value        ((t (:inherit fixed-pitch))) t)
  '(org-special-keyword       ((t (:inherit (font-locked-comment-face fixed-pitch)))))
  '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weigth bold :height 0.8))))
- '(org-verbatim              ((t (:inherit (shadow fixed-pitch))))))
+ '(org-verbatim              ((t (:inherit (shadow fixed-pitch)))))
+ '(org-indent                ((t (:inherit (org-hide fixed-pitch))))))
 #+END_SRC
 
 Next, we set up a nice proportional font, in different sizes, for the headlines. The fonts listed will be tried in sequence, and the first one found will be used. Add more if you so desire. This doesn't work right now, so I'm leaving it disabled; add ':noweb-ref org-mode-config' if you want to use it again.
@@ -224,7 +230,7 @@ I have a large number of different configurations that I add to org-mode so that
 [[http://doc.norang.ca/org-mode.html#CustomAgendaViews][The Agenda]] can be a very powerful tool, and I need to experiment more with it. However, I'm quite intrigued by [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]] and I want to explore that before I worry about learning all this junk.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
-(setq org-agenda-files '("~/Dropbox/org/" "~/dev/exorust/xo/xo.org")
+(setq org-agenda-files '("~/dev/org/" "~/Dropbox/org/" "~/dev/exorust/xo/xo.org")
       org-agenda-window-setup 'current-window
       ;; I can look at the week view deliberately if I want
       org-agenda-span 'day
@@ -285,6 +291,12 @@ First, however, we need to ensure that we have the necessary extension packages 
       org-confirm-babel-evaluate nil)
 #+END_SRC
 
+It seems as if ~org-src-mode~ is not running the `before-save-hook` when saving, so trailing whitespace is not being deleted. This is a workaround to re-add that functionality.
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
+(advice-add 'org-edit-src-save :before (lambda (&rest _args) (delete-trailing-whitespace)))
+#+END_SRC
+
 *** Capture
 
 [[http://doc.norang.ca/org-mode.html#Capture][Org Capture]] makes it painless to write down things as they pop into your head. You can configure various templates, bind them to hotkeys, and then quickly generate them - without breaking your workflow in anything else. +For now, I've taken most of my configuration from the link at the beginning of this section, but I hope to refine this once I get the dot-file overhaul completed.+ I'm going off of [[https://github.com/novoid/dot-emacs/blob/master/config.org#my-capture----functions-for-prompting-for-different-things][Novoid's Capture stuff]]. IMPORTANT: Note the use of ~:noweb-ref~ on these blocks; the configuration section is being spliced into the use-package block for org, but I want these to be defined globally, so I need to make sure that they actually get tangled to the toplevel of the file.
@@ -306,30 +318,31 @@ Now, I create a shortcut for a simple NEXT task, which I use more below. I also 
 Now that I have my shortcuts, I proceed to actually write my templates.
 
 #+BEGIN_SRC emacs-lisp :tangle-no :noweb-ref org-mode-config
+(setq j/org/refile-path "~/dev/org/")
 (setq org-capture-templates
       `(("s" "schedule")
-        ("ss" "schedule single" entry (file "~/Dropbox/org/refile.org")
+        ("ss" "schedule single" entry (file (lambda () (concat j/org/refile-path "refile.org")))
          "* TODO %?\nSCHEDULED: %^{When}T\n")
-        ("sr" "schedule repeat" entry (file "~/Dropbox/org/refile.org")
+        ("sr" "schedule repeat" entry (file (lambda () (concat j/org/refile-path "refile.org")))
          "* TODO \nSCHEDULED: %^{When}T%?\n")
         ("t" "todo")
-        ("ts" "short todo" entry (file+headline "~/Dropbox/org/refile.org" "Shorts")
+        ("ts" "short todo" entry (file+headline (lambda () (concat j/org/refile-path "refile.org")) "Shorts")
          ,j/org/capture/template/next :clock-in t :clock-resume t)
-        ("tn" "dateless todo" entry (file "~/Dropbox/org/refile.org")
+        ("tn" "dateless todo" entry (file (lambda () (concat j/org/refile-path "refile.org")))
          ,(concat "* TODO %?\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-        ("td" "dated todo" entry (file "~/Dropbox/org/refile.org")
+        ("td" "dated todo" entry (file (lambda () (concat j/org/refile-path "refile.org")))
          ,(concat "* TODO %?\nDEADLINE: %^{Due Date}t\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-        ("r" "respond" entry (file "~/Dropbox/org/refile.org")
+        ("r" "respond" entry (file (lambda () (concat j/org/refile-path "refile.org")))
          ,(concat "* NEXT RESPOND to %:from on %:subject\nSCHEDULED: %t\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t :immediate-finish t)
-        ("n" "note" entry (file "~/Dropbox/org/refile.org")
+        ("n" "note" entry (file (lambda () (concat j/org/refile-path "refile.org")))
          ,(concat "* %? :NOTE:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-        ("j" "Journal" entry (file+olp+datetree "~/Dropbox/org/diary.org")
+        ("j" "Journal" entry (file+olp+datetree (lambda () (concat j/org/refile-path "diary.org")))
          "* %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n" :clock-in t :clock-resume t)
-        ("m" "Meeting" entry (file "~/Dropbox/org/refile.org")
+        ("m" "Meeting" entry (file (lambda () (concat j/org/refile-path "refile.org")))
          ,(concat "MEETING with %? :MEETING:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-        ("p" "Phone Call" entry (file "~/Dropbox/org/refile.org")
+        ("p" "Phone Call" entry (file (lambda () (concat j/org/refile-path "refile.org")))
          ,(concat "PHONE %? :PHONE:\n" (j/org/capture/template/properties)) :clock-in t :clock-resume t)
-        ("h" "Habit" entry (file+headline "~/Dropbox/org/todo.org" "Habits")
+        ("h" "Habit" entry (file+headline (lambda () (concat j/org/refile-path "todo.org")) "Habits")
          "%?\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT")))
 #+END_SRC
 *** Clocking
@@ -359,7 +372,7 @@ These are general ~org-mode~ configurations that didn't have a better home.
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
 (setq org-directory "~/Dropbox/org"
-      org-default-notes-file "~/Dropbox/org/refile.org"
+      org-default-notes-file "~/dev/org/refile.org"
       org-ellipsis "…"
       org-log-done 'time
       org-log-redeadline t
@@ -1155,10 +1168,12 @@ This package displays the header for the current subtree you are in, in a bar al
                                                                "MEETING"))
                                                   :not (:tag ("HOLD"
                                                               "CANCELLED"))))
-                      (:name "HOLD" :tag "HOLD")))
+                      (:name "HOLD" :tag "HOLD")
+                      (:name "EMACS" :tag "emacs")))
        (:order-multi (0
                       (:name "AGENDA" :time-grid t)
-                      (:name "HABITS" :habit t)))
+                      (:name "HABITS" :habit t)
+                      (:name "REFILE" :tag "REFILE")))
        (:name "LATE" :deadline past :order 1)
        (:todo "NEXT" :order 2)
        (:name "TODAY" :and (:deadline today
@@ -1293,9 +1308,11 @@ because I found an [[*References][email tutorial]]  which uses it.
 ~mu4e~:
 #+BEGIN_SRC emacs-lisp
 (use-package eww
+  :disabled
   :hook (eww-mode . (lambda () (setq show-trailing-whitespace nil))))
 
 (use-package mu4e
+  :disabled
   :load-path "/usr/local/share/emacs/site-lisp/mu4e"
   :init
   (require 'mu4e)
@@ -1356,6 +1373,7 @@ because I found an [[*References][email tutorial]]  which uses it.
 ~org-mu4e~:
 #+BEGIN_SRC emacs-lisp
 (use-package org-mu4e
+  :disabled
   :load-path "/usr/local/share/emacs/site-lisp/mu4e"
   :custom
   ;; store link to message if in header view, not to header query

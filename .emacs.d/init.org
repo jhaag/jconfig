@@ -35,6 +35,7 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
   - [[#smooth-scrolling][smooth-scrolling]]
   - [[#solarized][solarized]]
   - [[#symon][symon]]
+  - [[#undo-tree][undo-tree]]
 
 * Tasks [/]
 * References
@@ -184,20 +185,23 @@ This variable tells Emacs to prefer the ~.el~ file if it's newer, even if there 
 
 ** Loading
 
-Since I am now writing much of my emacs configuration in ~org-mode~ files, and because I intend to break it up somewhat, I define a useful helper which can load my file.
+Since I am now writing much of my emacs configuration in ~org-mode~ files, and because I intend to break it up somewhat, I define a useful helper which can load my file. I also use this helper to conditionally tangle the configs only when they've been changed.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
 (defun j/config/load-conf-dot-org (filename &optional extension)
   "Load the configuration.org file located at filename.
   This function assumes the convention that the tangled configuration lives at (basename filename)/tangles"
   (unless extension (setq extension ".el"))
-  (let ((filename (expand-file-name filename)))
+  (let ((filename (expand-file-name filename))
+        (target (concat (file-name-directory filename) "tangles/" (file-name-base filename) extension)))
     (if (file-readable-p filename)
         (progn
-          ;; We expect that this file is getting tangled to a ./tangles directory located with it
-          (org-babel-tangle-file filename)
-          (load (concat (file-name-directory filename) "tangles/" (file-name-base filename) extension)))
-      (warn "Missing configuration file: %s"))))
+          (if (file-newer-than-file-p filename target)
+              ;; We expect that this file is getting tangled to a ./tangles directory located with it,
+              ;; but we only want to tangle if it's necessary.
+              (org-babel-tangle-file filename))
+          (load target))
+      (warn "Missing configuration file: %s" (filename)))))
 #+END_SRC
 
 With the rest of the setup done, it is quite easy to load the rest of the configuration. I simply call ~org-babel-load-file~ in order to load my configs (and skip loading them if they're missing).
@@ -306,6 +310,11 @@ There are some general Emacs settings which I configure first:
 (setq-default large-file-warning-threshold 100000000)
   #+END_SRC
 
+- I want emacs to start maximized
+  #+BEGIN_SRC emacs-lisp
+(toggle-frame-maximized)
+  #+END_SRC
+
 - I don't know about other people, but my weeks start on Mondays; I specify that here.
 
   #+BEGIN_SRC emacs-lisp
@@ -331,19 +340,10 @@ There are some general Emacs settings which I configure first:
 (setq x-stretch-cursor t)
   #+END_SRC
 
-- Highlight trailing whitespace in red so that it's easily visible.
+- Even though I use ~org-mode~, I also want to be able to keep track of changes on my other files. I set up emacs to timestamp every file at the top upon save.
 
   #+BEGIN_SRC emacs-lisp
-(customize-set-variable 'show-trailing-whitespace t)
-  #+END_SRC
-
-- Even though I use ~org-mode~, I also want to be able to keep track of changes on my other files. I set up emacs to timestamp every file at the top upon save. I also set up emacs so that it deletes any trailing whitespace that I have in my files; this keeps everything nice and neat :~)
-
-  #+BEGIN_SRC emacs-lisp
-(add-hook 'before-save-hook
-          `(lambda ()
-             (time-stamp)
-             (delete-trailing-whitespace)))
+(add-hook 'before-save-hook 'time-stamp)
   #+END_SRC
 * Hooks
 
@@ -355,10 +355,12 @@ I have a variety of hooks that I want to register, so that everything works smoo
 (add-hook 'write-file-hooks 'time-stamp)
   #+END_SRC
 
-- Next, I ensure that trailing whitespace is always deleted when I save a file.
+- Next, I ensure that trailing whitespace is always deleted when I save a file. Furthermore, I ensure that in special modes (and calendar mode in particular) we don't display trailing whitespace, since they usually are read-only.
 
   #+BEGIN_SRC emacs-lisp
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
+(add-hook 'special-mode-hook (function (lambda () (setq show-trailing-whitespace nil))))
+(add-hook 'calendar-mode-hook (function (lambda () (setq show-trailing-whitespace nil))))
   #+END_SRC
 
 * Keybindings
@@ -395,6 +397,13 @@ I like to have many windows open while I'm working, and I'll generally rearrange
         (j/2-windows-vertical-to-horizontal)
       (j/2-windows-horizontal-to-vertical)))
 
+  (defun j/2-windows-swap ()
+    "Swap windows using buffer-move.el"
+    (interactive)
+    (if (null (windmove-find-other-window 'right))
+        (buf-move-left)
+      (buf-move-right)))
+
   (defun j/buf-send-up ()
     "Send the currently selected buffer up, and retain the current focus"
     (interactive)
@@ -419,17 +428,22 @@ I like to have many windows open while I'm working, and I'll generally rearrange
     (buf-move-right)
     (select-window (windmove-find-other-window 'left)))
   :init
-  (add-hook 'emacs-startup-hook 'j/2-windows-vertical-to-horizontal)
+  (add-hook 'emacs-startup-hook (lambda () (let ((buffers (mapcar 'window-buffer (window-list))))
+                                             (when (= 2 (length buffers))
+                                               (j/2-windows-vertical-to-horizontal)
+                                               (j/2-windows-swap)
+                                               (other-window 1)))))
   (global-unset-key (kbd "C-x o"))
+  (global-unset-key (kbd "M-`"))
   :bind (("C-x <up>"          . buf-move-up)
          ("C-x <down>"        . buf-move-down)
          ("C-x <left>"        . buf-move-left)
          ("C-x <right>"       . buf-move-right)
-                                        ;("M-<up>"            . j/buf-send-up)
-                                        ;("M-<down>"  	      . j/buf-send-down)
-                                        ;("M-<left>"          . j/buf-send-left)
-                                        ;("M-<right>"         . j/buf-send-right)
-                                        ;("M-<return>"        . j/2-windows-switch-orientation)
+         ;("M-<up>"            . j/buf-send-up)
+         ;("M-<down>"  	       . j/buf-send-down)
+         ;("M-<left>"          . j/buf-send-left)
+         ;("M-<right>"         . j/buf-send-right)
+         ("M-`"               . j/2-windows-swap)
          ("C-`"               . other-window)))
 #+END_SRC
 ** git-gutter+
@@ -444,37 +458,42 @@ To get this working, we require some supplemental modes that [[https://github.co
 (use-package gitignore-mode)
 #+END_SRC
 
-Now we can load git-gutter+ itself, and configure it to our liking.
+Now we can load git-gutter+ itself, and configure it to our liking. We also require ~git-gutter-fringe+~, which is the actual package that allows us to display our git status in the buffer.
 
 #+BEGIN_SRC emacs-lisp
 (use-package git-gutter+
+  :demand t
   :after (gitattributes-mode gitconfig-mode gitignore-mode)
-  :init (add-hook 'prog-mode-hook 'git-gutter+-mode)
-  :bind (("C-x g g" . git-gutter+-mode)
+  :bind (("C-x G" . global-git-gutter+-mode)
+         ("C-x g" . git-gutter+-mode)
          :map git-gutter+-mode-map
          ("C-x n"   . git-gutter+-next-hunk)
          ("C-x p"   . git-gutter+-previous-hunk)
          ("C-x v =" . git-gutter+-show-hunk))
-  :custom (git-gutter+-hide-gutter t)
-  :diminish (git-gutter+-mode . "gg+"))
-#+END_SRC
+  :init (setq git-gutter+-lighter " gg+")
+  :custom (git-gutter+-hide-gutter t))
 
-We also require ~git-gutter-fringe+~, which is the actual package that allows us to display our git status in the buffer.
-
-#+BEGIN_SRC emacs-lisp
 (use-package git-gutter-fringe+
-  :config
+  :demand t
+  :ensure git-gutter+
+  :custom
+  (git-gutter-fr+-side 'right-fringe)
+  :custom-face
   ;; Currently hard-coded to be the solarized-yellow color
-  (set-face-attribute 'git-gutter-fr+-modified nil :foreground "#b58900")
-  (fring-helper-define 'git-gutter-fr+-modified nil
-                       "........"
-                       "........"
-                       "..XX...X"
-                       ".XXXX.XX"
-                       "XX.XXXX."
-                       "X...XX.."
-                       "........"
-                       "........"))
+  (git-gutter-fr+-modified ((t (:foreground "#b58900"))))
+  :config
+  (global-git-gutter+-mode)
+  (require 'fringe-helper)
+  (fringe-helper-define 'git-gutter-fr+-modified nil
+                        "........"
+                        "........"
+                        "..XX...X"
+                        ".XXXX.XX"
+                        "XX.XXXX."
+                        "X...XX.."
+                        "........"
+                        "........")
+  :diminish (git-gutter+-mode . "gg+"))
 #+END_SRC
 ** helm
 
@@ -906,17 +925,20 @@ We setup company and flycheck here; I enable these in prog-mode.
 (use-package company)
 #+END_SRC
 
-Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I also want to enable my custom [[*Utilities][j/infer-indentation-style]] function.
+Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I also want to enable my custom [[*Utilities][j/infer-indentation-style]] function. I also set up emacs so that it highlights trailing whitespace and deletes any trailing whitespace that I have in my files; this keeps everything nice and neat :~)
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'prog-mode-hook
           `(lambda ()
              (linum-mode)
+             (hl-line-mode)
              (setq electric-indent-mode nil)
              (company-mode)
              (flycheck-mode)
+             (setq show-trailing-whitespace t)
              (customize-set-variable 'indent-tabs-mode nil)
-             (j/infer-indentation-style)))
+             (j/infer-indentation-style)
+             (add-hook 'before-save-hook 'delete-trailing-whitespace)))
 #+END_SRC
 
 *** asm
@@ -1006,6 +1028,28 @@ Since my org-mode configuration is so large, I've split it off into a separate f
 
 #+BEGIN_SRC emacs-lisp
 (j/config/load-conf-dot-org "~/jconfig/.emacs.d/j-dot-org.org")
+#+END_SRC
+
+*** python
+For now I want to get something up and running quickly, so I'm just using the default [[https://github.com/jorgenschaefer/elpy#quick-installation][elpy]] package.
+
+#+BEGIN_SRC emacs-lisp
+(use-package elpy
+  :ensure t
+  :bind ("C-x R P" . elpy-rpc-restart)
+  :init (elpy-enable)
+  :config
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "-i --simple-prompt --pprint"))
+#+END_SRC
+
+However, we want to be sure to configure this properly so we don't get a bunch of bogus errors and warnings.
+
+#+BEGIN_SRC text :tangle (expand-file-name "~/.config/flake8")
+[flake8]
+ignore = E501,E226,W503
+max-line-length = 160
+max-complexity = 10
 #+END_SRC
 
 *** rust
@@ -1130,4 +1174,13 @@ I enjoy using solarized-dark, and so I load that theme here.
   (symon-history-size 25)
   (symon-sparkline-type 'bounded)
   :config (symon-mode))
+#+END_SRC
+** undo-tree
+
+I've finally started using [[https://elpa.gnu.org/packages/undo-tree.html][undo-tree]] and I think it's much nicer than the default emacs undo features. I may want to configure this more later, but for now I leave the defaults as is.
+
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :init (global-undo-tree-mode)
+  :diminish)
 #+END_SRC
