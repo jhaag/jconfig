@@ -899,6 +899,13 @@ First and foremost, I assume that if I'm loading a file with an extension in ema
 (add-to-list 'auto-mode-alist '("^\\.\\w.*\\'" . prog-mode))
 #+END_SRC
 
+We setup company and flycheck here; I enable these in prog-mode.
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck)
+(use-package company)
+#+END_SRC
+
 Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I also want to enable my custom [[*Utilities][j/infer-indentation-style]] function.
 
 #+BEGIN_SRC emacs-lisp
@@ -906,6 +913,8 @@ Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I a
           `(lambda ()
              (linum-mode)
              (setq electric-indent-mode nil)
+             (company-mode)
+             (flycheck-mode)
              (customize-set-variable 'indent-tabs-mode nil)
              (j/infer-indentation-style)))
 #+END_SRC
@@ -935,14 +944,25 @@ I use [[https://proofgeneral.github.io/][Proof General]] for emacs.
   (proof-keep-response-history t))
 #+END_SRC
 
+I also use [[https://github.com/cpitclaudel/company-coq][company-coq]] to add niceities to proof-general.
+
+#+BEGIN_SRC emacs-lisp
+(use-package company-coq
+  :hook
+  (coq-mode . company-coq-mode))
+#+END_SRC
+
 *** haskell
 
 This enables haskell-mode; I need to add a lot to this, although I haven't been using haskell lately, so I'll do it in the future.
 
 #+BEGIN_SRC emacs-lisp
+(use-package intero)
+
+(add-hook 'haskell-mode-hook 'intero-mode)
+
 (use-package haskell
-  :init (use-package intero
-          :hook haskell-mode)
+  :hook (haskell-mode-hook . interactive-haskell-mode)
   :ensure haskell-mode)
 #+END_SRC
 
