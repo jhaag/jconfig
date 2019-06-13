@@ -129,13 +129,13 @@ With this done, we also set up the standard fonts that we need to variable and f
  '(default ((t (:family "Iosevka"
                         :slant normal
                         :weight normal
-                        :height 150
+                        :height 110
                         :width normal))))
- '(variable-pitch ((t (:family "Source Sans Pro" :height 150 :weight normal))))
+ '(variable-pitch ((t (:family "Source Sans Pro" :height 130 :weight normal))))
  '(fixed-pitch ((t (:family "Iosevka"
                             :slant normal
                             :weight normal
-                            :height 1.0
+                            :height 0.8
                             :width normal)))))
 #+END_SRC
 
