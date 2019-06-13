@@ -31,6 +31,7 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
   - [[#language-specific][Language-Specific]]
   - [[#multiple-cursors][multiple-cursors]]
   - [[#saveplace][saveplace]]
+  - [[#selectric][selectric]]
   - [[#shell-pop][shell-pop]]
   - [[#smooth-scrolling][smooth-scrolling]]
   - [[#solarized][solarized]]
@@ -1086,6 +1087,18 @@ This package will save the place of the cursor in each file, and restore it upon
   :defer nil
   :config (save-place-mode))
 #+END_SRC
+
+** selectric
+
+I miss my Cherry MX-Blue switches :'~(
+
+#+BEGIN_SRC emacs-lisp
+(use-package selectric-mode
+  :demand t
+  :config (selectric-mode)
+  :diminish (selectric-mode . "'(:::)"))
+#+END_SRC
+
 ** shell-pop
 
 Shell pop is a neat little package that allows you to pop a shell up into your Emacs session, and pop it away after; I keep it bound to f1.
@@ -1196,5 +1209,5 @@ I like to have my screen do fun stuff if I'm idle :~)
 
 #+begin_src emacs-lisp
 (require 'zone)
-(zone-when-idle 45)
+(zone-when-idle 90)
 #+end_src
