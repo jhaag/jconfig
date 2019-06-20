@@ -968,6 +968,7 @@ I use [[https://proofgeneral.github.io/][Proof General]] for emacs.
   :init
   (custom-set-variables '(coq-prog-args '("-emacs" "-R" "~/dev/coq/cpdt/src" "Cpdt")))
   :custom
+  (proof-three-window-mode-policy 'hybrid)
   (proof-electric-terminator-enable t)
   (proof-splash-enable nil)
   (proof-keep-response-history t))
