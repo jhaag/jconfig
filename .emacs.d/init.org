@@ -1201,6 +1201,8 @@ I've finally started using [[https://elpa.gnu.org/packages/undo-tree.html][undo-
 
 #+BEGIN_SRC emacs-lisp
 (use-package undo-tree
+  :ensure t
+  :demand t
   :init (global-undo-tree-mode)
   :diminish)
 #+END_SRC
