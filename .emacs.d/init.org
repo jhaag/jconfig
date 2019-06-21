@@ -1219,24 +1219,24 @@ I like to have my screen do fun stuff if I'm idle :~)
   (zone-when-idle 60)                                         ;; ===| SCORE |===
   (customize-set-variable 'zone-programs                      ;;       -/5
                           '[;;zone-pgm-jitter                 ;;        2
-                            ;;zone-pgm-putz-with-case         ;;        4
+                            zone-pgm-putz-with-case           ;;        4
                             ;;qzone-pgm-dissolve              ;;        2
-                            ;;zone-pgm-explode                ;;        4
+                            zone-pgm-explode                  ;;        4
                             ;;zone-pgm-whack-chars            ;;        3
                             ;;zone-pgm-rotate                 ;;        3
                             ;;zone-pgm-rotate-LR-lockstep     ;;        3
                             ;;zone-pgm-rotate-RL-lockstep     ;;        3
                             ;;zone-pgm-rotate-LR-variable     ;;        3
                             ;;zone-pgm-rotate-RL-variable     ;;        3
-                            ;;zone-pgm-drip                   ;;        4
+                            zone-pgm-drip                     ;;        4
                             ;;zone-pgm-drip-fretfully         ;;        2
                             ;;zone-pgm-five-oclock-swan-dive  ;;        1
                             ;;zone-pgm-martini-swan-dive      ;;        1
-                            ;;zone-pgm-rat-race               ;;        4
-                            ;;zone-pgm-paragraph-spaz         ;;        4
-                            ;;zone-pgm-stress                 ;;        4
-                            ;;zone-pgm-stress-destress        ;;        4
-                            ;;zone-pgm-random-life            ;;        5
+                            zone-pgm-rat-race                 ;;        4
+                            zone-pgm-paragraph-spaz           ;;        4
+                            zone-pgm-stress                   ;;        4
+                            zone-pgm-stress-destress          ;;        4
+                            zone-pgm-random-life              ;;        5
                             ])
   (customize-set-variable 'zone-pgm-random-life-wait 1))
 #+end_src
