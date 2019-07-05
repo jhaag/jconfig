@@ -26,6 +26,7 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
 - [[#keybindings][Keybindings]]
 - [[#packages][Packages]]
   - [[#buffer-move][buffer-move]]
+  - [[#exec-path-from-shell][exec-path-from-shell]]
   - [[#git-gutter][git-gutter+]]
   - [[#helm][helm]]
   - [[#language-specific][Language-Specific]]
@@ -453,6 +454,18 @@ I like to have many windows open while I'm working, and I'll generally rearrange
          ;("M-<right>"         . j/buf-send-right)
          ("M-`"               . j/2-windows-swap)
          ("C-`"               . other-window)))
+#+END_SRC
+** exec-path-from-shell
+On Mac the paths often get messed up in emacs, and [[https://github.com/purcell/exec-path-from-shell][this package]] fixes that problem by manually importing the paths at emacs startup.
+
+#+BEGIN_SRC emacs-lisp
+(use-package exec-path-from-shell
+  :ensure t
+  :demand t
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-copy-env "PYTHONPATH")
+    (exec-path-from-shell-initialize)))
 #+END_SRC
 ** git-gutter+
 
