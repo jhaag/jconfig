@@ -29,8 +29,9 @@ source $JCONFIG_ROOT/aliases/$HOST_OS.sh
 source $JCONFIG_ROOT/aliases/shared.sh
 
 #=== External Sources ==========================================================
-source ~/jconfig/scripts/shell_prompt.sh
-source ~/jconfig/scripts/utilities.sh
+source $JCONFIG_ROOT/scripts/shell_prompt.sh
+source $JCONFIG_ROOT/scripts/utilities.sh
+source $JCONFIG_ROOT/.git-completion.bash
 
 #=== Fixes =====================================================================
 if is_interactive_shell; then
