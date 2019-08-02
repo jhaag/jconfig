@@ -17,9 +17,6 @@
   # delete the current branch that you are in
   brdel     = branch -D
 
-  # prune branches which only exist locally, but are not remotely tracked
-  brprune   = !git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}' | xargs git branch -d
-
   # show the files which are being edited the most
   churn     = !git log --all -M -C --name-only --format='format:' "$@" | sort | grep -v '^$' | uniq -c | sort -nr | head
 
