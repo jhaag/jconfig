@@ -231,7 +231,7 @@ I have a large number of different configurations that I add to org-mode so that
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
 (setq org-agenda-files '("~/dev/org/" "~/Dropbox/org/" "~/dev/exorust/xo/xo.org")
-      org-agenda-window-setup 'current-window
+      org-agenda-window-setup 'other-frame
       ;; I can look at the week view deliberately if I want
       org-agenda-span 'day
       org-agenda-dim-blocked-tasks nil
@@ -382,7 +382,7 @@ These are general ~org-mode~ configurations that didn't have a better home.
       org-startup-folded t
       org-startup-truncated nil
       org-cycle-include-plain-lists 'integrate
-      org-agenda-window-setup 'only-window
+      org-agenda-window-setup 'other-frame
       org-use-property-inheritance t)
 (advice-add 'org-src--construct-edit-buffer-name :override #'j/org/org-src-buffer-name)
 (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
@@ -1148,27 +1148,9 @@ This package displays the header for the current subtree you are in, in a bar al
 #+BEGIN_SRC emacs-lisp
   (use-package org-super-agenda
     :after org
+    :ensure t
     :init
     (require 'org-habit)
-    :config
-    (use-package origami
-      :bind (:map org-super-agenda-header-map
-                  ([tab] . origami-toggle-node))
-      :config
-      (defvar j/org/super-agenda-auto-show-groups
-        '("PROGRESS" "AGENDA" "HABITS" "REFILE" "LATE" "NEXT" "TODAY" "UPCOMING" "IMPORTANT"))
-
-      (defun j/org/super-agenda-origami-fold-default ()
-        "Fold certain groups by default in Org Super Agenda buffer."
-        (forward-line 3)
-        (cl-loop do (origami-forward-toggle-node (current-buffer) (point))
-                 while (origami-forward-fold-same-level (current-buffer) (point)))
-        (--each j/org/super-agenda-auto-show-groups
-          (goto-char (point-min))
-          (when (re-search-forward (rx-to-string `(seq bol " " ,it)) nil t)
-            (origami-show-node (current-buffer) (point)))))
-      :hook ((org-agenda-mode . origami-mode)
-             (org-agenda-finalize . j/org/super-agenda-origami-fold-default)))
     :custom
     (org-super-agenda-groups
      '(;; Each group has an implicit boolean OR operator between its selectors.
@@ -1215,6 +1197,32 @@ This package displays the header for the current subtree you are in, in a bar al
     :hook
     (org-mode . org-super-agenda-mode))
 #+END_SRC
+
+Finally, we enable origami for the agenda, which ensures that only the important subsections are initially displayed. Currently, this doesn't work well with the agenda so I leave it disabled. In particular, it seems like when this is included in the config, the AGENDA gets cleared if we open org-super-agenda from a *.org file (although it displays AGENDA properly if we open org-super-agenda from a non *.org file).
+
+#+BEGIN_SRC emacs-lisp :tangle no :noweb-ref no
+(use-package origami
+  :after org-super-agenda
+  :ensure t
+  :bind (:map org-super-agenda-header-map
+              ([tab] . origami-toggle-node))
+  :config
+  (defvar j/org/super-agenda-auto-show-groups
+    '("PROGRESS" "AGENDA" "HABITS" "REFILE" "LATE" "NEXT" "TODAY" "UPCOMING" "IMPORTANT"))
+
+  (defun j/org/super-agenda-origami-fold-default ()
+    "Fold certain groups by default in Org Super Agenda buffer."
+    (forward-line 3)
+    (cl-loop do (origami-forward-toggle-node (current-buffer) (point))
+             while (origami-forward-fold-same-level (current-buffer) (point)))
+    (--each j/org/super-agenda-auto-show-groups
+      (goto-char (point-min))
+      (when (re-search-forward (rx-to-string `(seq bol " " ,it)) nil t)
+        (origami-show-node (current-buffer) (point)))))
+  :hook ((org-agenda-mode . origami-mode)
+         (org-agenda-finalize . j/org/super-agenda-origami-fold-default)))
+#+END_SRC
+
 *** mu4e
 mu4e is an emacs wrapper around mu, which is used to query a mailbox. In order to use mu/mu4e, we need to use some other application which can keep our mailboxes synced; I choose:
 + OfflineIMAP
