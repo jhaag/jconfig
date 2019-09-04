@@ -30,6 +30,7 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
   - [[#git-gutter][git-gutter+]]
   - [[#helm][helm]]
   - [[#language-specific][Language-Specific]]
+  - [[#markdown-mode][markdown-mode]]
   - [[#multiple-cursors][multiple-cursors]]
   - [[#saveplace][saveplace]]
   - [[#selectric][selectric]]
@@ -926,8 +927,8 @@ This allows you to browse unicode characters by name through helm, and then inse
 
 #+BEGIN_SRC emacs-lisp
 (use-package helm-unicode
-  :ensure helm
-  :bind ("C-c h 8" . helm-unicode))
+  :ensure t
+  :bind* ("C-x 8 <return>" . helm-unicode))
 #+END_SRC
 ** Language-Specific
 
@@ -980,6 +981,11 @@ I use [[https://proofgeneral.github.io/][Proof General]] for emacs.
 (use-package proof-general
   :init
   (custom-set-variables '(coq-prog-args '("-emacs" "-R" "~/dev/coq/cpdt/src" "Cpdt")))
+  :bind (("C-c M-a" . (lambda () (interactive) (insert "α")))
+         ("C-c M-b" . (lambda () (interactive) (insert "β")))
+         ("C-c M-d" . (lambda () (interactive) (insert "δ")))
+         ("C-c M-g" . (lambda () (interactive) (insert "η")))
+         ("C-c M-l" . (lambda () (interactive) (insert "λ"))))
   :custom
   (proof-three-window-mode-policy 'hybrid)
   (proof-electric-terminator-enable nil)
@@ -1082,6 +1088,19 @@ This sets up some basic rust features. I should really look into this more, beca
   :init
   (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
   (setq rust-format-on-save t))
+#+END_SRC
+
+** markdown-mode
+This is pretty self-explanatory. I got my config from [[https://jblevins.org/projects/markdown-mode/][this website]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
 #+END_SRC
 
 ** multiple-cursors
