@@ -314,9 +314,9 @@ There are some general Emacs settings which I configure first:
 (setq-default large-file-warning-threshold 100000000)
   #+END_SRC
 
-- I want emacs to start maximized
+- I want emacs to start maximized (see [[https://emacs.stackexchange.com/a/3008][this]] answer for details on my more complicated solution; I no longer just toggle the first frame that opens).
   #+BEGIN_SRC emacs-lisp
-(toggle-frame-maximized)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
   #+END_SRC
 
 - I don't know about other people, but my weeks start on Mondays; I specify that here.
