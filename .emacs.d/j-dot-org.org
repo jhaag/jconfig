@@ -386,6 +386,9 @@ These are general ~org-mode~ configurations that didn't have a better home.
       org-use-property-inheritance t)
 (advice-add 'org-src--construct-edit-buffer-name :override #'j/org/org-src-buffer-name)
 (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
+(eval-after-load 'org '(require 'org-pdfview))
+(add-to-list 'org-file-apps '("\\.pdf\\'" . (lambda (file link) (org-pdfview-open link))))
+(add-to-list 'org-link-frame-setup '(file . find-file-other-frame))
 #+END_SRC
 
 *** LaTeX

@@ -32,6 +32,7 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
   - [[#language-specific][Language-Specific]]
   - [[#markdown-mode][markdown-mode]]
   - [[#multiple-cursors][multiple-cursors]]
+  - [[#pdf-tools][pdf-tools]]
   - [[#saveplace][saveplace]]
   - [[#selectric][selectric]]
   - [[#shell-pop][shell-pop]]
@@ -1111,6 +1112,24 @@ I oftentimes find that I need to edit many lines of code which are already horiz
 (use-package multiple-cursors
   :bind ("C-. C-." . mc/edit-lines))
 #+END_SRC
+** pdf-tools
+
+DocView is OK, but it isn't great (especially because the resolution gets messed up by converting every page to a ~.png~). Instead, I use [[https://github.com/politza/pdf-tools][pdf-tools]], which is a popular replacement.
+
+#+BEGIN_SRC emacs-lisp
+(use-package pdf-tools
+  :ensure t
+  :config
+  ;; initialize
+  (pdf-tools-install)
+  ;; make PDFs open to fit the page
+  (setq-default pdf-view-display-size 'fit-width)
+  ;; enable regular searching
+  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+  ;; finer-grained zooming
+  (setq pdf-view-resize-factor 1.1))
+#+END_SRC
+
 ** saveplace
 
 This package will save the place of the cursor in each file, and restore it upon opening that file up again.
