@@ -7,18 +7,39 @@
 
 These are my ~org-mode~ configurations for Emacs.
 
-* Table of Contents                                                             :TOC_2:noexport:
+* Table of Contents                                                             :TOC_3:noexport:
 - [[#tasks-100][Tasks]]
   - [[#work-on-making-org-mode-look-nice][Work on making ~org-mode~ look nice]]
 - [[#references][References]]
   - [[#random-notes][Random Notes]]
 - [[#org-mode][Org-Mode]]
   - [[#aesthetics][Aesthetics]]
+    - [[#structural][Structural]]
+    - [[#fontcolor][Font/Color]]
   - [[#bindings][Bindings]]
   - [[#configuration][Configuration]]
+    - [[#agenda][Agenda]]
+    - [[#archive][Archive]]
+    - [[#babel][Babel]]
+    - [[#capture][Capture]]
+    - [[#clocking][Clocking]]
+    - [[#general][General]]
+    - [[#latex][LaTeX]]
+    - [[#refile][Refile]]
+    - [[#tasks][Tasks]]
   - [[#helper-functions][Helper Functions]]
+    - [[#agenda-1][Agenda]]
+    - [[#archiving][Archiving]]
+    - [[#clocking-1][Clocking]]
+    - [[#focus][Focus]]
+    - [[#general-1][General]]
+    - [[#miscellaneous][Miscellaneous]]
   - [[#hooks][Hooks]]
   - [[#packages][Packages]]
+    - [[#org-sticky-header][org-sticky-header]]
+    - [[#org-super-agenda][org-super-agenda]]
+    - [[#mu4e][mu4e]]
+    - [[#toc-org][toc-org]]
 
 * Tasks [100%]
 ** DONE Work on making ~org-mode~ look nice
@@ -1155,14 +1176,17 @@ This package displays the header for the current subtree you are in, in a bar al
     :init
     (require 'org-habit)
     :custom
+    (org-agenda-start-with-log-mode t)
     (org-super-agenda-groups
      '(;; Each group has an implicit boolean OR operator between its selectors.
-       (:name "DISABLED" :discard (:tag ("exorust") :order 0))
-       (:name "PROGRESS" :and (:deadline today
-                                         :todo ("DONE"
-                                                "CANCELLED"
-                                                "PHONE"
-                                                "MEETING"))
+       (:name "~DISABLED~" :discard (:tag ("exorust") :order 0))
+       (:name "PROGRESS"
+              :log (closed clocked)
+              :and (:deadline today
+                              :todo ("DONE"
+                                     "CANCELLED"
+                                     "PHONE"
+                                     "MEETING"))
               :order 0)
        ;; My hobby projects, which I want to organize, but which I don't want to include in my daily workflow
        (:order-multi (99
@@ -1181,21 +1205,22 @@ This package displays the header for the current subtree you are in, in a bar al
                       (:name "REFILE" :tag "REFILE")))
        (:name "LATE" :deadline past :order 1)
        (:todo "NEXT" :order 2)
+
        (:name "TODAY" :and (:deadline today
                                       :not (:todo ("DONE"
                                                    "CANCELLED"
                                                    "PHONE"
                                                    "MEETING")))
-              :order 4)
+              :order 3)
+       (:order-multi (4
+                      (:name "IMPORTANT" :priority "A")
+                      (:name "LESS IMPORTANT" :priority<= "B")))
        (:name "UPCOMING" :and (:deadline t
                                          :not (:todo ("DONE"
                                                       "CANCELLED"
                                                       "PHONE"
                                                       "MEETING")))
               :order 5)
-       (:order-multi (6
-                      (:name "IMPORTANT" :priority "A")
-                      (:name "LESS IMPORTANT" :priority<= "B")))
        (:name "CATCHALL" :todo t :order 8)))
     :hook
     (org-mode . org-super-agenda-mode))
