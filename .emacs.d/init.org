@@ -123,7 +123,7 @@ First, we disable ~package~ at startup so that we can ensure we set it up proper
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
 (require 'package)
-(require 'cl)
+(require 'cl-lib)
 
 (setq package-enable-at-startup nil)
 #+END_SRC
@@ -137,8 +137,8 @@ Next, we set up the package archives that we want to pull from, and finally init
                '("melpa" . "https://melpa.org/packages/"))
   ;;(add-to-list 'package-archives
   ;;             ("melpa-stable" . "https://stable.melpa.org/packages/") t)
-  (add-to-list 'package-archives
-               '("marmalade" . "https://marmalade-repo.org/packages/"))
+  ;;(add-to-list 'package-archives
+  ;;             '("marmalade" . "https://marmalade-repo.org/packages/"))
   ;; For important compatibility libraries like cl-lib
   (add-to-list 'package-archives
                '("gnu" . "https://elpa.gnu.org/packages/"))
@@ -1061,14 +1061,16 @@ Since my org-mode configuration is so large, I've split it off into a separate f
 *** python
 For now I want to get something up and running quickly, so I'm just using the default [[https://github.com/jorgenschaefer/elpy#quick-installation][elpy]] package.
 
+TODO: Get something working here
+
 #+BEGIN_SRC emacs-lisp
-(use-package elpy
-  :ensure t
-  :bind ("C-x R P" . elpy-rpc-restart)
-  :init (elpy-enable)
-  :config
-  (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "-i --simple-prompt --pprint"))
+;;(use-package elpy
+;;  :ensure t
+;;  :bind ("C-x R P" . elpy-rpc-restart)
+;;  :init (elpy-enable)
+;;  :config
+;;  (setq python-shell-interpreter "ipython"
+;;        python-shell-interpreter-args "-i --simple-prompt --pprint"))
 #+END_SRC
 
 However, we want to be sure to configure this properly so we don't get a bunch of bogus errors and warnings.
