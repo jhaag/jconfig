@@ -1149,7 +1149,7 @@ I miss my Cherry MX-Blue switches :'~(
 #+BEGIN_SRC emacs-lisp
 (use-package selectric-mode
   :demand t
-  :config (selectric-mode)
+  ;; :config (selectric-mode)
   :diminish (selectric-mode . "'(:::)"))
 #+END_SRC
 
