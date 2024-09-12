@@ -476,9 +476,10 @@ When I'm working on a project, I find it annoying to close emacs and work with g
 To get this working, we require some supplemental modes that [[https://github.com/magit/magit][Magit]] has created. I SHOULD LOOK INTO USING MAGIT IN THE FUTURE.
 
 #+BEGIN_SRC emacs-lisp
-(use-package gitattributes-mode)
-(use-package gitconfig-mode)
-(use-package gitignore-mode)
+;;(use-package gitattributes-mode)
+;;(use-package gitconfig-mode)
+;;(use-package gitignore-mode)
+(use-package git-modes)
 #+END_SRC
 
 Now we can load git-gutter+ itself, and configure it to our liking. We also require ~git-gutter-fringe+~, which is the actual package that allows us to display our git status in the buffer.
@@ -486,7 +487,8 @@ Now we can load git-gutter+ itself, and configure it to our liking. We also requ
 #+BEGIN_SRC emacs-lisp
 (use-package git-gutter+
   :demand t
-  :after (gitattributes-mode gitconfig-mode gitignore-mode)
+  ;;:after (gitattributes-mode gitconfig-mode gitignore-mode)
+  :after (git-modes)
   :bind (("C-x G" . global-git-gutter+-mode)
          ("C-x g" . git-gutter+-mode)
          :map git-gutter+-mode-map
@@ -496,27 +498,27 @@ Now we can load git-gutter+ itself, and configure it to our liking. We also requ
   :init (setq git-gutter+-lighter " gg+")
   :custom (git-gutter+-hide-gutter t))
 
-(use-package git-gutter-fringe+
-  :demand t
-  :ensure git-gutter+
-  :custom
-  (git-gutter-fr+-side 'right-fringe)
-  :custom-face
-  ;; Currently hard-coded to be the solarized-yellow color
-  (git-gutter-fr+-modified ((t (:foreground "#b58900"))))
-  :config
-  (global-git-gutter+-mode)
-  (require 'fringe-helper)
-  (fringe-helper-define 'git-gutter-fr+-modified nil
-                        "........"
-                        "........"
-                        "..XX...X"
-                        ".XXXX.XX"
-                        "XX.XXXX."
-                        "X...XX.."
-                        "........"
-                        "........")
-  :diminish (git-gutter+-mode . "gg+"))
+;;(use-package git-gutter-fringe+
+;;  :demand t
+;;  :ensure git-gutter+
+;;  :custom
+;;  (git-gutter-fr+-side 'right-fringe)
+;;  :custom-face
+;;  ;; Currently hard-coded to be the solarized-yellow color
+;;  (git-gutter-fr+-modified ((t (:foreground "#b58900"))))
+;;  :config
+;;  (global-git-gutter+-mode)
+;;  (require 'fringe-helper)
+;;  (fringe-helper-define 'git-gutter-fr+-modified nil
+;;                        "........"
+;;                        "........"
+;;                        "..XX...X"
+;;                        ".XXXX.XX"
+;;                        "XX.XXXX."
+;;                        "X...XX.."
+;;                        "........"
+;;                        "........")
+;;  :diminish (git-gutter+-mode . "gg+"))
 #+END_SRC
 ** helm
 
@@ -1007,13 +1009,13 @@ I also use [[https://github.com/cpitclaudel/company-coq][company-coq]] to add ni
 This enables haskell-mode; I need to add a lot to this, although I haven't been using haskell lately, so I'll do it in the future.
 
 #+BEGIN_SRC emacs-lisp
-(use-package intero)
+;;(use-package intero)
 
-(add-hook 'haskell-mode-hook 'intero-mode)
+;;(add-hook 'haskell-mode-hook 'intero-mode)
 
-(use-package haskell
-  :hook (haskell-mode-hook . interactive-haskell-mode)
-  :ensure haskell-mode)
+;;(use-package haskell
+;;  :hook (haskell-mode-hook . interactive-haskell-mode)
+;;  :ensure haskell-mode)
 #+END_SRC
 
 *** js
@@ -1256,6 +1258,8 @@ I've finally started using [[https://elpa.gnu.org/packages/undo-tree.html][undo-
 (use-package undo-tree
   :ensure t
   :demand t
+  :custom
+  (undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
   :init (global-undo-tree-mode)
   :diminish)
 #+END_SRC
