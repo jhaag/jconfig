@@ -4,8 +4,31 @@ function cdl {
 
 # cht.sh is a cheat sheet for various unix commands and their general usage. You need to
 # be online, but whateber.
-function cheat() {
+function cheat {
     curl cht.sh/$1
+}
+
+function venv-activate {
+    if [[ -z $1 ]]; then
+        echo "Usage: venv-activate <VENV NAME>"
+        return 1
+    fi
+
+    local venv_base_dir="$HOME/.venv"
+    local venv_dir="$venv_base_dir/$1"
+
+    if [[ ! -d "${venv_base_dir}" ]]; then
+        echo "${venv_base_dir} should store the python virtual environments (or it should symlink the actual venv store)"
+        return 1
+    fi
+
+    if [[ ! -d "${venv_dir}" ]]; then
+        echo "${venv_base_dir} exists, but ${1} doesn't appear to be a venv; here are the available venvs:"
+        ll "${venv_base_dir}"
+        return 1
+    fi
+
+    source "${venv_dir}/bin/activate"
 }
 
 # Move export GREP_OPTIONS="--color=auto" (which is deprecated) from .exports to .alias
