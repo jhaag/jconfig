@@ -3,5 +3,9 @@ function _update_ps1() {
 }
 
 if [[ $TERM != linux && ! $PROMPT_COMMAND =~ _update_ps1 ]]; then
-    PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+    if [[ -z "$PROMPT_COMMAND" ]]; then
+        PROMPT_COMMAND="_update_ps1"
+    else
+        PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+    fi
 fi
