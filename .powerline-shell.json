@@ -1,15 +1,18 @@
 {
   "segments": [
-    "virtual_env",
     "time",
+    "battery",
     "username",
     "ssh",
+    "virtual_env",
+    "opam_switch",
     "cwd",
     "git",
     "git_stash",
     "jobs",
     "set_term_title",
     "newline",
+
     "read_only",
     "root",
     "exit_code"

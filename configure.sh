@@ -57,6 +57,7 @@ command -v pip3 >/dev/null 2>&1 || {
 command -v powerline-shell >/dev/null 2>&1 || {
     echo -e "Attempting to install powerline-shell as root:\n"
     sudo -H pip3 install powerline-shell
+    sudo ln -s $JCONFIG_ROOT/powerline_opam_switch.py /usr/local/lib/python3.10/dist-packages/powerline_shell/segments/opam_switch.py
     echo -e "Installed powerline-shell; see <https://github.com/b-ryan/powerline-shell> for more.\n"
 }
 
