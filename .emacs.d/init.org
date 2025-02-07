@@ -978,6 +978,12 @@ This sets up emacs with minimal settings for working with assembly. I'm starting
 #+END_SRC
 
 *** coq
+#+BEGIN_SRC emacs-lisp
+(let ((command-output (shell-command-to-string "opam switch show")))
+  (when (string-match-p "br" command-output)
+    (load-file "~/dev/bluerock/proprietary/fm-workspace/dev/fmdev.el")))
+#+END_SRC
+
 I use [[https://proofgeneral.github.io/][Proof General]] for emacs.
 
 #+BEGIN_SRC emacs-lisp
@@ -1105,7 +1111,7 @@ This is pretty self-explanatory. I got my config from [[https://jblevins.org/pro
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+  :init (setq markdown-command "pandoc"))
 #+END_SRC
 
 ** multiple-cursors

@@ -31,6 +31,15 @@ function venv-activate {
     source "${venv_dir}/bin/activate"
 }
 
+function venv-deactivate {
+    if [[ ! -d "$VIRTUAL_ENV" ]]; then
+        echo "It appears that no python venv is active."
+        return 1
+    fi
+
+    source "$VIRTUAL_ENV/bin/deactivate"
+}
+
 # Move export GREP_OPTIONS="--color=auto" (which is deprecated) from .exports to .alias
 # Always enable colored `grep` output`
 unset GREP_OPTIONS
