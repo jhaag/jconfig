@@ -114,6 +114,32 @@ EOF
 
 load_custom_config "$TMUX_CONF" ~/.tmux.conf "#"
 
+#=== Claude Code ===============================================================
+# Symlink Claude Code settings from repo to ~/.claude
+# Using symlinks so edits via Claude's /memory, /settings, etc. go to the repo
+mkdir -p ~/.claude
+
+# Symlink settings.json
+if [ -f $JCONFIG_ROOT/.claude-config/settings.json ]; then
+    [ -f ~/.claude/settings.json ] && [ ! -L ~/.claude/settings.json ] && rm ~/.claude/settings.json
+    [ ! -e ~/.claude/settings.json ] && ln -s "$JCONFIG_ROOT/.claude-config/settings.json" ~/.claude/settings.json
+    echo "Claude Code settings.json symlinked."
+fi
+
+# Symlink CLAUDE.md
+if [ -f $JCONFIG_ROOT/.claude-config/CLAUDE.md ]; then
+    [ -f ~/.claude/CLAUDE.md ] && [ ! -L ~/.claude/CLAUDE.md ] && rm ~/.claude/CLAUDE.md
+    [ ! -e ~/.claude/CLAUDE.md ] && ln -s "$JCONFIG_ROOT/.claude-config/CLAUDE.md" ~/.claude/CLAUDE.md
+    echo "Claude Code CLAUDE.md symlinked."
+fi
+
+# Symlink commands directory
+if [ -d $JCONFIG_ROOT/.claude-config/commands ]; then
+    [ -d ~/.claude/commands ] && [ ! -L ~/.claude/commands ] && rm -rf ~/.claude/commands
+    [ ! -e ~/.claude/commands ] && ln -s "$JCONFIG_ROOT/.claude-config/commands" ~/.claude/commands
+    echo "Claude Code custom commands symlinked."
+fi
+
 # Idea! Put in todo variables througout configs, and have this file go through and sed everything
 # Another Idea! Stamp config files with the time that they were configured, and compare on the fly
 # to determine if it is necessary to add the custom stuff in, or if we want to do something else

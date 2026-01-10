@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(make:*)",
+      "Bash(cargo:*)",
+      "Bash(python:*)",
+      "Bash(pip:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(fd:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(sudo rm:*)",
+      "Bash(git push:*)",
+      "Bash(git remote:*)"
+    ]
+  }
+}
