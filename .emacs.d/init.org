@@ -955,7 +955,7 @@ Furthermore, whenever I enter ~prog-mode~ I want to enable ~display-line-numbers
 #+BEGIN_SRC emacs-lisp
 (add-hook 'prog-mode-hook
           `(lambda ()
-             (display-line-numbers-mode 1)
+             (display-line-numbers-mode 'absolute)
              (setq electric-indent-mode nil)
              (company-mode)
              (flycheck-mode)
