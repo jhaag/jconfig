@@ -22,5 +22,6 @@
       "Bash(git push:*)",
       "Bash(git remote:*)"
     ]
-  }
+  },
+  "model": "sonnet"
 }
