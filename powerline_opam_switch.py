@@ -44,5 +44,5 @@ class Segment(BasicSegment):
         else:
             fg = self.powerline.theme.REPO_DIRTY_FG
 
-        # Append switch name
-        self.powerline.append(" " + env_name + " ", fg, bg)
+        # Append switch name with sand dune icon
+        self.powerline.append(" 🏜️  " + env_name + " ", fg, bg)
