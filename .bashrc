@@ -22,7 +22,12 @@ else
 fi
 
 export JCONFIG_ROOT="$HOME/jconfig"
-export PATH=$PATH:/usr/local/bin
+
+# Add dev venv bin to PATH if it exists
+if [[ -d "$HOME/.venv/dev/bin" ]]; then
+    export PATH="$HOME/.venv/dev/bin:$PATH"
+fi
+export PATH="$PATH:/usr/local/bin"
 
 #=== Aliases ===================================================================
 source $JCONFIG_ROOT/aliases/$HOST_OS.sh

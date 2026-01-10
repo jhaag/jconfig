@@ -45,21 +45,70 @@ echo '[NOTE] Change your user preferences to use Meslo LG S at 11pt font'
 
 echo -e '\n\n'
 
-#--- Powerline Shell Setup -----------------------------------------------------
+#--- uv and Dev Venv Setup -----------------------------------------------------
+DEV_VENV="$HOME/.venv/dev"
 
-# Test whether or not pip is installed (as it is required to set the powerline-shell
-# up. If it isn't installed, display an error message informing you to install it,
-# and exit with error code 1.
-command -v pip3 >/dev/null 2>&1 || {
-    echo >&2 "I require pip3 but it's not installed.  Aborting."
-    exit 1
-}
-command -v powerline-shell >/dev/null 2>&1 || {
-    echo -e "Attempting to install powerline-shell as root:\n"
-    sudo -H pip3 install powerline-shell
-    sudo ln -s $JCONFIG_ROOT/powerline_opam_switch.py /usr/local/lib/python3.10/dist-packages/powerline_shell/segments/opam_switch.py
-    echo -e "Installed powerline-shell; see <https://github.com/b-ryan/powerline-shell> for more.\n"
-}
+# Bootstrap uv if not installed
+if ! command -v uv >/dev/null 2>&1; then
+    echo -e "Installing uv package manager...\n"
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    # Source PATH for this session
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# Create or update dev venv with latest Python
+mkdir -p "$HOME/.venv"
+
+if [[ -d "$DEV_VENV" ]]; then
+    # Check if we should upgrade to a newer Python
+    CURRENT_MINOR=$("$DEV_VENV/bin/python" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+    # Get what uv considers the latest Python 3
+    LATEST_PY=$(uv python find 3 2>/dev/null)
+    if [[ -n "$LATEST_PY" ]]; then
+        LATEST_MINOR=$("$LATEST_PY" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
+        if [[ -n "$LATEST_MINOR" && "$CURRENT_MINOR" != "$LATEST_MINOR" ]]; then
+            echo -e "Upgrading dev venv from Python $CURRENT_MINOR to $LATEST_MINOR...\n"
+            rm -rf "$DEV_VENV"
+        fi
+    fi
+fi
+
+if [[ ! -d "$DEV_VENV" ]]; then
+    echo -e "Creating dev virtual environment at $DEV_VENV with latest Python...\n"
+    uv venv --python 3 "$DEV_VENV"
+fi
+
+# Install powerline-shell if not present in venv
+if [[ ! -x "$DEV_VENV/bin/powerline-shell" ]]; then
+    echo -e "Installing powerline-shell into dev venv...\n"
+    uv pip install --python "$DEV_VENV/bin/python" powerline-shell
+fi
+
+# Symlink custom opam_switch segment (dynamic path detection)
+POWERLINE_SEGMENTS_DIR=$("$DEV_VENV/bin/python" -c "import powerline_shell; print(powerline_shell.__path__[0])")/segments
+OPAM_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/opam_switch.py"
+
+if [[ ! -L "$OPAM_SEGMENT_LINK" ]] || [[ "$(readlink "$OPAM_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline_opam_switch.py" ]]; then
+    [[ -e "$OPAM_SEGMENT_LINK" ]] && rm "$OPAM_SEGMENT_LINK"
+    ln -s "$JCONFIG_ROOT/powerline_opam_switch.py" "$OPAM_SEGMENT_LINK"
+    echo -e "Linked custom opam_switch segment.\n"
+fi
+
+echo -e "Dev venv configured with powerline-shell.\n"
+
+#--- Legacy Cleanup ------------------------------------------------------------
+# Remove old powerline-shell from user site-packages (installed via pip install --user)
+if pip3 show powerline-shell 2>/dev/null | grep -q "Location:.*\.local"; then
+    echo -e "Removing legacy user-level powerline-shell...\n"
+    pip3 uninstall powerline-shell -y
+fi
+
+# Remove old symlink from system site-packages (if it exists)
+LEGACY_SYMLINK="/usr/local/lib/python3.10/dist-packages/powerline_shell/segments/opam_switch.py"
+if [[ -L "$LEGACY_SYMLINK" ]]; then
+    echo -e "Removing legacy opam_switch symlink...\n"
+    sudo rm "$LEGACY_SYMLINK"
+fi
 
 #=== Bash ======================================================================
 # Add custom configs to .bashrc
