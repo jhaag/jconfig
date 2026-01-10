@@ -369,7 +369,7 @@ I have a variety of hooks that I want to register, so that everything works smoo
 - Next, I ensure that trailing whitespace is always deleted when I save a file. Furthermore, I ensure that in special modes (and calendar mode in particular) we don't display trailing whitespace, since they usually are read-only.
 
   #+BEGIN_SRC emacs-lisp
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-hook 'special-mode-hook (function (lambda () (setq show-trailing-whitespace nil))))
 (add-hook 'calendar-mode-hook (function (lambda () (setq show-trailing-whitespace nil))))
   #+END_SRC
@@ -950,19 +950,20 @@ We setup company and flycheck here; I enable these in prog-mode.
 (use-package company)
 #+END_SRC
 
-Furthermore, whenever I enter ~prog-mode~ I want to enable ~linum-mode~, and I also want to enable my custom [[*Utilities][j/infer-indentation-style]] function. I also set up emacs so that it highlights trailing whitespace and deletes any trailing whitespace that I have in my files; this keeps everything nice and neat :~)
+Furthermore, whenever I enter ~prog-mode~ I want to enable ~display-line-numbers-mode~, and I also want to enable my custom [[*Utilities][j/infer-indentation-style]] function. I also set up emacs so that it highlights trailing whitespace and deletes any trailing whitespace that I have in my files; this keeps everything nice and neat :~)
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'prog-mode-hook
           `(lambda ()
-             (linum-mode)
+             (display-line-numbers-mode 1)
              (setq electric-indent-mode nil)
              (company-mode)
              (flycheck-mode)
              (setq show-trailing-whitespace t)
              (customize-set-variable 'indent-tabs-mode nil)
              (j/infer-indentation-style)
-             (add-hook 'before-save-hook 'delete-trailing-whitespace)))
+             ;;(add-hook 'before-save-hook 'delete-trailing-whitespace)
+             ))
 #+END_SRC
 
 *** asm
@@ -1276,6 +1277,7 @@ I like to have my screen do fun stuff if I'm idle :~)
 
 #+begin_src emacs-lisp
 (use-package zone
+  :disabled t
   :ensure t
   :demand t
   :init

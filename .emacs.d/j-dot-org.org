@@ -291,16 +291,16 @@ First, however, we need to ensure that we have the necessary extension packages 
   This is a weird hack. Usually, I would use-pacakge org-babel, but because org is now standard in emacs I can't do this. Since I need ob-restclient, I simply set the babel variables in the ob-restclient config block.
 
   #+BEGIN_SRC emacs-lisp
-(use-package ob-restclient
-  :config
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((calc       . t) ; this is a built in calculator
-     (emacs-lisp . t)
-     (haskell    . t)
-     (python     . t)
-     (restclient . t)
-     (shell      . t))))
+;; (use-package ob-restclient
+;;   :config
+;;   (org-babel-do-load-languages
+;;    'org-babel-load-languages
+;;    '((calc       . t) ; this is a built in calculator
+;;      (emacs-lisp . t)
+;;      (haskell    . t)
+;;      (python     . t)
+;;      (restclient . t)
+;;      (shell      . t))))
   #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no :noweb-ref org-mode-config
