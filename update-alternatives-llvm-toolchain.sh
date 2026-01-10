@@ -7,7 +7,7 @@
 #chmod +x llvm.sh
 #sudo ./llvm.sh XX all
 
-VERSION_USED_TO_CONFIGURE_SCRIPT=18
+VERSION_USED_TO_CONFIGURE_SCRIPT=19
 DEFAULT_PRIORITY=100
 
 bold=$(tput bold)
