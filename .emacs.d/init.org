@@ -4,7 +4,7 @@
 
 #+TITLE: My Emacs config file
 #+AUTHOR: Jasper Haag
-#+EMAIL: jhaag@mit.edu
+#+EMAIL: jhaag@alum.mit.edu
 
 This is my Emacs configuration file. It is based on the wonderful work of Diego Zamboni on [[https://zzamboni.org/post/my-emacs-configuration-with-commentary/][his blog]].
 
@@ -294,6 +294,9 @@ There are some general Emacs settings which I configure first:
 (setq-default kill-whole-line t)
 ;; Paste text where the cursor is, not where the mouse is.
 (setq-default mouse-yank-at-point t)
+;; Ensure that pasting works with emacs -nw
+(setq-default select-enable-clipboard t)
+(setq-default select-enable-primary t)
 ;; use y/n instead of yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq-default inhibit-splash-screen t)
@@ -449,7 +452,8 @@ I like to have many windows open while I'm working, and I'll generally rearrange
          ("C-x <down>"        . buf-move-down)
          ("C-x <left>"        . buf-move-left)
          ("C-x <right>"       . buf-move-right)
-         ("C-`"               . other-window)))
+         ("C-`"               . other-window)
+        ))
 #+END_SRC
 ** exec-path-from-shell
 On Mac the paths often get messed up in emacs, and [[https://github.com/purcell/exec-path-from-shell][this package]] fixes that problem by manually importing the paths at emacs startup.

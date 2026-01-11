@@ -4,6 +4,7 @@
 
 (require 'j-asm)
 (require 'j-haskell)
+(require 'j-lean)
 (require 'j-org)
 (require 'j-js)
 (require 'j-rust)
