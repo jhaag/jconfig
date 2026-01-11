@@ -453,6 +453,7 @@ I like to have many windows open while I'm working, and I'll generally rearrange
          ("C-x <left>"        . buf-move-left)
          ("C-x <right>"       . buf-move-right)
          ("C-`"               . other-window)
+         ("C-,"               . other-window)
         ))
 #+END_SRC
 ** exec-path-from-shell
@@ -1053,6 +1054,23 @@ This has some settings for working with javascript code. Like [[haskell]], I don
                                        #'xref-js2-xref-backend
                                        nil
                                        t))))
+#+END_SRC
+
+*** lean
+
+#+BEGIN_SRC emacs-lisp
+(use-package nael
+  :ensure t
+  :defer t
+  :init
+  (add-to-list 'auto-mode-alist '("\\.lean\\'" . nael-mode))
+  :hook
+  ((nael-mode . abbrev-mode)
+   (nael-mode . eglot-ensure))
+  :config
+  ;; Custom keybindings can be added here
+  ;; Example: (keymap-set nael-mode-map "C-c ." #'highlight-symbol-at-point)
+  )
 #+END_SRC
 
 *** org-mode
