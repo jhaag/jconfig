@@ -44,6 +44,11 @@ if is_interactive_shell; then
     bind -x $'"C-l":clear;'
 fi
 
+#=== Tmux Auto-start ===========================================================
+if is_interactive_shell && [ -z "$TMUX" ]; then
+    $JCONFIG_ROOT/scripts/tmux_startup.sh
+fi
+
 #=== Eternal Bash History ======================================================
 export HISTFILESIZE=
 export HISTSIZE=
