@@ -22,6 +22,7 @@ else
 fi
 
 export JCONFIG_ROOT="$HOME/jconfig"
+export EDITOR="emacs -nw"
 
 # Add dev venv bin to PATH if it exists
 if [[ -d "$HOME/.venv/dev/bin" ]]; then
