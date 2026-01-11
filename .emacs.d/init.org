@@ -448,7 +448,8 @@ I like to have many windows open while I'm working, and I'll generally rearrange
   :bind (("C-x <up>"          . buf-move-up)
          ("C-x <down>"        . buf-move-down)
          ("C-x <left>"        . buf-move-left)
-         ("C-x <right>"       . buf-move-right)))
+         ("C-x <right>"       . buf-move-right)
+         ("C-`"               . other-window)))
 #+END_SRC
 ** exec-path-from-shell
 On Mac the paths often get messed up in emacs, and [[https://github.com/purcell/exec-path-from-shell][this package]] fixes that problem by manually importing the paths at emacs startup.
