@@ -141,9 +141,7 @@ Next, we set up the package archives that we want to pull from, and finally init
   ;;             '("marmalade" . "https://marmalade-repo.org/packages/"))
   ;; For important compatibility libraries like cl-lib
   (add-to-list 'package-archives
-               '("gnu" . "https://elpa.gnu.org/packages/"))
-  (add-to-list 'package-archives
-               '("org" . "https://orgmode.org/elpa/")))
+               '("gnu" . "https://elpa.gnu.org/packages/")))
 
 (package-initialize)
 
