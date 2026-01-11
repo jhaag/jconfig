@@ -287,6 +287,7 @@ There are some general Emacs settings which I configure first:
 
   #+BEGIN_SRC emacs-lisp
 (tool-bar-mode -1)
+(menu-bar-mode -1)
 (toggle-scroll-bar -1)
 (setq-default initial-frame-alist '((fullscreen . maximized)))
 ;; When at the beginning of the line, make C-k remove the whole line, instead of just emptying it.
@@ -1211,7 +1212,6 @@ I enjoy using solarized-dark, and so I load that theme here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package solarized-theme
-  :if (display-graphic-p)
   :init
   (defun j/solarized/toggle-theme ()
     "Switch between Solarized variants."
