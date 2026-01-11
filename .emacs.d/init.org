@@ -383,79 +383,88 @@ Below is all of the configuration for the various packages that I have added to 
 
 ** buffer-move
 
+
 I like to have many windows open while I'm working, and I'll generally rearrange them throughout my sessions. Emacs has some support to do things like this, but I wanted something a bit nicer. I found a package called ~buffer-move~ which does some of this, and I added a few helpers as well.
 
 #+BEGIN_SRC emacs-lisp
-(use-package buffer-move
-  :preface
-  (defun j/2-windows-vertical-to-horizontal ()
-    "Swap from a vertical to a horizontal orientation"
-    (let ((buffers (mapcar 'window-buffer (window-list))))
-      (when (= 2 (length buffers))
-        (delete-other-windows)
-        (set-window-buffer (split-window-horizontally) (cadr buffers)))))
+  (use-package buffer-move
+    :preface
+    (defun j/2-windows-vertical-to-horizontal ()
+      "Swap from a vertical to a horizontal orientation"
+      (let ((buffers (mapcar 'window-buffer (window-list))))
+        (when (= 2 (length buffers))
+          (delete-other-windows)
+          (set-window-buffer (split-window-horizontally) (cadr buffers)))))
 
-  (defun j/2-windows-horizontal-to-vertical ()
-    "Swap from a horizontal to a vertical orientation"
-    (let ((buffers (mapcar 'window-buffer (window-list))))
-      (when (= 2 (length buffers))
-        (delete-other-windows)
-        (set-window-buffer (split-window-vertically) (cadr buffers)))))
+    (defun j/2-windows-horizontal-to-vertical ()
+      "Swap from a horizontal to a vertical orientation"
+      (let ((buffers (mapcar 'window-buffer (window-list))))
+        (when (= 2 (length buffers))
+          (delete-other-windows)
+          (set-window-buffer (split-window-vertically) (cadr buffers)))))
 
-  (defun j/2-windows-switch-orientation ()
-    "Swap from a vertical to a horizontal orientation, or vice versa"
-    (interactive)
-    (if (or (window-in-direction 'above)
-            (window-in-direction 'below))
-        (j/2-windows-vertical-to-horizontal)
-      (j/2-windows-horizontal-to-vertical)))
+    (defun j/2-windows-switch-orientation ()
+      "Swap from a vertical to a horizontal orientation, or vice versa"
+      (interactive)
+      (if (or (window-in-direction 'above)
+              (window-in-direction 'below))
+          (j/2-windows-vertical-to-horizontal)
+        (j/2-windows-horizontal-to-vertical)))
 
-  (defun j/2-windows-swap ()
-    "Swap windows using buffer-move.el"
-    (interactive)
-    (if (null (windmove-find-other-window 'right))
-        (buf-move-left)
-      (buf-move-right)))
+    (defun j/2-windows-swap ()
+      "Swap windows using buffer-move.el"
+      (interactive)
+      (if (null (windmove-find-other-window 'right))
+          (buf-move-left)
+        (buf-move-right)))
 
-  (defun j/buf-send-up ()
-    "Send the currently selected buffer up, and retain the current focus"
-    (interactive)
-    (buf-move-up)
-    (select-window (windmove-find-other-window 'down)))
+    (defun j/buf-send-up ()
+      "Send the currently selected buffer up, and retain the current focus"
+      (interactive)
+      (buf-move-up)
+      (select-window (windmove-find-other-window 'down)))
 
-  (defun j/buf-send-down ()
-    "Send the currently selected buffer down, and retain the current focus"
-    (interactive)
-    (buf-move-down)
-    (select-window (windmove-find-other-window 'up)))
+    (defun j/buf-send-down ()
+      "Send the currently selected buffer down, and retain the current focus"
+      (interactive)
+      (buf-move-down)
+      (select-window (windmove-find-other-window 'up)))
 
-  (defun j/buf-send-left ()
-    "Send the currently selected buffer left, and retain the current focus"
-    (interactive)
-    (buf-move-left)
-    (select-window (windmove-find-other-window 'right)))
+    (defun j/buf-send-left ()
+      "Send the currently selected buffer left, and retain the current focus"
+      (interactive)
+      (buf-move-left)
+      (select-window (windmove-find-other-window 'right)))
 
-  (defun j/buf-send-right ()
-    "Send the currently selected buffer right, and retain the current focus"
-    (interactive)
-    (buf-move-right)
-    (select-window (windmove-find-other-window 'left)))
-  :init
-  (add-hook 'emacs-startup-hook (lambda () (let ((buffers (mapcar 'window-buffer (window-list))))
-                                             (when (= 2 (length buffers))
-                                               (j/2-windows-vertical-to-horizontal)
-                                               (j/2-windows-swap)
-                                               (other-window 1)))))
-  (global-unset-key (kbd "C-x o"))
-  (global-unset-key (kbd "M-`"))
-  :bind (("C-x <up>"          . buf-move-up)
-         ("C-x <down>"        . buf-move-down)
-         ("C-x <left>"        . buf-move-left)
-         ("C-x <right>"       . buf-move-right)
-         ("C-`"               . other-window)
-         ("M-,"               . other-window)
-        ))
+    (defun j/buf-send-right ()
+      "Send the currently selected buffer right, and retain the current focus"
+      (interactive)
+      (buf-move-right)
+      (select-window (windmove-find-other-window 'left)))
+    :init
+    (add-hook 'emacs-startup-hook (lambda () (let ((buffers (mapcar 'window-buffer (window-list))))
+                                               (when (= 2 (length buffers))
+                                                 (j/2-windows-vertical-to-horizontal)
+                                                 (j/2-windows-swap)
+                                                 (other-window 1)))))
+    (global-unset-key (kbd "C-x o"))
+    (global-unset-key (kbd "M-`"))
+    :bind (("C-x <up>"          . buf-move-up)
+           ("C-x <down>"        . buf-move-down)
+           ("C-x <left>"        . buf-move-left)
+           ("C-x <right>"       . buf-move-right)
+           ("C-`"               . other-window)
+           ;; for windowless mode:
+           ;; - C-` is sent as C-@ by default, which maps to
+           ;;   ("C-{Spc, @}" . set-mark-command)
+           ;;   ==> rebind C-@ to other-window and use C-c C-@ for set-mark-command
+           ("C-@"               . other-window)
+           ("C-c C-@"           . set-mark-command)
+           ;; for consistency in windowed mode
+           ("C-c C-SPC"         . set-mark-command)
+          ))
 #+END_SRC
+
 ** exec-path-from-shell
 On Mac the paths often get messed up in emacs, and [[https://github.com/purcell/exec-path-from-shell][this package]] fixes that problem by manually importing the paths at emacs startup.
 
