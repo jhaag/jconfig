@@ -453,7 +453,7 @@ I like to have many windows open while I'm working, and I'll generally rearrange
          ("C-x <left>"        . buf-move-left)
          ("C-x <right>"       . buf-move-right)
          ("C-`"               . other-window)
-         ("C-,"               . other-window)
+         ("M-,"               . other-window)
         ))
 #+END_SRC
 ** exec-path-from-shell
