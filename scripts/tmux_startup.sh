@@ -6,18 +6,20 @@ SESSION="default"
 tmux has-session -t $SESSION 2>/dev/null
 
 if [ $? != 0 ]; then
-    # Window 1: org (landing page for orgmode)
-    tmux new-session -d -s $SESSION -n "org"
+    # Determine which body file to source
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    BODY_OVERRIDE="$SCRIPT_DIR/tmux_startup_body.sh"
+    BODY_DEFAULT="$SCRIPT_DIR/tmux_startup_body.sh.default"
 
-    # Window 2: dev (split: both panes in ~/dev)
-    tmux new-window -t $SESSION:2 -n "dev"
-    tmux send-keys -t $SESSION:2.1 "cd ~/dev; clear" C-m
-    tmux split-window -h -t $SESSION:2
-    tmux send-keys -t $SESSION:2.2 "cd ~/dev; clear" C-m
-    tmux select-pane -t $SESSION:2.1
-
-    # Select first window (org)
-    tmux select-window -t $SESSION:1
+    # Use override if it exists, otherwise use default
+    if [ -f "$BODY_OVERRIDE" ]; then
+        source "$BODY_OVERRIDE"
+    elif [ -f "$BODY_DEFAULT" ]; then
+        source "$BODY_DEFAULT"
+    else
+        echo "Error: Neither tmux_startup_body.sh nor tmux_startup_body.sh.default found in $SCRIPT_DIR" >&2
+        exit 1
+    fi
 fi
 
 # Attach to session

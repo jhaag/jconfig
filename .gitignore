@@ -2,3 +2,4 @@
 *.asc
 tangles/
 .emacs-custom.el
+scripts/tmux_startup_body.sh
