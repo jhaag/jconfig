@@ -11,9 +11,9 @@ if [ $? != 0 ]; then
 
     # Window 2: dev (split: both panes in ~/dev)
     tmux new-window -t $SESSION:2 -n "dev"
-    tmux send-keys -t $SESSION:2.1 "cd ~/dev" C-m
+    tmux send-keys -t $SESSION:2.1 "cd ~/dev; clear" C-m
     tmux split-window -h -t $SESSION:2
-    tmux send-keys -t $SESSION:2.2 "cd ~/dev" C-m
+    tmux send-keys -t $SESSION:2.2 "cd ~/dev; clear" C-m
     tmux select-pane -t $SESSION:2.1
 
     # Select first window (org)
