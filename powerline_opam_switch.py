@@ -8,10 +8,10 @@ class Segment(BasicSegment):
         if os.system('which opam >/dev/null 2>&1') != 0:
             return
 
-        # Run opam switch and capture output
+        # Run opam switch list and capture output
         try:
             import subprocess
-            result = subprocess.run(['opam', 'switch'], capture_output=True, text=True)
+            result = subprocess.run(['opam', 'switch', 'list'], capture_output=True, text=True)
             stdout = result.stdout
             stderr = result.stderr
         except:
@@ -27,8 +27,29 @@ class Segment(BasicSegment):
         if not active_line:
             return
 
-        # Get switch name (first part after arrow)
-        env_name = active_line.split()[1]
+        # Parse switch name and description
+        parts = active_line.split()
+        if len(parts) < 2:
+            return
+
+        switch_name = parts[1]
+
+        # Description is everything after the compiler column (if present)
+        # Format: → switch compiler description
+        description = None
+        if len(parts) >= 4:
+            description = ' '.join(parts[3:])
+        elif len(parts) == 3:
+            # No compiler column, description is at index 2
+            description = parts[2]
+
+        # Pick the nicest/shortest name
+        if description and ' ' not in description:
+            # No spaces in description, pick shortest
+            env_name = description if len(description) < len(switch_name) else switch_name
+        else:
+            # Description has spaces or is empty, use switch name
+            env_name = switch_name
 
         # Check whether the switch is active, or a folder-switch
         # is being used

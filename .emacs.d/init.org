@@ -1306,8 +1306,10 @@ When using `emacs -nw` the system clipboard is not automatically shared with the
   :ensure t
   :demand t
   :config
-  (when (eq system-type 'darwin)
-    (warn "xclip package may not work properly on macOS. Consider using pbcopy/pbpaste alternatives instead.")))
+    (when (eq system-type 'darwin)
+      (warn "xclip package may not work properly on macOS. Consider using pbcopy/pbpaste alternatives instead."))
+  :init (xclip-mode 1)
+)
 #+END_SRC
 
 ** zone
