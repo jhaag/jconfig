@@ -40,6 +40,7 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
   - [[#solarized][solarized]]
   - [[#symon][symon]]
   - [[#undo-tree][undo-tree]]
+  - [[#xclip][xclip]]
   - [[#zone][zone]]
 
 * Tasks [/]
@@ -1297,6 +1298,18 @@ I've finally started using [[https://elpa.gnu.org/packages/undo-tree.html][undo-
   :init (global-undo-tree-mode)
   :diminish)
 #+END_SRC
+** xclip
+When using `emacs -nw` the system clipboard is not automatically shared with the emacs yank-ring. We can use [[https://www.emacswiki.org/emacs/xclip.el][xclip.el]] to sync the two without impacting emacs' multiple kill/yank functionality (cf. [[https://unix.stackexchange.com/questions/6640/emacs-command-to-cut-or-copy-to-system-clipboard][stackexchange post]]).
+
+#+BEGIN_SRC emacs-lisp
+(use-package xclip
+  :ensure t
+  :demand t
+  :config
+  (when (eq system-type 'darwin)
+    (warn "xclip package may not work properly on macOS. Consider using pbcopy/pbpaste alternatives instead.")))
+#+END_SRC
+
 ** zone
 
 I like to have my screen do fun stuff if I'm idle :~)
