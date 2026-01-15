@@ -27,23 +27,10 @@ if [ "$HOST_OS" == "linux" ]; then
         cd gnome-terminal-colors-solarized
         ./set_dark.sh
     fi
-    
+
     echo '[NOTE] If solarized dark is not the theme for the terminal, look into it <https://github.com/seebi/dircolors-solarized>'
     echo 'try using "eval `dircolors ~/.dir_color`"'
 fi
-#--- Powerline Font Terminal Setup ---------------------------------------------
-cd
-
-# download the package for the fonts I want and set them up
-if ! [[ -e ~/fonts/ ]]; then
-    git clone https://github.com/powerline/fonts.git --depth=1
-    cd fonts
-    ./install.sh
-fi
-
-echo '[NOTE] Change your user preferences to use Meslo LG S at 11pt font'
-
-echo -e '\n\n'
 
 #--- uv and Dev Venv Setup -----------------------------------------------------
 DEV_VENV="$HOME/.venv/dev"
