@@ -67,18 +67,27 @@ fi
 
 # Install powerline-shell if not present in venv
 if [[ ! -x "$DEV_VENV/bin/powerline-shell" ]]; then
-    echo -e "Installing powerline-shell into dev venv...\n"
-    uv pip install --python "$DEV_VENV/bin/python" powerline-shell
+    echo -e "Installing powerline-shell as a system tool...\n"
+    uv tool install powerline-shell
 fi
 
 # Symlink custom opam_switch segment (dynamic path detection)
-POWERLINE_SEGMENTS_DIR=$("$DEV_VENV/bin/python" -c "import powerline_shell; print(powerline_shell.__path__[0])")/segments
+POWERLINE_PYTHON=$(find $(find $(uv tool dir) -name "*powerline*") -name "python" | awk '!arr[$1]++')
+POWERLINE_SEGMENTS_DIR=$(find $(find $(uv tool dir) -name "*powerline*") -name "segments" | awk '!arr[$1]++')
 OPAM_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/opam_switch.py"
+WEATHER_LOCATION_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/weather_location.py"
 
 if [[ ! -L "$OPAM_SEGMENT_LINK" ]] || [[ "$(readlink "$OPAM_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline_opam_switch.py" ]]; then
     [[ -e "$OPAM_SEGMENT_LINK" ]] && rm "$OPAM_SEGMENT_LINK"
     ln -s "$JCONFIG_ROOT/powerline_opam_switch.py" "$OPAM_SEGMENT_LINK"
     echo -e "Linked custom opam_switch segment.\n"
+fi
+
+if [[ ! -L "$WEATHER_LOCATION_SEGMENT_LINK" ]] || [[ "$(readlink "$WEATHER_LOCATION_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline_weather_location.py" ]]; then
+    [[ -e "$WEATHER_LOCATION_SEGMENT_LINK" ]] && rm "$WEATHER_LOCATION_SEGMENT_LINK"
+    ln -s "$JCONFIG_ROOT/powerline_weather_location.py" "$WEATHER_LOCATION_SEGMENT_LINK"
+    $POWERLINE_PYTHON -m powerline_shell.segments.weather_location
+    echo -e "Linked custom weather_location segment and initialized its cache.\n"
 fi
 
 echo -e "Dev venv configured with powerline-shell.\n"
