@@ -136,6 +136,16 @@ EOF
 
 load_custom_config "$GIT_CONF" ~/.gitconfig "#"
 
+# Create user-specific gitignore if it doesn't exist
+if [[ ! -f "$JCONFIG_ROOT/.gitconfig.user" ]]; then
+    cat <<EOF > $JCONFIG_ROOT/.gitconfig.user
+[user]
+        name = Jasper Haag
+        email = jasperhaag16@gmail.com
+EOF
+    touch "$JCONFIG_ROOT/.gitconfig.user"
+fi
+
 #=== Powerline Shell ===========================================================
 # Remove old configuration if it exists
 if [ -f ~/.powerline-shell.json ]; then
