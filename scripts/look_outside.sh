@@ -25,7 +25,7 @@ if nmcli connection show --active | grep -qiE 'vpn|tun|wireguard'; then
 fi
 
 # Fetch location data
-location_data=$(curl -sf --max-time 5 "http://ipapi.co/json/" || echo "")
+location_data=$(curl -sf --max-time 5 "https://ipapi.co/json/" || echo "")
 
 if [[ -z "$location_data" ]]; then
     exit 1
@@ -55,7 +55,7 @@ location="$city"
 [[ -n "$country" ]] && location="$location, $country"
 
 # Fetch weather data
-weather=$(curl -sf --max-time 5 "http://wttr.in/${latitude},${longitude}?format=%C" || echo "")
+weather=$(curl -sf --max-time 5 "https://wttr.in/${latitude},${longitude}?format=%C" || echo "")
 
 if [[ -z "$weather" ]]; then
     weather="Unknown"
