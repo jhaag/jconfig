@@ -45,14 +45,7 @@ if [[ -z "$latitude" ]] || [[ -z "$longitude" ]]; then
 fi
 
 # Extract location information
-city=$(echo "$location_data" | jq -r '.city // "Unknown"')
-region=$(echo "$location_data" | jq -r '.region // ""')
-country=$(echo "$location_data" | jq -r '.country_name // ""')
-
-# Build location string
-location="$city"
-[[ -n "$region" ]] && location="$location, $region"
-[[ -n "$country" ]] && location="$location, $country"
+country_code=$(echo "$location_data" | jq -r '.country // ""')
 
 # Fetch weather data
 weather=$(curl -sf --max-time 5 "https://wttr.in/${latitude},${longitude}?format=%C" || echo "")
@@ -61,11 +54,11 @@ if [[ -z "$weather" ]]; then
     weather="Unknown"
 fi
 
-# Create JSONL datum
+# Create JSON output
 datum=$(jq -n \
-    --arg location "$location" \
+    --arg country_code "$country_code" \
     --arg weather "$weather" \
-    '{location: $location, weather: $weather}')
+    '{location: {country_code: $country_code}, weather: $weather}')
 
-# Append to output file
-echo "$datum" >> "$OUTPUT_FILE"
+# Write to output file (overwrite)
+echo "$datum" > "$OUTPUT_FILE"
