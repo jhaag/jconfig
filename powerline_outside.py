@@ -5,59 +5,27 @@ import time
 import fcntl
 import subprocess
 import sys
+
+from pathlib import Path
+
 from ..utils import BasicSegment
-
-CACHE_FILE = os.path.join(os.path.dirname(__file__), ".outside.json")
-
-
-def load_cache() -> dict[str, str]:
-    try:
-        with open(CACHE_FILE, "r") as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {}
-
-
-def save_cache(data: dict[str, str]) -> None:
-    print(CACHE_FILE)
-    with open(CACHE_FILE, "w") as f:
-        json.dump(data, f)
-
-
-def fetch_location() -> dict[str, str] | None:
-    try:
-        with urllib.request.urlopen("http://ipapi.co/json/", timeout=5) as response:
-            location_data = json.loads(response.read().decode())
-        if "error" in location_data:
-            return None
-        return location_data
-    except Exception:
-        return None
-
-
-def fetch_weather(latitude: str, longitude: str) -> str:
-    try:
-        weather_url = f"http://wttr.in/{latitude},{longitude}?format=%C"
-        with urllib.request.urlopen(weather_url, timeout=5) as response:
-            return response.read().decode().strip()
-    except Exception:
-        return None
 
 
 class Segment(BasicSegment):
     def add_to_powerline(self):
-        cache = load_cache()
-        now = time.time()
-        loc_data = None
-        weather_data = None
+        cache = self.load_cache()
 
-        # Load cached location if fresh (<24 hours)
-        if "location" in cache and now - cache["location"]["timestamp"] < 24 * 3600:
-            loc_data = cache["location"]["data"]
+        if cache is None:
+            # No fresh cache - show creative filler
+            half_space = "\u2009"
+            segment_text = f"🏠 {half_space}🤷"
+            bg = self.powerline.theme.VIRTUAL_ENV_BG
+            fg = self.powerline.theme.VIRTUAL_ENV_FG
+            self.powerline.append(" " + segment_text + f"{half_space} ", fg, bg)
+            return
 
-        # Load cached weather if fresh (<5 minutes)
-        if "weather" in cache and now - cache["weather"]["timestamp"] < 5 * 60:
-            weather_data = cache["weather"]["data"]
+        loc_data = cache.get("location")
+        weather_data = cache.get("weather")
 
         # Determine globe emoji (default North America)
         country_code = loc_data.get("country_code", "") if loc_data else ""
@@ -181,3 +149,21 @@ class Segment(BasicSegment):
         bg = self.powerline.theme.VIRTUAL_ENV_BG
         fg = self.powerline.theme.VIRTUAL_ENV_FG
         self.powerline.append(" " + segment_text + f"{half_space} ", fg, bg)
+
+    def load_cache(self) -> dict[str, str] | None:
+        cache_file = Path("~/jconfig").expanduser().resolve() / ".outside.jsonl"
+
+        # Check if cache file is fresh (<5 minutes old)
+        cache_is_fresh = False
+        if cache_file.exists():
+            file_age = time.time() - cache_file.stat().st_mtime
+            cache_is_fresh = file_age < 5 * 60
+
+        if not cache_is_fresh:
+            return None
+
+        try:
+            with open(cache_file, "r") as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return None

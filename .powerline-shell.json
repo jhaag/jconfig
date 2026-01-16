@@ -1,6 +1,6 @@
 {
   "segments": [
-    "weather_location",
+    "outside",
     "battery",
     "username",
     "ssh",
@@ -12,7 +12,6 @@
     "jobs",
     "set_term_title",
     "newline",
-
     "read_only",
     "root",
     "exit_code"
