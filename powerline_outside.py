@@ -7,8 +7,7 @@ import subprocess
 import sys
 from ..utils import BasicSegment
 
-CACHE_FILE = os.path.join(os.path.dirname(__file__), ".weather_cache.json")
-LOCK_FILE = CACHE_FILE + ".lock"
+CACHE_FILE = os.path.join(os.path.dirname(__file__), ".outside.json")
 
 
 def load_cache() -> dict[str, str]:
@@ -43,30 +42,6 @@ def fetch_weather(latitude: str, longitude: str) -> str:
             return response.read().decode().strip()
     except Exception:
         return None
-
-
-def refresh_data() -> None:
-    try:
-        with open(LOCK_FILE, "w") as f:
-            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            loc_data = fetch_location()
-            if not loc_data:
-                return
-            weather_data = fetch_weather(loc_data["latitude"], loc_data["longitude"])
-            if not weather_data:
-                return
-            cache = load_cache()
-            cache["location"] = {"data": loc_data, "timestamp": time.time()}
-            cache["weather"] = {"data": weather_data, "timestamp": time.time()}
-            save_cache(cache)
-    except IOError:
-        pass  # Lock not acquired, another process is refreshing
-    finally:
-        try:
-            with open(LOCK_FILE, "w") as f:
-                fcntl.flock(f, fcntl.LOCK_UN)
-        except Exception:
-            pass
 
 
 class Segment(BasicSegment):
@@ -206,26 +181,3 @@ class Segment(BasicSegment):
         bg = self.powerline.theme.VIRTUAL_ENV_BG
         fg = self.powerline.theme.VIRTUAL_ENV_FG
         self.powerline.append(" " + segment_text + f"{half_space} ", fg, bg)
-
-        # Trigger background refresh if data is stale or missing
-        needs_refresh = (
-            not loc_data
-            or not weather_data
-            or ("weather" in cache and now - cache["weather"]["timestamp"] >= 5 * 60)
-            or (
-                "location" in cache
-                and now - cache["location"]["timestamp"] >= 24 * 3600
-            )
-        )
-        if needs_refresh:
-            subprocess.Popen(
-                [sys.executable, __file__, "refresh"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                start_new_session=True,
-            )
-
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "refresh":
-        refresh_data()
