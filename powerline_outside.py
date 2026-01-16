@@ -158,10 +158,12 @@ class Segment(BasicSegment):
         if cache_file.exists():
             file_age = time.time() - cache_file.stat().st_mtime
             cache_is_fresh = file_age < 5 * 60
+            cache_is_stale = file_age < 3600 * 24
 
-        if not cache_is_fresh:
-            cache_file.unlink()
-            return None
+            if not cache_is_fresh:
+                if cache_is_stale:
+                    cache_file.unlink()
+                return None
 
         try:
             with open(cache_file, "r") as f:
