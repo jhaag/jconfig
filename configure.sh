@@ -86,7 +86,7 @@ fi
 if [[ ! -L "$OUTSIDE_SEGMENT_LINK" ]] || [[ "$(readlink "$OUTSIDE_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline_outside.py" ]]; then
     [[ -e "$OUTSIDE_SEGMENT_LINK" ]] && rm "$OUTSIDE_SEGMENT_LINK"
     ln -s "$JCONFIG_ROOT/powerline_outside.py" "$OUTSIDE_SEGMENT_LINK"
-    echo -e "Linked custom weather_location segment and initialized its cache.\n"
+    echo -e "Linked custom outside segment.\n"
 fi
 
 echo -e "Dev venv configured with powerline-shell.\n"
