@@ -1,5 +1,7 @@
+.gitconfig.user
 .bash_eternal_history
 *.asc
 tangles/
 .emacs-custom.el
 scripts/tmux_startup_body.sh
+.outside.json
