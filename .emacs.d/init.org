@@ -359,6 +359,12 @@ There are some general Emacs settings which I configure first:
   #+BEGIN_SRC emacs-lisp
 (add-hook 'before-save-hook 'time-stamp)
   #+END_SRC
+
+- I configure emacs to automatically sync my buffer unless I have unsaved changes.
+
+  #+BEGIN_SRC emacs-lisp
+(global-auto-revert-mode 1)
+  #+END_SRC
 * Hooks
 
 I have a variety of hooks that I want to register, so that everything works smoothly togethers :~)
