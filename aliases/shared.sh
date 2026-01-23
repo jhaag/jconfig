@@ -40,6 +40,13 @@ function venv-deactivate {
     source "$VIRTUAL_ENV/bin/deactivate"
 }
 
+# Quick way to jump into my tmux session from a raw terminal
+function jmux {
+    if ! [[ "$TERM" =~ ^tmux && -n "$TMUX" ]]; then
+        source ~/jconfig/scripts/tmux_startup.sh
+    fi
+}
+
 # Move export GREP_OPTIONS="--color=auto" (which is deprecated) from .exports to .alias
 # Always enable colored `grep` output`
 unset GREP_OPTIONS
