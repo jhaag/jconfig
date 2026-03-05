@@ -86,8 +86,7 @@
 
 [core]
   autocrlf   = input
-  editor     = vi
-  ;editor     = emacs -nw
+  editor     = emacs -nw
   filemode   = false
   whitespace = fix,space-before-tab,tab-in-indent,trailing-space
 
