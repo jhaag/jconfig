@@ -28,6 +28,7 @@ neutral_purple = 132
 neutral_aqua   = 72
 neutral_orange = 166
 
+bright_cyan   = 51
 bright_red    = 167
 bright_green  = 142
 bright_yellow = 214
@@ -47,10 +48,10 @@ faded_orange = 130
 class Color(DefaultColor):
     USERNAME_ROOT_BG = faded_red
     USERNAME_BG = dark0
-    USERNAME_FG = bright_purple
+    USERNAME_FG = bright_cyan
 
     HOSTNAME_BG = dark1
-    HOSTNAME_FG = bright_purple
+    HOSTNAME_FG = bright_cyan
 
     HOME_SPECIAL_DISPLAY = True
     HOME_BG = dark0
@@ -73,7 +74,7 @@ class Color(DefaultColor):
     JOBS_FG = bright_aqua
     JOBS_BG = dark0
 
-    CMD_PASSED_FG = bright_purple
+    CMD_PASSED_FG = bright_cyan
     CMD_PASSED_BG = dark0
     CMD_FAILED_FG = bright_red
     CMD_FAILED_BG = dark0
@@ -94,7 +95,7 @@ class Color(DefaultColor):
     GIT_STASH_FG = bright_aqua
 
     VIRTUAL_ENV_BG = dark0
-    VIRTUAL_ENV_FG = bright_purple
+    VIRTUAL_ENV_FG = bright_cyan
 
-    TIME_FG = bright_purple
+    TIME_FG = bright_cyan
     TIME_BG = dark0
