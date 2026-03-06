@@ -47,6 +47,12 @@ function jmux {
     fi
 }
 
+function tmux-notes {
+    if ! [[ "$TERM" =~ ^tmux && -n "$TMUX" ]]; then
+        tmux display-message -p "#{E:@__ALL_NOTES}"
+    fi
+}
+
 # Move export GREP_OPTIONS="--color=auto" (which is deprecated) from .exports to .alias
 # Always enable colored `grep` output`
 unset GREP_OPTIONS
