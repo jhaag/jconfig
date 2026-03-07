@@ -3,15 +3,21 @@
 # This file sets up the default pane layout for tmux sessions.
 # Users can override this by creating tmux_startup_body.sh (which is gitignored)
 
-# Window 1: org (landing page for orgmode)
+# Window 1: org (org-mode / organization hub)
 tmux new-session -d -s $SESSION -n "org"
 
-# Window 2: dev (split: both panes in ~/dev)
-tmux new-window -t $SESSION:2 -n "dev"
-tmux send-keys -t $SESSION:2.1 "cd ~/dev; clear" C-m
-tmux split-window -h -t $SESSION:2
-tmux send-keys -t $SESSION:2.2 "cd ~/dev; clear" C-m
+# Window 2: dev (root/anchor pane)
+tmux new-window -t $SESSION:2 -n "${SESSION:-dev}"
+tmux send-keys -t $SESSION:2.1 "cd ${SESSION_PATH:-~/dev}; clear" C-m
+if [[ -z "$SESSION_NO_SPLIT" ]]; then
+    tmux split-window -h -t $SESSION:2
+    tmux send-keys -t $SESSION:2.2 "cd ${SESSION_PATH:-~/dev}; clear" C-m
+fi
 tmux select-pane -t $SESSION:2.1
 
-# Select first window (org)
-tmux select-window -t $SESSION:1
+# If SESSION_PATH is a real directory, land on dev; otherwise land on org
+if [[ -n "$SESSION_PATH" && -d "$SESSION_PATH" ]]; then
+    tmux select-window -t $SESSION:2
+else
+    tmux select-window -t $SESSION:1
+fi

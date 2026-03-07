@@ -40,12 +40,69 @@ function venv-deactivate {
     source "$VIRTUAL_ENV/bin/deactivate"
 }
 
-# Quick way to jump into my tmux session from a raw terminal
+# Quick way to jump into my tmux session from a raw terminal.
+# Usage: jmux [path|session-name]
+#   If a valid directory is given, uses its basename as session name
+#   and cds to it in the second dev pane.
 function jmux {
-    if ! [[ "$TERM" =~ ^tmux && -n "$TMUX" ]]; then
-        source ~/jconfig/scripts/tmux_startup.sh
+    local adjs=(bold brave calm cool dark dawn deep dusk fair fast
+                firm free gold keen lean mild new old pale pure
+                quiet rare rich sharp slim soft still swift tall
+                warm wide wild wise)
+    local nouns=(ash bay birch cedar cliff cove creek dale dawn
+                 dell dune fern field fjord flint ford forge glen
+                 grove hill lake lark mast moor path peak pine
+                 pond reef ridge rock shore slate stone vale wave)
+    local adj="${adjs[RANDOM % ${#adjs[@]}]}"
+    local noun="${nouns[RANDOM % ${#nouns[@]}]}"
+    local random_session="${adj}-${noun}"
+
+    local no_split=0
+    local args=()
+    for a in "$@"; do
+        [[ "$a" == "-1" ]] && no_split=1 || args+=("$a")
+    done
+
+    local arg="${args[0]:-}"
+    local session dev_path
+    if [[ -n "$arg" && -d "$arg" ]]; then
+        dev_path="$(realpath "$arg")"
+        session="$(basename "$dev_path")"
+    elif [[ -n "$arg" ]]; then
+        session="$arg"
+        dev_path=""
+    else
+        session="$random_session"
+        dev_path=""
+    fi
+
+    if [[ "$TERM" =~ ^tmux && -n "$TMUX" ]]; then
+        if tmux has-session -t "$session" 2>/dev/null; then
+            tmux switch-client -t "$session"
+            exit
+        fi
+        local term cmd
+        cmd="jmux $(printf '%q ' "$@")"
+        for term in "$TERMINAL" x-terminal-emulator xterm; do
+            [[ -n "$term" ]] && command -v "$term" &>/dev/null || continue
+            nohup "$term" -e bash -i -c "$cmd" &>/dev/null &
+            return
+        done
+        echo "jmux: no terminal emulator found (set \$TERMINAL)" >&2
+        return 1
+    else
+        export SESSION_PATH="$dev_path"
+        [[ $no_split -eq 1 ]] && export SESSION_NO_SPLIT=1
+        source ~/jconfig/scripts/tmux_startup.sh "$session"
+        unset SESSION_PATH SESSION_NO_SPLIT
     fi
 }
+
+function _jmux_complete {
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=($(compgen -d -- "$cur"))
+}
+complete -o nospace -o filenames -F _jmux_complete jmux
 
 function tmux-notes {
     if ! [[ "$TERM" =~ ^tmux && -n "$TMUX" ]]; then
