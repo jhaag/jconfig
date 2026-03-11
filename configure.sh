@@ -72,8 +72,8 @@ if [[ ! -x "$DEV_VENV/bin/powerline-shell" ]]; then
 fi
 
 # Symlink custom opam_switch segment (dynamic path detection)
-POWERLINE_PYTHON=$(find $(find $(uv tool dir) -name "*powerline*") -name "python" | awk '!arr[$1]++')
-POWERLINE_SEGMENTS_DIR=$(find $(find $(uv tool dir) -name "*powerline*") -name "segments" | awk '!arr[$1]++')
+POWERLINE_PYTHON=$(find $(find $(uv tool dir) -name "*powerline*") -name "python" | sort -V | tail -1)
+POWERLINE_SEGMENTS_DIR=$(find $(find $(uv tool dir) -name "*powerline*") -name "segments" | sort -V | tail -1)
 OPAM_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/opam_switch.py"
 OUTSIDE_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/outside.py"
 
@@ -90,20 +90,6 @@ if [[ ! -L "$OUTSIDE_SEGMENT_LINK" ]] || [[ "$(readlink "$OUTSIDE_SEGMENT_LINK")
 fi
 
 echo -e "Dev venv configured with powerline-shell.\n"
-
-#--- Legacy Cleanup ------------------------------------------------------------
-# Remove old powerline-shell from user site-packages (installed via pip install --user)
-if pip3 show powerline-shell 2>/dev/null | grep -q "Location:.*\.local"; then
-    echo -e "Removing legacy user-level powerline-shell...\n"
-    pip3 uninstall powerline-shell -y
-fi
-
-# Remove old symlink from system site-packages (if it exists)
-LEGACY_SYMLINK="/usr/local/lib/python3.10/dist-packages/powerline_shell/segments/opam_switch.py"
-if [[ -L "$LEGACY_SYMLINK" ]]; then
-    echo -e "Removing legacy opam_switch symlink...\n"
-    sudo rm "$LEGACY_SYMLINK"
-fi
 
 #=== Bash ======================================================================
 # Add custom configs to .bashrc
