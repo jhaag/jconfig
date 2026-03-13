@@ -77,15 +77,15 @@ POWERLINE_SEGMENTS_DIR=$(find $(find $(uv tool dir) -name "*powerline*") -name "
 OPAM_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/opam_switch.py"
 OUTSIDE_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/outside.py"
 
-if [[ ! -L "$OPAM_SEGMENT_LINK" ]] || [[ "$(readlink "$OPAM_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline_opam_switch.py" ]]; then
-    [[ -e "$OPAM_SEGMENT_LINK" ]] && rm "$OPAM_SEGMENT_LINK"
-    ln -s "$JCONFIG_ROOT/powerline_opam_switch.py" "$OPAM_SEGMENT_LINK"
+if [[ ! -L "$OPAM_SEGMENT_LINK" ]] || [[ "$(readlink "$OPAM_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline/powerline_opam_switch.py" ]]; then
+    [[ -e "$OPAM_SEGMENT_LINK" || -L "$OPAM_SEGMENT_LINK" ]] && rm "$OPAM_SEGMENT_LINK"
+    ln -s "$JCONFIG_ROOT/powerline/powerline_opam_switch.py" "$OPAM_SEGMENT_LINK"
     echo -e "Linked custom opam_switch segment.\n"
 fi
 
-if [[ ! -L "$OUTSIDE_SEGMENT_LINK" ]] || [[ "$(readlink "$OUTSIDE_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline_outside.py" ]]; then
-    [[ -e "$OUTSIDE_SEGMENT_LINK" ]] && rm "$OUTSIDE_SEGMENT_LINK"
-    ln -s "$JCONFIG_ROOT/powerline_outside.py" "$OUTSIDE_SEGMENT_LINK"
+if [[ ! -L "$OUTSIDE_SEGMENT_LINK" ]] || [[ "$(readlink "$OUTSIDE_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline/powerline_outside.py" ]]; then
+    [[ -e "$OUTSIDE_SEGMENT_LINK" || -L "$OUTSIDE_SEGMENT_LINK" ]] && rm "$OUTSIDE_SEGMENT_LINK"
+    ln -s "$JCONFIG_ROOT/powerline/powerline_outside.py" "$OUTSIDE_SEGMENT_LINK"
     echo -e "Linked custom outside segment.\n"
 fi
 
@@ -97,7 +97,7 @@ read -r -d '' BASH_CONF <<EOF
 #=== Custom global configurations ==============================================
 
 #=== Hook for pulling in my dotfiles ===========================================
-source $JCONFIG_ROOT/.bashrc
+source $JCONFIG_ROOT/bash/.bashrc
 EOF
 
 load_custom_config "$BASH_CONF" ~/.bashrc "#"
@@ -112,36 +112,29 @@ read -r -d '' GIT_CONF <<EOF
 
 #=== Hook for pulling in my dotfiles ===========================================
 [include]
-  path = $JCONFIG_ROOT/.gitconfig
+  path = $JCONFIG_ROOT/git/.gitconfig
 EOF
 
 load_custom_config "$GIT_CONF" ~/.gitconfig "#"
 
 # Create user-specific gitignore if it doesn't exist
-if [[ ! -f "$JCONFIG_ROOT/.gitconfig.user" ]]; then
-    cat <<EOF > $JCONFIG_ROOT/.gitconfig.user
+if [[ ! -f "$JCONFIG_ROOT/git/.gitconfig.user" ]]; then
+    cat <<EOF > $JCONFIG_ROOT/git/.gitconfig.user
 [user]
         name = Jasper Haag
         email = jasperhaag16@gmail.com
 EOF
-    touch "$JCONFIG_ROOT/.gitconfig.user"
+    touch "$JCONFIG_ROOT/git/.gitconfig.user"
 fi
 
 #=== Powerline Shell ===========================================================
-# Remove old configuration if it exists
-if [ -f ~/.powerline-shell.json ]; then
-    rm ~/.powerline-shell.json
-fi
+# Remove old non-symlink files if they exist
+[ -f ~/.powerline-shell.json ] && [ ! -L ~/.powerline-shell.json ] && rm ~/.powerline-shell.json
+[ -f ~/.powerline-shell-theme.py ] && [ ! -L ~/.powerline-shell-theme.py ] && rm ~/.powerline-shell-theme.py
 
-# Remove old theme if it exists
-if [ -f ~/.powerline-shell-theme.py ]; then
-    rm ~/.powerline-shell-theme.py
-fi
-
-# Copy custom configs to ~/.powerline-shell.json
-cp $JCONFIG_ROOT/.powerline-shell.json ~/.powerline-shell.json
-# Copy custom theme to ~/.powerline-shell-theme.py
-cp $JCONFIG_ROOT/.powerline-shell-theme.py ~/.powerline-shell-theme.py
+# Symlink powerline config and theme
+[ ! -e ~/.powerline-shell.json ] && ln -s "$JCONFIG_ROOT/powerline/.powerline-shell.json" ~/.powerline-shell.json
+[ ! -e ~/.powerline-shell-theme.py ] && ln -s "$JCONFIG_ROOT/powerline/.powerline-shell-theme.py" ~/.powerline-shell-theme.py
 
 #=== Tmux ======================================================================
 # Add custom configs to .tmux.conf
@@ -149,7 +142,7 @@ read -r -d '' TMUX_CONF <<EOF
 #=== Custom global configurations ==============================================
 
 #=== Hook for pulling in my configurations =====================================
-source-file $JCONFIG_ROOT/.tmux.conf
+source-file $JCONFIG_ROOT/tmux/.tmux.conf
 EOF
 
 load_custom_config "$TMUX_CONF" ~/.tmux.conf "#"

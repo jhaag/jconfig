@@ -110,7 +110,7 @@
 
 [include]
   ; Store the user block in this separate file, excluded from version control.
-  path = .gitconfig.user
+  path = ~/jconfig/git/.gitconfig.user
   ; file should contain a block like this:
   ; [user]
   ;   name = Jasper Haag

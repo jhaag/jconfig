@@ -30,7 +30,7 @@ source $JCONFIG_ROOT/aliases/shared.sh
 #=== External Sources ==========================================================
 source $JCONFIG_ROOT/scripts/shell_prompt.sh
 source $JCONFIG_ROOT/scripts/utilities.sh
-source $JCONFIG_ROOT/.git-completion.bash
+source $JCONFIG_ROOT/bash/.git-completion.bash
 
 #=== Fixes =====================================================================
 if is_interactive_shell; then
