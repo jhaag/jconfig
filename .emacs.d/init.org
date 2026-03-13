@@ -1,4 +1,5 @@
 #+PROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/") (file-name-base) ".el")
+#+PROPERTY: header-args:ert :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/tests/") (file-name-base) "-test.el")
 #+PROPERTY: header-args :mkdirp yes :comments no
 #+STARTUP: indent overview
 
@@ -12,6 +13,7 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
 
 * Table of Contents                                          :TOC_2:noexport:
 - [[#tasks-][Tasks]]
+  - [[#reconcile-legacy-packages-and-languages-with-initorg][Reconcile legacy ~packages/~ and ~languages/~ with ~init.org~]]
 - [[#references][References]]
 - [[#bootstrap-process][Bootstrap Process]]
   - [[#performance-optimization][Performance Optimization]]
@@ -295,6 +297,7 @@ This variable tells Emacs to prefer the ~.el~ file if it's newer, even if there 
 Since I am now writing much of my emacs configuration in ~org-mode~ files, and because I intend to break it up somewhat, I define a useful helper which can load my file. I also use this helper to conditionally tangle the configs only when they've been changed.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
+(add-to-list 'org-babel-tangle-lang-exts '("ert" . "el"))
 (defun j/config/load-conf-dot-org (filename &optional extension)
   "Load the configuration.org file located at filename.
   This function assumes the convention that the tangled configuration lives at (basename filename)/tangles"
@@ -500,8 +503,124 @@ Below is all of the configuration for the various packages that I have added to 
 #+BEGIN_SRC emacs-lisp
 (use-package agent-shell
   :ensure t
+  :after (cl-lib subr-x)
+  :preface
+  (defvar j/agent/skills
+    '("superpowers@claude-plugins-official"
+      "emacs-skills@xenodium-emacs-skills")
+    "Canonical list of marketplace skills to install for all configured tools.")
+
+  (defvar j/agent/tool-installers
+    '((claude-code . j/agent/claude-code-skill))
+    "Alist of (tool-symbol . installer-fn).
+Each fn takes (skill action) where action is \\='check, \\='install, or \\='update.")
+
+  (defun j/agent/claude-code-list-skills ()
+    "Return list of installed Claude Code plugin names (bare name@scope strings)."
+    (when (executable-find "claude")
+      (let ((plugin-re "\\([[:alnum:]._-]+@[[:alnum:]._-]+\\)")
+            results)
+        (dolist (line (split-string
+                       (shell-command-to-string "claude plugins list")
+                       "\n" t)
+                      (nreverse results))
+          (when (string-match plugin-re line)
+            (push (match-string-no-properties 1 line) results))))))
+
+  (defun j/agent/claude-code-skill (skill action)
+    "Manage SKILL for Claude Code. ACTION is \\='check, \\='install, or \\='update."
+    (pcase action
+      ('check   (member skill (j/agent/claude-code-list-skills)))
+      ('install (when (executable-find "claude")
+                  (= 0 (call-process-shell-command
+                         (format "claude plugins install %s" skill) nil 0))))
+      ('update  (when (executable-find "claude")
+                  (= 0 (call-process-shell-command
+                         (format "claude plugins update %s" skill) nil 0))))))
+
+  (defun j/agent/sync-skills (&optional update)
+    "Install missing marketplace skills for all configured tools.
+With prefix arg UPDATE, also prompt to update already-installed skills."
+    (interactive "P")
+    (dolist (entry j/agent/tool-installers)
+      (let* ((tool    (car entry))
+             (fn      (cdr entry))
+             (checked (mapcar (lambda (s) (cons s (funcall fn s 'check)))
+                              j/agent/skills))
+             (missing (mapcar #'car (cl-remove-if #'cdr checked)))
+             (present (mapcar #'car (cl-remove-if-not #'cdr checked))))
+        (when (and missing
+                   (y-or-n-p (format "[%s] Install %d skill(s): %s? "
+                                     tool (length missing)
+                                     (string-join missing ", "))))
+          (dolist (skill missing) (funcall fn skill 'install)))
+        (when (and update present
+                   (y-or-n-p (format "[%s] Update %d skill(s): %s? "
+                                     tool (length present)
+                                     (string-join present ", "))))
+          (dolist (skill present) (funcall fn skill 'update))))))
+
+  (add-hook 'emacs-startup-hook (lambda () (j/agent/sync-skills t)))
+
   :bind (("C-c a a" . agent-shell)
-         ("C-c a c" . agent-shell-anthropic-start-claude-code)))
+         ("C-c a c" . agent-shell-anthropic-start-claude-code)
+         ("C-c a s s" . j/agent/sync-skills)))
+#+END_SRC
+
+*** Test
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+
+#+BEGIN_SRC ert
+;;; Tests for j/agent/sync-skills partition logic -*- lexical-binding: t -*-
+
+(require 'ert)
+(require 'cl-lib)
+
+(defun j/test/mock-installer (installed-skills)
+  "Return an installer fn that treats INSTALLED-SKILLS as already installed."
+  (lambda (skill action)
+    (pcase action
+      ('check (member skill installed-skills))
+      ('install t)
+      ('update t))))
+
+(defun j/test/partition (fn skills)
+  "Partition SKILLS into (missing . present) using installer FN.
+Mirrors the single-pass logic in `j/agent/sync-skills'."
+  (let* ((checked (mapcar (lambda (s) (cons s (funcall fn s 'check))) skills))
+         (missing (mapcar #'car (cl-remove-if #'cdr checked)))
+         (present (mapcar #'car (cl-remove-if-not #'cdr checked))))
+    (cons missing present)))
+
+(ert-deftest j/test/partition-all-missing ()
+  "All skills are missing when none are installed."
+  (let* ((fn (j/test/mock-installer '()))
+         (result (j/test/partition fn '("a@x" "b@x"))))
+    (should (equal (car result) '("a@x" "b@x")))
+    (should (null (cdr result)))))
+
+(ert-deftest j/test/partition-all-present ()
+  "All skills are present when all are installed."
+  (let* ((fn (j/test/mock-installer '("a@x" "b@x")))
+         (result (j/test/partition fn '("a@x" "b@x"))))
+    (should (null (car result)))
+    (should (equal (cdr result) '("a@x" "b@x")))))
+
+(ert-deftest j/test/partition-mixed ()
+  "Correctly splits installed and missing skills."
+  (let* ((fn (j/test/mock-installer '("a@x")))
+         (result (j/test/partition fn '("a@x" "b@x"))))
+    (should (equal (car result) '("b@x")))
+    (should (equal (cdr result) '("a@x")))))
+
+(ert-deftest j/test/partition-empty ()
+  "Empty skill list returns empty lists."
+  (let* ((fn (j/test/mock-installer '()))
+         (result (j/test/partition fn '())))
+    (should (null (car result)))
+    (should (null (cdr result)))))
 #+END_SRC
 
 ** buffer-move
