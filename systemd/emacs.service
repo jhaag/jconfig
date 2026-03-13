@@ -1,0 +1,14 @@
+[Unit]
+Description=Emacs text editor daemon
+Documentation=info:emacs man:emacs(1) https://gnu.org/software/emacs/
+After=graphical-session-pre.target
+
+[Service]
+Type=forking
+ExecStart=/snap/bin/emacs --daemon
+ExecStop=/snap/bin/emacsclient --eval "(kill-emacs)"
+Environment=SSH_AUTH_SOCK=%t/keyring/ssh
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

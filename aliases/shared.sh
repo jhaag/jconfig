@@ -124,13 +124,3 @@ alias git-brprune='git fetch --prune && git branch -r | awk "{print \$1}" | egre
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
-
-# Make emacs default to terminal mode
-emacs() {
-    command emacs -nw "$@"
-}
-
-# GUI version of emacs
-gemacs() {
-    command emacs "$@"
-}

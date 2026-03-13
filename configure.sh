@@ -105,6 +105,35 @@ load_custom_config "$BASH_CONF" ~/.bashrc "#"
 #=== Emacs =====================================================================
 echo "I now auto-generate my ~/.emacs file using org-babel; open ~/jconfig/.emacs.d/init.org and tangle the Bootstrap Process header."
 
+#--- Emacs Daemon (systemd user service) ---------------------------------------
+if [ "$HOST_OS" == "linux" ]; then
+    SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
+    EMACS_SERVICE_SRC="$JCONFIG_ROOT/systemd/emacs.service"
+    EMACS_SERVICE_DEST="$SYSTEMD_USER_DIR/emacs.service"
+
+    mkdir -p "$SYSTEMD_USER_DIR"
+
+    if [[ ! -L "$EMACS_SERVICE_DEST" ]] || [[ "$(readlink "$EMACS_SERVICE_DEST")" != "$EMACS_SERVICE_SRC" ]]; then
+        [[ -e "$EMACS_SERVICE_DEST" || -L "$EMACS_SERVICE_DEST" ]] && rm "$EMACS_SERVICE_DEST"
+        ln -s "$EMACS_SERVICE_SRC" "$EMACS_SERVICE_DEST"
+        echo -e "Linked emacs systemd user service.\n"
+    fi
+
+    systemctl --user daemon-reload
+
+    if ! systemctl --user is-enabled emacs.service &>/dev/null; then
+        systemctl --user enable emacs.service
+        echo -e "Enabled emacs daemon service.\n"
+    fi
+
+    if ! systemctl --user is-active emacs.service &>/dev/null; then
+        systemctl --user start emacs.service
+        echo -e "Started emacs daemon.\n"
+    else
+        echo -e "Emacs daemon already running.\n"
+    fi
+fi
+
 #=== Git =======================================================================
 # Add custom configs to .gitconfig
 read -r -d '' GIT_CONF <<EOF
