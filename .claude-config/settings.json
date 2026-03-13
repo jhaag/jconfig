@@ -24,6 +24,10 @@
     ]
   },
   "model": "sonnet",
+  "enabledPlugins": {
+    "emacs-skills@xenodium-emacs-skills": true,
+    "superpowers@claude-plugins-official": true
+  },
   "extraKnownMarketplaces": {
     "xenodium-emacs-skills": {
       "source": {
@@ -31,8 +35,5 @@
         "repo": "xenodium/emacs-skills"
       }
     }
-  },
-  "enabledPlugins": {
-    "emacs-skills@xenodium-emacs-skills": true
   }
 }
