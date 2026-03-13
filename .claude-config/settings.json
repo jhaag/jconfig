@@ -23,5 +23,16 @@
       "Bash(git remote:*)"
     ]
   },
-  "model": "sonnet"
+  "model": "sonnet",
+  "extraKnownMarketplaces": {
+    "xenodium-emacs-skills": {
+      "source": {
+        "source": "github",
+        "repo": "xenodium/emacs-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "emacs-skills@xenodium-emacs-skills": true
+  }
 }

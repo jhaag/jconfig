@@ -25,6 +25,7 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
 - [[#hooks][Hooks]]
 - [[#keybindings][Keybindings]]
 - [[#packages][Packages]]
+  - [[#agent-shell][agent-shell]]
   - [[#buffer-move][buffer-move]]
   - [[#exec-path-from-shell][exec-path-from-shell]]
   - [[#git-gutter][git-gutter+]]
@@ -387,6 +388,19 @@ I have a variety of hooks that I want to register, so that everything works smoo
 * Packages
 
 Below is all of the configuration for the various packages that I have added to emacs over time. I'm also somewhat of a programming polyglot, and so I enjoy dabbling with a variety of different tools and paradigms. As a result, I've accumulated quite a bit of language-specific configuration for emacs, which is contained in the [[Language-Specific]] section below.
+
+** agent-shell
+
+[[https://github.com/xenodium/agent-shell][agent-shell]] provides a native Emacs buffer interface for interacting with LLM agents via the [[https://agentclientprotocol.org/][Agent Client Protocol (ACP)]]. It supports Claude Code, Gemini CLI, and others, with transcript saving and file insertion.
+
+~shell-maker~ and ~acp~ are pulled in as dependencies automatically.
+
+#+BEGIN_SRC emacs-lisp
+(use-package agent-shell
+  :ensure t
+  :bind (("C-c a a" . agent-shell)
+         ("C-c a c" . agent-shell-anthropic-start-claude-code)))
+#+END_SRC
 
 ** buffer-move
 
