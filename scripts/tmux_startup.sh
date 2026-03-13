@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SESSION="default"
+SESSION="${1:-default}"
 
 # Check if session exists
 tmux has-session -t $SESSION 2>/dev/null
