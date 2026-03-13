@@ -503,8 +503,10 @@ Below is all of the configuration for the various packages that I have added to 
 #+BEGIN_SRC emacs-lisp
 (use-package agent-shell
   :ensure t
-  :after (cl-lib subr-x)
   :preface
+  (require 'subr-x)
+  (require 'cl-lib)
+
   (defvar j/agent/skills
     '("superpowers@claude-plugins-official"
       "emacs-skills@xenodium-emacs-skills")
