@@ -134,6 +134,30 @@ if [ "$HOST_OS" == "linux" ]; then
     fi
 fi
 
+#=== User Identity =============================================================
+JCONFIG_USER_ENV="$HOME/.config/jconfig/user.env"
+
+# Load cached values if present
+if [[ -f "$JCONFIG_USER_ENV" ]]; then
+    source "$JCONFIG_USER_ENV"
+fi
+
+# Prompt for any missing values
+if [[ -z "$JCONFIG_NAME" ]]; then
+    read -r -p "Enter your full name: " JCONFIG_NAME
+fi
+if [[ -z "$JCONFIG_EMAIL" ]]; then
+    read -r -p "Enter your email address: " JCONFIG_EMAIL
+fi
+
+# Persist to cache
+mkdir -p "$(dirname "$JCONFIG_USER_ENV")"
+cat > "$JCONFIG_USER_ENV" <<EOF
+export JCONFIG_NAME="$JCONFIG_NAME"
+export JCONFIG_EMAIL="$JCONFIG_EMAIL"
+EOF
+echo -e "User identity cached at $JCONFIG_USER_ENV\n"
+
 #=== Git =======================================================================
 # Add custom configs to .gitconfig
 read -r -d '' GIT_CONF <<EOF
@@ -146,15 +170,12 @@ EOF
 
 load_custom_config "$GIT_CONF" ~/.gitconfig "#"
 
-# Create user-specific gitignore if it doesn't exist
-if [[ ! -f "$JCONFIG_ROOT/git/.gitconfig.user" ]]; then
-    cat <<EOF > $JCONFIG_ROOT/git/.gitconfig.user
+# Always regenerate .gitconfig.user from cached identity
+cat <<EOF > "$JCONFIG_ROOT/git/.gitconfig.user"
 [user]
-        name = Jasper Haag
-        email = jasperhaag16@gmail.com
+        name = $JCONFIG_NAME
+        email = $JCONFIG_EMAIL
 EOF
-    touch "$JCONFIG_ROOT/git/.gitconfig.user"
-fi
 
 #=== Powerline Shell ===========================================================
 # Remove old non-symlink files if they exist

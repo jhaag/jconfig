@@ -17,6 +17,11 @@ eval `dircolors ~/.dir_colors/dircolors`
 export JCONFIG_ROOT="$HOME/jconfig"
 export EDITOR="emacs -nw"
 
+# Load cached user identity (name/email set during configure.sh)
+if [[ -f "$HOME/.config/jconfig/user.env" ]]; then
+    source "$HOME/.config/jconfig/user.env"
+fi
+
 # Add dev venv bin to PATH if it exists
 if [[ -d "$HOME/.venv/dev/bin" ]]; then
     export PATH="$HOME/.venv/dev/bin:$PATH"
