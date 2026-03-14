@@ -8,7 +8,7 @@ Type=forking
 ExecStart=/snap/bin/emacs --daemon
 ExecStop=/snap/bin/emacsclient --eval "(kill-emacs)"
 Environment=SSH_AUTH_SOCK=%t/keyring/ssh
-Restart=on-failure
+Restart=always
 
 [Install]
 WantedBy=default.target
