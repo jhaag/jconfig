@@ -100,18 +100,6 @@ EOF
 
 load_custom_config "$BASH_CONF" ~/.bashrc "#"
 
-#--- Bash Profile (login shells — required for exec-path-from-shell with -l) --
-# exec-path-from-shell spawns a login shell to read PATH; bash login shells
-# read ~/.bash_profile but not ~/.bashrc, so we source ~/.bashrc from here.
-read -r -d '' BASH_PROFILE_CONF <<'EOF'
-#=== Custom global configurations ==============================================
-
-#=== Source .bashrc for login shells ===========================================
-[[ -f ~/.bashrc ]] && source ~/.bashrc
-EOF
-
-load_custom_config "$BASH_PROFILE_CONF" ~/.bash_profile "#"
-
 #=== Emacs =====================================================================
 echo "I now auto-generate my ~/.emacs file using org-babel; open ~/jconfig/.emacs.d/init.org and tangle the Bootstrap Process header."
 
