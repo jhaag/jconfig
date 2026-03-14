@@ -12,7 +12,6 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
 
 * Table of Contents                                          :TOC_2:noexport:
 - [[#tasks-][Tasks]]
-  - [[#reconcile-legacy-packages-and-languages-with-initorg][Reconcile legacy ~packages/~ and ~languages/~ with ~init.org~]]
 - [[#references][References]]
 - [[#bootstrap-process][Bootstrap Process]]
   - [[#performance-optimization][Performance Optimization]]
@@ -27,7 +26,6 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
 - [[#keybindings][Keybindings]]
 - [[#packages][Packages]]
   - [[#agent-shell][agent-shell]]
-  - [[#buffer-move][buffer-move]]
   - [[#exec-path-from-shell][exec-path-from-shell]]
   - [[#helm][helm]]
   - [[#language-specific][Language-Specific]]
@@ -41,68 +39,11 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
   - [[#solarized][solarized]]
   - [[#symon][symon]]
   - [[#undo-tree][undo-tree]]
+  - [[#windmove][windmove]]
   - [[#xclip][xclip]]
   - [[#zone][zone]]
 
 * Tasks [/]
-
-** TODO Reconcile legacy ~packages/~ and ~languages/~ with ~init.org~
-
-*** Background: two config eras
-
-This file (~init.org~) is the *current source of truth*. All ~emacs-lisp~ code
-blocks tangle to [[file:tangles/init.el][tangles/init.el]], which is loaded by ~~/.emacs~ via
-~j/config/load-conf-dot-org~.
-
-There is also a *legacy system* consisting of hand-written ~.el~ files in
-[[file:packages/][packages/]] and [[file:languages/][languages/]], loaded by [[file:packages.el][packages.el]] and [[file:languages.el][languages.el]] respectively.
-These loader files are *never referenced* anywhere in the active config chain
-and are effectively dead code — none of these files are loaded at runtime.
-
-*** Current packages managed by ~init.org~
-
-*Utility / UI*
-| Package            | Notes                                      |
-|--------------------+--------------------------------------------|
-| agent-shell        | LLM agent interface (ACP)                  |
-| buffer-move        | Window rearrangement helpers               |
-| exec-path-from-shell | Sync ~$PATH~ from shell                  |
-| git-modes          | ~.gitconfig~ / ~.gitignore~ major modes    |
-| markdown-mode      |                                            |
-| multiple-cursors   |                                            |
-| pdf-tools          |                                            |
-| saveplace          | Remember buffer positions                  |
-| selectric-mode     | Typewriter sounds                          |
-| eterm-256color     | 256-color support for ~ansi-term~          |
-| shell-pop          | Pop-up terminal (bound to ~<f1>~)          |
-| smooth-scrolling   |                                            |
-| solarized-theme    |                                            |
-| symon              | System monitor in modeline                 |
-| undo-tree          |                                            |
-| xclip              | Sync kill-ring with system clipboard       |
-| zone               | Screensaver                                |
-
-*Completion / Navigation*
-| Package            | Notes                                      |
-|--------------------+--------------------------------------------|
-| helm               | + ~helm-mode~ and ~20+~ sub-packages       |
-| flycheck           | Loaded as helm-flycheck dependency         |
-| company            | Loaded as helm-company dependency          |
-
-*Languages*
-| Package            | Notes                                      |
-|--------------------+--------------------------------------------|
-| asm-mode           |                                            |
-| proof-general      | Coq                                        |
-| company-coq        | Coq completion                             |
-| js2-mode           | JavaScript                                 |
-| js2-refactor       |                                            |
-| xref-js2           |                                            |
-| nael               | Lean 4                                     |
-| haskell-mode       | (via ~j-dot-org.org~ / languages/)         |
-| rust-mode          |                                            |
-| org-mode           | Extended config in ~j-dot-org.org~         |
-
 * References
 
 Emacs config is an art, and I have learned a lot by reading through other people's config files, and from many other resources. These are some of the best ones (several are also written in org mode). You will find snippets from all of these (and possibly others) throughout my config.
@@ -120,10 +61,14 @@ Originally, I was planning on tangling this (and other) .org configs, and then l
 Below, I document the contents of this init.el file. In order to tangle this file,  ~C-x n s~ [[Bootstrap Process]], and then use ~C-c C-v t~ in order to tangle it into init.el.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-;; This is an auto-generated file, so PLEASE DON'T TOUCH ANYTHING!
-;; If you want to make changes to the bootstrapping code, open
-;; ~/jconfig/.emacs.d/init.org, C-x n s on [[Bootstrap Process]],
-;; and then C-c C-v t to tangle the bootstrapping code into ~/.emacs
+;;; jbootstrap --- Efficiently/lazily autotangle & load ~/jconfig/init.org. -*- lexical-binding: t -*-
+;;; Commentary:
+;;;   This is an auto-generated file, so PLEASE DON'T TOUCH ANYTHING!
+;;;   If you want to make changes to the bootstrapping code, open
+;;;   ~/jconfig/.emacs.d/init.org, C-x n s on [[Bootstrap Process]],
+;;;   and then C-c C-v t to tangle the bootstrapping code into ~/.emacs
+
+;;; Code:
 #+END_SRC
 
 ** Performance Optimization
@@ -177,7 +122,7 @@ I also register hooks to clean up some of the tweaks that I made to speed up sta
 
 ** Package Management
 
-I use the [[https://www.masteringemacs.org/article/spotlight-use-package-a-declarative-configuration-tool][wonderful use-package]] to manage most of the packages in my installation. Since I'm using use-package, I need to do a bit of initialization in my init.el stub in order to get things bootstrapped.
+I use the [[https://www.masteringemacs.org/article/spotlight-use-package-a-declarative-configuration-tool][wonderful use-package]] (now distributed as part of emacs) to manage most of the packages in my installation. Since I'm using use-package, I need to do a bit of initialization in my init.el stub in order to get things bootstrapped.
 
 First, we disable ~package~ at startup so that we can ensure we set it up properly.
 
@@ -284,7 +229,7 @@ alongside the org file."
       (warn "Missing configuration file: %s" filename))))
 #+END_SRC
 
-With the rest of the setup done, it is quite easy to load the rest of the configuration. I simply call ~org-babel-load-file~ in order to load my configs (and skip loading them if they're missing).
+With the rest of the setup done, it is quite easy to load the rest of the configuration.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
 (j/config/load-conf-dot-org "~/jconfig/.emacs.d/init.org")
@@ -445,18 +390,44 @@ There are some general Emacs settings which I configure first:
 
 I have a variety of hooks that I want to register, so that everything works smoothly togethers :~)
 
-- First, I ensure that if a file has a "Time-stamp: <>" at the top of the file, it gets updated upon saving.
+- I ensure that if a file has a "Time-stamp: <>" at the top of the file, it gets updated upon saving.
 
   #+BEGIN_SRC emacs-lisp
 (add-hook 'write-file-hooks 'time-stamp)
   #+END_SRC
 
-- Next, I ensure that trailing whitespace is always deleted when I save a file. Furthermore, I ensure that in special modes (and calendar mode in particular) we don't display trailing whitespace, since they usually are read-only.
+- I ensure that in special modes (and calendar mode in particular) we don't display trailing whitespace, since they usually are read-only.
 
   #+BEGIN_SRC emacs-lisp
-;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
-(add-hook 'special-mode-hook (function (lambda () (setq show-trailing-whitespace nil))))
-(add-hook 'calendar-mode-hook (function (lambda () (setq show-trailing-whitespace nil))))
+(add-hook 'special-mode-hook #'(lambda () (setq show-trailing-whitespace nil)))
+(add-hook 'calendar-mode-hook #'(lambda () (setq show-trailing-whitespace nil)))
+  #+END_SRC
+
+** Config Auto-tangle & Daemon Restart
+
+When saving any ~.org~ file inside ~~/jconfig/.emacs.d/~, tangle it so the
+output in ~tangles/~ stays current.  In daemon mode, also save all open
+buffers and restart the daemon via systemd — the shell wrapper's reconnect
+loop re-attaches any open emacsclient frames.  Non-daemon Emacs just tangles;
+the next fresh launch picks up the new output via ~j/config/load-conf-dot-org~.
+
+  #+BEGIN_SRC emacs-lisp
+(defun j/config/auto-tangle-and-restart ()
+  "Tangle current file if it is a .org config in jconfig/.emacs.d/.
+In daemon mode, save all buffers and restart the daemon via systemd."
+  (when (and buffer-file-name
+             (string-suffix-p ".org" buffer-file-name)
+             (file-in-directory-p buffer-file-name
+                                  (expand-file-name "~/jconfig/.emacs.d/")))
+    (org-babel-tangle)
+    (when (daemonp)
+      ;; Save everything before systemd kills us — including scratch buffers
+      ;; the user may not have explicitly saved.
+      (save-some-buffers t)
+      (start-process "j/emacs-restart" nil
+                     "systemctl" "--user" "restart" "emacs.service"))))
+
+(add-hook 'after-save-hook #'j/config/auto-tangle-and-restart)
   #+END_SRC
 
 * Keybindings
@@ -597,90 +568,6 @@ Mirrors the single-pass logic in `j/agent/sync-skills'."
          (result (j/test/partition fn '())))
     (should (null (car result)))
     (should (null (cdr result)))))
-#+END_SRC
-
-** buffer-move
-
-
-I like to have many windows open while I'm working, and I'll generally rearrange them throughout my sessions. Emacs has some support to do things like this, but I wanted something a bit nicer. I found a package called ~buffer-move~ which does some of this, and I added a few helpers as well.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package buffer-move
-    :preface
-    (defun j/2-windows-vertical-to-horizontal ()
-      "Swap from a vertical to a horizontal orientation"
-      (let ((buffers (mapcar 'window-buffer (window-list))))
-        (when (= 2 (length buffers))
-          (delete-other-windows)
-          (set-window-buffer (split-window-horizontally) (cadr buffers)))))
-
-    (defun j/2-windows-horizontal-to-vertical ()
-      "Swap from a horizontal to a vertical orientation"
-      (let ((buffers (mapcar 'window-buffer (window-list))))
-        (when (= 2 (length buffers))
-          (delete-other-windows)
-          (set-window-buffer (split-window-vertically) (cadr buffers)))))
-
-    (defun j/2-windows-switch-orientation ()
-      "Swap from a vertical to a horizontal orientation, or vice versa"
-      (interactive)
-      (if (or (window-in-direction 'above)
-              (window-in-direction 'below))
-          (j/2-windows-vertical-to-horizontal)
-        (j/2-windows-horizontal-to-vertical)))
-
-    (defun j/2-windows-swap ()
-      "Swap windows using buffer-move.el"
-      (interactive)
-      (if (null (windmove-find-other-window 'right))
-          (buf-move-left)
-        (buf-move-right)))
-
-    (defun j/buf-send-up ()
-      "Send the currently selected buffer up, and retain the current focus"
-      (interactive)
-      (buf-move-up)
-      (select-window (windmove-find-other-window 'down)))
-
-    (defun j/buf-send-down ()
-      "Send the currently selected buffer down, and retain the current focus"
-      (interactive)
-      (buf-move-down)
-      (select-window (windmove-find-other-window 'up)))
-
-    (defun j/buf-send-left ()
-      "Send the currently selected buffer left, and retain the current focus"
-      (interactive)
-      (buf-move-left)
-      (select-window (windmove-find-other-window 'right)))
-
-    (defun j/buf-send-right ()
-      "Send the currently selected buffer right, and retain the current focus"
-      (interactive)
-      (buf-move-right)
-      (select-window (windmove-find-other-window 'left)))
-    :init
-    (add-hook 'emacs-startup-hook (lambda () (let ((buffers (mapcar 'window-buffer (window-list))))
-                                               (when (= 2 (length buffers))
-                                                 (j/2-windows-vertical-to-horizontal)
-                                                 (j/2-windows-swap)
-                                                 (other-window 1)))))
-    (global-unset-key (kbd "C-x o"))
-    (global-unset-key (kbd "M-`"))
-    :bind (("C-x <up>"          . buf-move-up)
-           ("C-x <down>"        . buf-move-down)
-           ("C-x <left>"        . buf-move-left)
-           ("C-x <right>"       . buf-move-right)
-           ("C-`"               . other-window)
-           ;; for windowless mode:
-           ;; - C-` is sent as C-@ by default, which maps to
-           ;;   ("C-{Spc, @}" . set-mark-command)
-           ;;   ==> rebind C-@ to other-window and use C-c C-@ for set-mark-command
-           ("C-@"               . other-window)
-           ("C-c C-@"           . set-mark-command)
-           ;; for consistency in windowed mode
-           ("C-c C-SPC"         . set-mark-command)
-          ))
 #+END_SRC
 
 ** exec-path-from-shell
@@ -1450,6 +1337,91 @@ I've finally started using [[https://elpa.gnu.org/packages/undo-tree.html][undo-
   :init (global-undo-tree-mode)
   :diminish)
 #+END_SRC
+** windmove
+
+I use ~windmove~ to simplify reorganization of my buffers.
+
+
+#+BEGIN_SRC emacs-lisp
+(use-package windmove
+  :ensure t
+  :preface
+    (defun j/2-windows-vertical-to-horizontal ()
+      "Swap from a vertical to a horizontal orientation"
+      (let ((buffers (mapcar 'window-buffer (window-list))))
+        (when (= 2 (length buffers))
+          (delete-other-windows)
+          (set-window-buffer (split-window-horizontally) (cadr buffers)))))
+
+    (defun j/2-windows-horizontal-to-vertical ()
+      "Swap from a horizontal to a vertical orientation"
+      (let ((buffers (mapcar 'window-buffer (window-list))))
+        (when (= 2 (length buffers))
+          (delete-other-windows)
+          (set-window-buffer (split-window-vertically) (cadr buffers)))))
+
+    (defun j/2-windows-switch-orientation ()
+      "Swap from a vertical to a horizontal orientation, or vice versa"
+      (interactive)
+      (if (or (window-in-direction 'above)
+              (window-in-direction 'below))
+          (j/2-windows-vertical-to-horizontal)
+        (j/2-windows-horizontal-to-vertical)))
+
+    (defun j/2-windows-swap ()
+      "Swap windows using buffer-move.el"
+      (interactive)
+      (if (null (windmove-find-other-window 'right))
+          (buf-move-left)
+        (buf-move-right)))
+
+    (defun j/buf-send-up ()
+      "Send the currently selected buffer up, and retain the current focus"
+      (interactive)
+      (buf-move-up)
+      (select-window (windmove-find-other-window 'down)))
+
+    (defun j/buf-send-down ()
+      "Send the currently selected buffer down, and retain the current focus"
+      (interactive)
+      (buf-move-down)
+      (select-window (windmove-find-other-window 'up)))
+
+    (defun j/buf-send-left ()
+      "Send the currently selected buffer left, and retain the current focus"
+      (interactive)
+      (buf-move-left)
+      (select-window (windmove-find-other-window 'right)))
+
+    (defun j/buf-send-right ()
+      "Send the currently selected buffer right, and retain the current focus"
+      (interactive)
+      (buf-move-right)
+      (select-window (windmove-find-other-window 'left)))
+    :init
+    (add-hook 'emacs-startup-hook (lambda () (let ((buffers (mapcar 'window-buffer (window-list))))
+                                               (when (= 2 (length buffers))
+                                                 (j/2-windows-vertical-to-horizontal)
+                                                 (j/2-windows-swap)
+                                                 (other-window 1)))))
+    (global-unset-key (kbd "C-x o"))
+    (global-unset-key (kbd "M-`"))
+    :bind (("C-x <up>"          . buf-move-up)
+           ("C-x <down>"        . buf-move-down)
+           ("C-x <left>"        . buf-move-left)
+           ("C-x <right>"       . buf-move-right)
+           ("C-`"               . other-window)
+          )
+  )
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+  (use-package buffer-move
+
+)
+#+END_SRC
+
 ** xclip
 When using `emacs -nw` the system clipboard is not automatically shared with the emacs yank-ring. We can use [[https://www.emacswiki.org/emacs/xclip.el][xclip.el]] to sync the two without impacting emacs' multiple kill/yank functionality (cf. [[https://unix.stackexchange.com/questions/6640/emacs-command-to-cut-or-copy-to-system-clipboard][stackexchange post]]).
 
