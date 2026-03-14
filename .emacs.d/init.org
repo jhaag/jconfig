@@ -29,7 +29,6 @@ This file is written in [[http://www.howardism.org/Technical/Emacs/literate-prog
   - [[#agent-shell][agent-shell]]
   - [[#buffer-move][buffer-move]]
   - [[#exec-path-from-shell][exec-path-from-shell]]
-  - [[#git-gutter][git-gutter+]]
   - [[#helm][helm]]
   - [[#language-specific][Language-Specific]]
   - [[#markdown-mode][markdown-mode]]
@@ -69,7 +68,6 @@ and are effectively dead code — none of these files are loaded at runtime.
 | buffer-move        | Window rearrangement helpers               |
 | exec-path-from-shell | Sync ~$PATH~ from shell                  |
 | git-modes          | ~.gitconfig~ / ~.gitignore~ major modes    |
-| git-gutter+        | Diff indicators in fringe                  |
 | markdown-mode      |                                            |
 | multiple-cursors   |                                            |
 | pdf-tools          |                                            |
@@ -112,7 +110,6 @@ and are effectively dead code — none of these files are loaded at runtime.
 |-----------------------+--------------------------+---------------------|
 | j-buffer-move.el      | active (not commented)   | YES — duplicate     |
 | j-company.el          | commented out            | YES — duplicate     |
-| j-git-gutter+.el      | active                   | YES — duplicate     |
 | j-helm.el             | active                   | YES — duplicate     |
 | j-multiple-cursors.el | active                   | YES — duplicate     |
 | j-shell-pop.el        | active                   | YES — duplicate     |
@@ -240,8 +237,8 @@ Next, we set up the package archives that we want to pull from, and finally init
   ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
   (add-to-list 'package-archives
                '("melpa" . "https://melpa.org/packages/"))
-  ;;(add-to-list 'package-archives
-  ;;             ("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  ;; (add-to-list 'package-archives
+  ;;              '("melpa-stable" . "https://stable.melpa.org/packages/"))
   ;;(add-to-list 'package-archives
   ;;             '("marmalade" . "https://marmalade-repo.org/packages/"))
   ;; For important compatibility libraries like cl-lib
@@ -742,57 +739,6 @@ In GUI and daemon mode, Emacs doesn't inherit the shell's ~$PATH~. [[https://git
             (daemonp))
     (exec-path-from-shell-initialize)))
 #+END_SRC
-** git-gutter+
-
-When I'm working on a project, I find it annoying to close emacs and work with git from the command line. This gets especially annoying when I'm trying to figure out how to revert a small change that I made to a file so that it doesn't show up as dirty with `git status`. git-gutter+ display git information within the fringe of the buffer, so that you can see exactly what is different.
-
-To get this working, we require some supplemental modes that [[https://github.com/magit/magit][Magit]] has created. I SHOULD LOOK INTO USING MAGIT IN THE FUTURE.
-
-#+BEGIN_SRC emacs-lisp
-;;(use-package gitattributes-mode)
-;;(use-package gitconfig-mode)
-;;(use-package gitignore-mode)
-(use-package git-modes)
-#+END_SRC
-
-Now we can load git-gutter+ itself, and configure it to our liking. We also require ~git-gutter-fringe+~, which is the actual package that allows us to display our git status in the buffer.
-
-#+BEGIN_SRC emacs-lisp
-(use-package git-gutter+
-  :demand t
-  ;;:after (gitattributes-mode gitconfig-mode gitignore-mode)
-  :after (git-modes)
-  :bind (("C-x G" . global-git-gutter+-mode)
-         ("C-x g" . git-gutter+-mode)
-         :map git-gutter+-mode-map
-         ("C-x n"   . git-gutter+-next-hunk)
-         ("C-x p"   . git-gutter+-previous-hunk)
-         ("C-x v =" . git-gutter+-show-hunk))
-  :init (setq git-gutter+-lighter " gg+")
-  :custom (git-gutter+-hide-gutter t))
-
-;;(use-package git-gutter-fringe+
-;;  :demand t
-;;  :ensure git-gutter+
-;;  :custom
-;;  (git-gutter-fr+-side 'right-fringe)
-;;  :custom-face
-;;  ;; Currently hard-coded to be the solarized-yellow color
-;;  (git-gutter-fr+-modified ((t (:foreground "#b58900"))))
-;;  :config
-;;  (global-git-gutter+-mode)
-;;  (require 'fringe-helper)
-;;  (fringe-helper-define 'git-gutter-fr+-modified nil
-;;                        "........"
-;;                        "........"
-;;                        "..XX...X"
-;;                        ".XXXX.XX"
-;;                        "XX.XXXX."
-;;                        "X...XX.."
-;;                        "........"
-;;                        "........")
-;;  :diminish (git-gutter+-mode . "gg+"))
-#+END_SRC
 ** helm
 
 First, we need to set up the main ~helm~ package. I configure a few general things such as key bindings and global settings, but I mainly just get it loaded so that the other ~helm-xxx~ stuff can be loaded.
@@ -829,19 +775,6 @@ I also set up ~helm-mode~ now, since they basically go together.
   :diminish helm-mode)
 #+END_SRC
 
-
-*** helm-ag
-
-This package provides a front end for the ~ag~ executable, which can be useful if you want to search the filesystem for something.
-
-#+BEGIN_SRC emacs-lisp
-(use-package helm-ag
-  :if (executable-find "ag")
-  :bind ("C-c h s" . helm-do-ag)
-  :custom
-  (helm-ag-fuzzy-match t)
-  (helm-ag-insert-at-point 'symbol))
-#+END_SRC
 
 *** helm-bookmarks
 
@@ -1197,15 +1130,6 @@ This package provides the ability to search for lines in the current buffer, and
   (helm-swoop-use-fuzzy-match t))
 #+END_SRC
 
-*** helm-unicode
-
-This allows you to browse unicode characters by name through helm, and then insert them into the buffer.
-
-#+BEGIN_SRC emacs-lisp
-(use-package helm-unicode
-  :ensure t
-  :bind* ("C-x 8 <return>" . helm-unicode))
-#+END_SRC
 ** Language-Specific
 
 First and foremost, I assume that if I'm loading a file with an extension in emacs, it is going to be a programming file. This is generally a safe assumption in my experience (although I do intend to look for a better way to handle this in the future).
@@ -1334,8 +1258,8 @@ This has some settings for working with javascript code. Like [[haskell]], I don
 
 #+BEGIN_SRC emacs-lisp
 (use-package nael
-  :ensure t
-  :defer t
+  :vc ( :lisp-dir "nael"
+        :url "https://codeberg.org/mekeor/nael.git")
   :init
   (add-to-list 'auto-mode-alist '("\\.lean\\'" . nael-mode))
   :hook
@@ -1343,8 +1267,12 @@ This has some settings for working with javascript code. Like [[haskell]], I don
    (nael-mode . eglot-ensure))
   :config
   ;; Custom keybindings can be added here
-  ;; Example: (keymap-set nael-mode-map "C-c ." #'highlight-symbol-at-point)
-  )
+  (keymap-set nael-mode-map "C-c ." #'highlight-symbol-at-point))
+
+(use-package nael-lsp
+  :after nael
+  :vc ( :lisp-dir "nael-lsp"
+        :url "https://codeberg.org/mekeor/nael.git"))
 #+END_SRC
 
 *** org-mode
