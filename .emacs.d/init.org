@@ -1256,24 +1256,26 @@ This has some settings for working with javascript code. Like [[haskell]], I don
 
 *** lean
 
-#+BEGIN_SRC emacs-lisp
-(use-package nael
-  :vc ( :lisp-dir "nael"
-        :url "https://codeberg.org/mekeor/nael.git")
-  :init
-  (add-to-list 'auto-mode-alist '("\\.lean\\'" . nael-mode))
-  :hook
-  ((nael-mode . abbrev-mode)
-   (nael-mode . eglot-ensure))
-  :config
-  ;; Custom keybindings can be added here
-  (keymap-set nael-mode-map "C-c ." #'highlight-symbol-at-point))
+*Note:* ~nael-mode-map~ isn't exposed by ~nael-autoloads~.
 
-(use-package nael-lsp
-  :after nael
-  :vc ( :lisp-dir "nael-lsp"
-        :url "https://codeberg.org/mekeor/nael.git"))
-#+END_SRC
+# #+BEGIN_SRC emacs-lisp
+# (use-package nael
+#   :vc ( :lisp-dir "nael"
+#         :url "https://codeberg.org/mekeor/nael.git")
+#   :init
+#   (add-to-list 'auto-mode-alist '("\\.lean\\'" . nael-mode))
+#   :hook
+#   ((nael-mode . abbrev-mode)
+#    (nael-mode . eglot-ensure))
+#   :bind (:map nael-mode-map
+#               ("C-c ." . highlight-symbol-at-point))
+#   )
+
+# (use-package nael-lsp
+#   :after nael
+#   :vc ( :lisp-dir "nael-lsp"
+#         :url "https://codeberg.org/mekeor/nael.git"))
+# #+END_SRC
 
 *** org-mode
 
