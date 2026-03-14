@@ -103,48 +103,6 @@ and are effectively dead code — none of these files are loaded at runtime.
 | rust-mode          |                                            |
 | org-mode           | Extended config in ~j-dot-org.org~         |
 
-*** Legacy ~.el~ files (orphaned, never loaded)
-
-*packages/* — 16 files, none loaded at runtime:
-| File                  | Status in ~packages.el~  | Also in ~init.org~? |
-|-----------------------+--------------------------+---------------------|
-| j-buffer-move.el      | active (not commented)   | YES — duplicate     |
-| j-company.el          | commented out            | YES — duplicate     |
-| j-helm.el             | active                   | YES — duplicate     |
-| j-multiple-cursors.el | active                   | YES — duplicate     |
-| j-shell-pop.el        | active                   | YES — duplicate     |
-| j-smooth-scrolling.el | active                   | YES — duplicate     |
-| j-solarized.el        | active                   | YES — duplicate     |
-| j-symon.el            | active                   | YES — duplicate     |
-| j-undo-tree.el        | commented out            | YES — duplicate     |
-| j-function-args.el    | commented out            | never migrated      |
-| j-sr-speedbar.el      | commented out            | never migrated      |
-| j-ssh.el              | commented out            | never migrated      |
-| j-tramp.el            | commented out            | never migrated      |
-| j-vagrant-tramp.el    | commented out            | never migrated      |
-| j-wttrin.el           | commented out            | never migrated      |
-
-*languages/* — 5 files, none loaded at runtime:
-| File          | Also in ~init.org~? |
-|---------------+---------------------|
-| j-asm.el      | YES — duplicate     |
-| j-haskell.el  | YES — duplicate     |
-| j-js.el       | YES — duplicate     |
-| j-org.el      | YES — duplicate     |
-| j-rust.el     | YES — duplicate     |
-
-*** Analysis
-
-- 10 packages were fully migrated to ~init.org~ and their legacy ~.el~
-  counterparts are now stale duplicates (configs have diverged — ~init.org~
-  versions are more up-to-date).
-- 5 language configs are likewise duplicated; ~init.org~ is authoritative.
-- 6 packages (~function-args~, ~sr-speedbar~, ~ssh~, ~tramp~, ~vagrant-tramp~,
-  ~wttrin~) exist only in legacy files and were never migrated; all are
-  commented out, suggesting intentional disuse.
-- ~packages.el~, ~languages.el~, ~packages/~, and ~languages/~ can be safely
-  deleted once confirmed no longer needed.
-
 * References
 
 Emacs config is an art, and I have learned a lot by reading through other people's config files, and from many other resources. These are some of the best ones (several are also written in org mode). You will find snippets from all of these (and possibly others) throughout my config.
