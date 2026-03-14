@@ -5,4 +5,5 @@ tangles/
 .emacs-custom.el
 scripts/tmux_startup_body.sh
 .outside.json
-/.agent-shell/
+.agent-shell/
+docs/superpowers/
