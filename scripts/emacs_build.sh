@@ -142,3 +142,149 @@ emacs_auto_update_allows() {
     [[ "$JCONFIG_EMACS_AUTO_UPDATE_MINOR" == "true" ]]
     return $?
 }
+
+# Download emacs source tarball to cache directory.
+# $1: version string (e.g., "29.4")
+# Returns 1 on failure.
+emacs_download_source() {
+    local version="$1"
+    local tarball="emacs-${version}.tar.gz"
+    local url="https://ftp.gnu.org/gnu/emacs/${tarball}"
+    local dest="$EMACS_BUILD_CACHE/$tarball"
+
+    mkdir -p "$EMACS_BUILD_CACHE"
+
+    if [[ -f "$dest" ]]; then
+        echo "Source tarball already cached: $tarball"
+        return 0
+    fi
+
+    echo "Downloading $tarball..."
+    if ! curl -fSL --progress-bar -o "$dest" "$url"; then
+        echo "ERROR: Failed to download $url"
+        rm -f "$dest"
+        return 1
+    fi
+
+    # GPG verification if available
+    if command -v gpg >/dev/null 2>&1; then
+        local sig_url="${url}.sig"
+        local sig_dest="${dest}.sig"
+        echo "Downloading GPG signature..."
+        if curl -fsSL -o "$sig_dest" "$sig_url" 2>/dev/null; then
+            # Import GNU keyring if not already present
+            gpg --keyserver keyserver.ubuntu.com --recv-keys 17E90D521672C04631B1183EE78DAE0F3115E06B 2>/dev/null
+            if gpg --verify "$sig_dest" "$dest" 2>/dev/null; then
+                echo "GPG signature verified."
+            else
+                echo "WARNING: GPG signature verification failed. Proceeding anyway."
+            fi
+        else
+            echo "WARNING: Could not download GPG signature. Skipping verification."
+        fi
+    else
+        echo "WARNING: gpg not installed. Skipping tarball signature verification."
+    fi
+
+    return 0
+}
+
+# Extract source tarball, wiping any prior extract.
+# $1: version string
+emacs_extract_source() {
+    local version="$1"
+    local tarball="$EMACS_BUILD_CACHE/emacs-${version}.tar.gz"
+    local src_dir="$EMACS_BUILD_CACHE/emacs-${version}"
+
+    if [[ -d "$src_dir" ]]; then
+        echo "Removing previous source directory..."
+        rm -rf "$src_dir"
+    fi
+
+    echo "Extracting emacs-${version}.tar.gz..."
+    tar -xzf "$tarball" -C "$EMACS_BUILD_CACHE"
+}
+
+# Run ./configure with user's flags.
+# $1: version string
+# Returns 1 on failure (missing deps, etc.)
+emacs_configure_source() {
+    local version="$1"
+    local src_dir="$EMACS_BUILD_CACHE/emacs-${version}"
+
+    echo -e "\nConfiguring emacs $version..."
+    echo "  prefix: $EMACS_INSTALL_PREFIX"
+    [[ -n "$JCONFIG_EMACS_CONFIGURE_FLAGS" ]] && echo "  flags: $JCONFIG_EMACS_CONFIGURE_FLAGS"
+
+    # Run in subshell to avoid polluting the parent shell's working directory
+    # shellcheck disable=SC2086
+    if ! (cd "$src_dir" && ./configure --prefix="$EMACS_INSTALL_PREFIX" $JCONFIG_EMACS_CONFIGURE_FLAGS); then
+        echo ""
+        echo "ERROR: ./configure failed. This usually means build dependencies are missing."
+        echo "Review the output above for details on which packages are needed."
+        return 1
+    fi
+
+    return 0
+}
+
+# Build emacs from configured source.
+# $1: version string
+emacs_build_source() {
+    local version="$1"
+    local src_dir="$EMACS_BUILD_CACHE/emacs-${version}"
+    local nproc
+
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        nproc=$(sysctl -n hw.ncpu)
+    else
+        nproc=$(nproc)
+    fi
+
+    echo -e "\nBuilding emacs $version with $nproc parallel jobs..."
+
+    if ! make -C "$src_dir" -j"$nproc"; then
+        echo "ERROR: Build failed."
+        return 1
+    fi
+
+    return 0
+}
+
+# Install emacs to prefix, wiping old install first.
+# $1: version string
+emacs_install_source() {
+    local version="$1"
+    local src_dir="$EMACS_BUILD_CACHE/emacs-${version}"
+
+    # Wipe old install to prevent stale files
+    if [[ -d "$EMACS_INSTALL_PREFIX" ]]; then
+        echo "Removing previous installation at $EMACS_INSTALL_PREFIX..."
+        rm -rf "$EMACS_INSTALL_PREFIX"
+    fi
+
+    echo "Installing emacs $version to $EMACS_INSTALL_PREFIX..."
+
+    if ! make -C "$src_dir" install; then
+        echo "ERROR: make install failed."
+        return 1
+    fi
+
+    echo -e "Emacs $version installed successfully.\n"
+    return 0
+}
+
+# Full build pipeline: download, extract, configure, build, install.
+# $1: version string
+# Returns 1 on any failure.
+emacs_full_build() {
+    local version="$1"
+
+    emacs_download_source "$version" || return 1
+    emacs_extract_source "$version" || return 1
+    emacs_configure_source "$version" || return 1
+    emacs_build_source "$version" || return 1
+    emacs_install_source "$version" || return 1
+
+    return 0
+}
