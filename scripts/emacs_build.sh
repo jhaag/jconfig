@@ -377,6 +377,10 @@ emacs_build_main() {
 
         if [[ "$cmp" == "equal" ]]; then
             echo "Emacs $managed_version already installed at $EMACS_INSTALL_PREFIX."
+            # Ensure daemon is running even when no build is needed
+            if [[ "$HOST_OS" == "linux" ]]; then
+                emacs_ensure_daemon_running
+            fi
             return 0
         fi
 
@@ -405,6 +409,22 @@ emacs_build_main() {
         if [[ "$HOST_OS" == "linux" ]]; then
             emacs_update_systemd_service
         fi
+    fi
+}
+
+# Ensure the emacs daemon is enabled and running (no restart).
+# Called on the no-build path to match old configure.sh behavior.
+emacs_ensure_daemon_running() {
+    if ! systemctl --user is-enabled emacs.service &>/dev/null; then
+        systemctl --user enable emacs.service
+        echo "Enabled emacs daemon service."
+    fi
+
+    if ! systemctl --user is-active emacs.service &>/dev/null; then
+        systemctl --user start emacs.service
+        echo -e "Started emacs daemon.\n"
+    else
+        echo -e "Emacs daemon already running.\n"
     fi
 }
 
