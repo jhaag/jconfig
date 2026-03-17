@@ -288,3 +288,146 @@ emacs_full_build() {
 
     return 0
 }
+
+# Main entry point for emacs build management.
+# Called from configure.sh.
+emacs_build_main() {
+    echo -e "\n#=== Emacs Source Build =========================================================\n"
+
+    local managed_emacs="$EMACS_INSTALL_PREFIX/bin/emacs"
+    local managed_version=""
+    local system_emacs=""
+    local system_version=""
+    local needs_build=false
+    local target_version=""
+
+    # Detect managed install
+    if [[ -x "$managed_emacs" ]]; then
+        managed_version=$(emacs_get_binary_version "$managed_emacs")
+    fi
+
+    # Detect system install
+    if [[ -z "$managed_version" ]]; then
+        system_emacs=$(command -v emacs 2>/dev/null || true)
+        if [[ -n "$system_emacs" ]]; then
+            system_version=$(emacs_get_binary_version "$system_emacs")
+        fi
+    fi
+
+    # Load or prompt for settings
+    if emacs_load_settings; then
+        target_version="$JCONFIG_EMACS_VERSION"
+    else
+        # No settings file -- first run
+        echo "No emacs build configuration found."
+
+        # Case B: system emacs exists
+        if [[ -n "$system_version" ]]; then
+            echo ""
+            echo "Found emacs $system_version at $system_emacs (system-managed)."
+            echo "This script will build emacs from source and install to $EMACS_INSTALL_PREFIX."
+            echo "The system package will remain but $EMACS_INSTALL_PREFIX/bin/ will take PATH priority."
+            echo ""
+            local proceed
+            read -r -p "Proceed? (y/n) [y]: " proceed
+            if [[ "${proceed:-y}" =~ ^[Nn] ]]; then
+                echo -e "Skipping emacs build.\n"
+                return 0
+            fi
+        fi
+
+        # Resolve latest for default prompt value
+        echo ""
+        echo "Resolving latest emacs version..."
+        local latest
+        latest=$(emacs_resolve_latest_version)
+        if [[ -z "$latest" ]]; then
+            echo "WARNING: Could not resolve latest version. You must specify a version manually."
+            latest=""
+        else
+            echo "Latest available: $latest"
+        fi
+
+        emacs_prompt_settings "$latest" || return 1
+        emacs_save_settings
+        target_version="$JCONFIG_EMACS_VERSION"
+        needs_build=true
+    fi
+
+    # Auto-update check (only if we have settings and didn't just prompt)
+    if [[ "$needs_build" == "false" ]]; then
+        local latest
+        latest=$(emacs_resolve_latest_version)
+
+        if [[ -n "$latest" ]] && emacs_auto_update_allows "$target_version" "$latest"; then
+            echo "Auto-update: $target_version -> $latest"
+            target_version="$latest"
+            JCONFIG_EMACS_VERSION="$target_version"
+            emacs_save_settings
+            needs_build=true
+        elif [[ -z "$latest" ]]; then
+            echo "WARNING: Could not check for updates. Using configured version $target_version."
+        fi
+    fi
+
+    # Case A: managed install exists, check version match
+    if [[ -n "$managed_version" && "$needs_build" == "false" ]]; then
+        local cmp
+        cmp=$(emacs_compare_versions "$target_version" "$managed_version")
+
+        if [[ "$cmp" == "equal" ]]; then
+            echo "Emacs $managed_version already installed at $EMACS_INSTALL_PREFIX."
+            return 0
+        fi
+
+        # Version mismatch, not resolved by auto-update
+        echo ""
+        echo "Version mismatch: configured $target_version, installed $managed_version."
+        local rebuild
+        read -r -p "Rebuild to $target_version? (y/n) [y]: " rebuild
+        if [[ "${rebuild:-y}" =~ ^[Nn] ]]; then
+            echo -e "Skipping emacs build.\n"
+            return 0
+        fi
+        needs_build=true
+    fi
+
+    # No managed install and we have settings = first build or system-only
+    if [[ -z "$managed_version" && "$needs_build" == "false" ]]; then
+        needs_build=true
+    fi
+
+    # Build
+    if [[ "$needs_build" == "true" ]]; then
+        emacs_full_build "$target_version" || return 1
+
+        # Update systemd service on Linux
+        if [[ "$HOST_OS" == "linux" ]]; then
+            emacs_update_systemd_service
+        fi
+    fi
+}
+
+# Update systemd service to point to managed emacs and restart.
+emacs_update_systemd_service() {
+    local was_running=false
+
+    if systemctl --user is-active emacs.service &>/dev/null; then
+        was_running=true
+    fi
+
+    systemctl --user daemon-reload
+
+    if ! systemctl --user is-enabled emacs.service &>/dev/null; then
+        systemctl --user enable emacs.service
+        echo "Enabled emacs daemon service."
+    fi
+
+    if [[ "$was_running" == "true" ]]; then
+        echo "Restarting emacs daemon..."
+        systemctl --user restart emacs.service
+    else
+        echo "Starting emacs daemon..."
+        systemctl --user start emacs.service
+    fi
+}
