@@ -101,9 +101,11 @@ EOF
 load_custom_config "$BASH_CONF" ~/.bashrc "#"
 
 #=== Emacs =====================================================================
-echo "I now auto-generate my ~/.emacs file using org-babel; open ~/jconfig/.emacs.d/init.org and tangle the Bootstrap Process header."
+source $JCONFIG_ROOT/scripts/emacs_build.sh
 
 #--- Emacs Daemon (systemd user service) ---------------------------------------
+# Ensure service symlink exists BEFORE build, so emacs_update_systemd_service
+# can daemon-reload/enable/start the service after a build completes.
 if [ "$HOST_OS" == "linux" ]; then
     SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
     EMACS_SERVICE_SRC="$JCONFIG_ROOT/systemd/emacs.service"
@@ -117,20 +119,11 @@ if [ "$HOST_OS" == "linux" ]; then
         echo -e "Linked emacs systemd user service.\n"
     fi
 
+    # Always reload in case the service file changed
     systemctl --user daemon-reload
-
-    if ! systemctl --user is-enabled emacs.service &>/dev/null; then
-        systemctl --user enable emacs.service
-        echo -e "Enabled emacs daemon service.\n"
-    fi
-
-    if ! systemctl --user is-active emacs.service &>/dev/null; then
-        systemctl --user start emacs.service
-        echo -e "Started emacs daemon.\n"
-    else
-        echo -e "Emacs daemon already running.\n"
-    fi
 fi
+
+emacs_build_main
 
 #=== User Identity =============================================================
 JCONFIG_USER_ENV="$HOME/.config/jconfig/user.env"
