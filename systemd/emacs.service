@@ -5,8 +5,8 @@ After=graphical-session-pre.target
 
 [Service]
 Type=forking
-ExecStart=/snap/bin/emacs --daemon
-ExecStop=/snap/bin/emacsclient --eval "(kill-emacs)"
+ExecStart=%h/.local/emacs/bin/emacs --daemon
+ExecStop=%h/.local/emacs/bin/emacsclient --eval "(kill-emacs)"
 Environment=SSH_AUTH_SOCK=%t/keyring/ssh
 Restart=always
 
