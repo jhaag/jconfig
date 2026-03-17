@@ -26,6 +26,11 @@ fi
 if [[ -d "$HOME/.venv/dev/bin" ]]; then
     export PATH="$HOME/.venv/dev/bin:$PATH"
 fi
+
+# Add source-built emacs to PATH if it exists
+if [[ -d "$HOME/.local/emacs/bin" ]]; then
+    export PATH="$HOME/.local/emacs/bin:$PATH"
+fi
 export PATH="$PATH:/usr/local/bin"
 
 #=== Aliases ===================================================================
