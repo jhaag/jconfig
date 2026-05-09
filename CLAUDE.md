@@ -27,6 +27,16 @@ Structure:
 
 To update emacs config after editing init.org: narrow to Bootstrap Process section (C-x n s), then tangle (C-c C-v t).
 
+## Emacs Source Build
+
+Emacs is built from source via `scripts/emacs_build.sh` (called by `configure.sh`). Settings are cached in `~/.config/jconfig/emacs.env`:
+- `JCONFIG_EMACS_VERSION` - pinned semver (e.g., "29.4")
+- `JCONFIG_EMACS_AUTO_UPDATE_MAJOR` / `JCONFIG_EMACS_AUTO_UPDATE_MINOR` - auto-update policy
+
+Build flags are managed via a generated script at `~/.config/jconfig/emacs-configure.sh` which users can edit. Default flags include native AOT compilation, tree-sitter, xwidgets, imagemagick, GTK3, and cairo.
+
+Install location: `~/.local/emacs/`. Build cache: `~/.cache/jconfig/emacs-build/`.
+
 ## Shell Configuration
 
 - `aliases/shared.sh` - Cross-platform aliases

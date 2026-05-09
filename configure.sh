@@ -39,8 +39,6 @@ DEV_VENV="$HOME/.venv/dev"
 if ! command -v uv >/dev/null 2>&1; then
     echo -e "Installing uv package manager...\n"
     curl -LsSf https://astral.sh/uv/install.sh | sh
-    # Source PATH for this session
-    export PATH="$HOME/.local/bin:$PATH"
 fi
 
 # Create or update dev venv with latest Python
@@ -77,15 +75,15 @@ POWERLINE_SEGMENTS_DIR=$(find $(find $(uv tool dir) -name "*powerline*") -name "
 OPAM_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/opam_switch.py"
 OUTSIDE_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/outside.py"
 
-if [[ ! -L "$OPAM_SEGMENT_LINK" ]] || [[ "$(readlink "$OPAM_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline_opam_switch.py" ]]; then
-    [[ -e "$OPAM_SEGMENT_LINK" ]] && rm "$OPAM_SEGMENT_LINK"
-    ln -s "$JCONFIG_ROOT/powerline_opam_switch.py" "$OPAM_SEGMENT_LINK"
+if [[ ! -L "$OPAM_SEGMENT_LINK" ]] || [[ "$(readlink "$OPAM_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline/powerline_opam_switch.py" ]]; then
+    [[ -e "$OPAM_SEGMENT_LINK" || -L "$OPAM_SEGMENT_LINK" ]] && rm "$OPAM_SEGMENT_LINK"
+    ln -s "$JCONFIG_ROOT/powerline/powerline_opam_switch.py" "$OPAM_SEGMENT_LINK"
     echo -e "Linked custom opam_switch segment.\n"
 fi
 
-if [[ ! -L "$OUTSIDE_SEGMENT_LINK" ]] || [[ "$(readlink "$OUTSIDE_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline_outside.py" ]]; then
-    [[ -e "$OUTSIDE_SEGMENT_LINK" ]] && rm "$OUTSIDE_SEGMENT_LINK"
-    ln -s "$JCONFIG_ROOT/powerline_outside.py" "$OUTSIDE_SEGMENT_LINK"
+if [[ ! -L "$OUTSIDE_SEGMENT_LINK" ]] || [[ "$(readlink "$OUTSIDE_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline/powerline_outside.py" ]]; then
+    [[ -e "$OUTSIDE_SEGMENT_LINK" || -L "$OUTSIDE_SEGMENT_LINK" ]] && rm "$OUTSIDE_SEGMENT_LINK"
+    ln -s "$JCONFIG_ROOT/powerline/powerline_outside.py" "$OUTSIDE_SEGMENT_LINK"
     echo -e "Linked custom outside segment.\n"
 fi
 
@@ -97,13 +95,59 @@ read -r -d '' BASH_CONF <<EOF
 #=== Custom global configurations ==============================================
 
 #=== Hook for pulling in my dotfiles ===========================================
-source $JCONFIG_ROOT/.bashrc
+source $JCONFIG_ROOT/bash/.bashrc
 EOF
 
 load_custom_config "$BASH_CONF" ~/.bashrc "#"
 
 #=== Emacs =====================================================================
-echo "I now auto-generate my ~/.emacs file using org-babel; open ~/jconfig/.emacs.d/init.org and tangle the Bootstrap Process header."
+source $JCONFIG_ROOT/scripts/emacs_build.sh
+
+#--- Emacs Daemon (systemd user service) ---------------------------------------
+# Ensure service symlink exists BEFORE build, so emacs_update_systemd_service
+# can daemon-reload/enable/start the service after a build completes.
+if [ "$HOST_OS" == "linux" ]; then
+    SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
+    EMACS_SERVICE_SRC="$JCONFIG_ROOT/systemd/emacs.service"
+    EMACS_SERVICE_DEST="$SYSTEMD_USER_DIR/emacs.service"
+
+    mkdir -p "$SYSTEMD_USER_DIR"
+
+    if [[ ! -L "$EMACS_SERVICE_DEST" ]] || [[ "$(readlink "$EMACS_SERVICE_DEST")" != "$EMACS_SERVICE_SRC" ]]; then
+        [[ -e "$EMACS_SERVICE_DEST" || -L "$EMACS_SERVICE_DEST" ]] && rm "$EMACS_SERVICE_DEST"
+        ln -s "$EMACS_SERVICE_SRC" "$EMACS_SERVICE_DEST"
+        echo -e "Linked emacs systemd user service.\n"
+    fi
+
+    # Always reload in case the service file changed
+    systemctl --user daemon-reload
+fi
+
+emacs_build_main
+
+#=== User Identity =============================================================
+JCONFIG_USER_ENV="$HOME/.config/jconfig/user.env"
+
+# Load cached values if present
+if [[ -f "$JCONFIG_USER_ENV" ]]; then
+    source "$JCONFIG_USER_ENV"
+fi
+
+# Prompt for any missing values
+if [[ -z "$JCONFIG_NAME" ]]; then
+    read -r -p "Enter your full name: " JCONFIG_NAME
+fi
+if [[ -z "$JCONFIG_EMAIL" ]]; then
+    read -r -p "Enter your email address: " JCONFIG_EMAIL
+fi
+
+# Persist to cache
+mkdir -p "$(dirname "$JCONFIG_USER_ENV")"
+cat > "$JCONFIG_USER_ENV" <<EOF
+export JCONFIG_NAME="$JCONFIG_NAME"
+export JCONFIG_EMAIL="$JCONFIG_EMAIL"
+EOF
+echo -e "User identity cached at $JCONFIG_USER_ENV\n"
 
 #=== Git =======================================================================
 # Add custom configs to .gitconfig
@@ -112,36 +156,26 @@ read -r -d '' GIT_CONF <<EOF
 
 #=== Hook for pulling in my dotfiles ===========================================
 [include]
-  path = $JCONFIG_ROOT/.gitconfig
+  path = $JCONFIG_ROOT/git/.gitconfig
 EOF
 
 load_custom_config "$GIT_CONF" ~/.gitconfig "#"
 
-# Create user-specific gitignore if it doesn't exist
-if [[ ! -f "$JCONFIG_ROOT/.gitconfig.user" ]]; then
-    cat <<EOF > $JCONFIG_ROOT/.gitconfig.user
+# Always regenerate .gitconfig.user from cached identity
+cat <<EOF > "$JCONFIG_ROOT/git/.gitconfig.user"
 [user]
-        name = Jasper Haag
-        email = jasperhaag16@gmail.com
+        name = $JCONFIG_NAME
+        email = $JCONFIG_EMAIL
 EOF
-    touch "$JCONFIG_ROOT/.gitconfig.user"
-fi
 
 #=== Powerline Shell ===========================================================
-# Remove old configuration if it exists
-if [ -f ~/.powerline-shell.json ]; then
-    rm ~/.powerline-shell.json
-fi
+# Remove old non-symlink files if they exist
+[ -f ~/.powerline-shell.json ] && [ ! -L ~/.powerline-shell.json ] && rm ~/.powerline-shell.json
+[ -f ~/.powerline-shell-theme.py ] && [ ! -L ~/.powerline-shell-theme.py ] && rm ~/.powerline-shell-theme.py
 
-# Remove old theme if it exists
-if [ -f ~/.powerline-shell-theme.py ]; then
-    rm ~/.powerline-shell-theme.py
-fi
-
-# Copy custom configs to ~/.powerline-shell.json
-cp $JCONFIG_ROOT/.powerline-shell.json ~/.powerline-shell.json
-# Copy custom theme to ~/.powerline-shell-theme.py
-cp $JCONFIG_ROOT/.powerline-shell-theme.py ~/.powerline-shell-theme.py
+# Symlink powerline config and theme
+[ ! -e ~/.powerline-shell.json ] && ln -s "$JCONFIG_ROOT/powerline/.powerline-shell.json" ~/.powerline-shell.json
+[ ! -e ~/.powerline-shell-theme.py ] && ln -s "$JCONFIG_ROOT/powerline/.powerline-shell-theme.py" ~/.powerline-shell-theme.py
 
 #=== Tmux ======================================================================
 # Add custom configs to .tmux.conf
@@ -149,7 +183,7 @@ read -r -d '' TMUX_CONF <<EOF
 #=== Custom global configurations ==============================================
 
 #=== Hook for pulling in my configurations =====================================
-source-file $JCONFIG_ROOT/.tmux.conf
+source-file $JCONFIG_ROOT/tmux/.tmux.conf
 EOF
 
 load_custom_config "$TMUX_CONF" ~/.tmux.conf "#"
