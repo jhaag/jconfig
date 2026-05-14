@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Emacs source build management for jconfig
-# Sourced by configure.sh -- do not execute directly.
+# Sourced by sync.sh -- do not execute directly.
 
 EMACS_INSTALL_PREFIX="$HOME/.local/emacs"
 EMACS_BUILD_CACHE="$HOME/.cache/jconfig/emacs-build"

@@ -22,9 +22,9 @@ if [[ -f "$HOME/.config/jconfig/user.env" ]]; then
     source "$HOME/.config/jconfig/user.env"
 fi
 
-# Add dev venv bin to PATH if it exists
-if [[ -d "$HOME/.venv/dev/bin" ]]; then
-    export PATH="$HOME/.venv/dev/bin:$PATH"
+# Activate dev venv if it exists (sets PATH and VIRTUAL_ENV)
+if [[ -f "$HOME/.venv/dev/bin/activate" ]]; then
+    source "$HOME/.venv/dev/bin/activate"
 fi
 
 # Add source-built emacs to PATH if it exists

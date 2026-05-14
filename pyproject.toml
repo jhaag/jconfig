@@ -1,0 +1,22 @@
+[project]
+name = "jconfig"
+version = "0"
+requires-python = ">=3.14"
+
+[tool.uv.workspace]
+members = []
+
+[dependency-groups]
+dev = [
+    "ruff",
+    "basedpyright",
+]
+
+[tool.ruff]
+target-version = "py314"
+extend-exclude = ["powerline"]
+
+[tool.basedpyright]
+pythonVersion = "3.14"
+# Venv is resolved from $VIRTUAL_ENV at runtime (bashrc activates ~/.venv/dev).
+# Editor integrations may need their own pythonPath setting.
