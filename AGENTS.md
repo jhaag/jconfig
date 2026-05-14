@@ -1,53 +1,16 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Personal dotfiles for bash, emacs, git, tmux, plus toolchain infrastructure and a Python package for ongoing automation.
 
-## Repository Overview
+@.principles/README.md
 
-Personal dotfiles repository managing configurations for bash, emacs, git, and tmux across Linux and macOS.
+## Entry point
 
-## Setup & Deployment
+`./configure.sh` (idempotent) bootstraps prereqs and syncs the live system to repo state. Implementation in `.toolchain/`.
 
-Run `./configure.sh` to deploy configurations. It uses a sourcing/including pattern rather than symlinks:
-- Bash: Adds source block to `~/.bashrc` that loads this repo's `.bashrc`
-- Git: Adds `[include]` to `~/.gitconfig` pointing to this repo's `.gitconfig`
-- Tmux: Adds `source-file` to `~/.tmux.conf`
-- Powerline: Copies configs directly to home directory
+## Repo-wide conventions
 
-The `scripts/utilities.sh` file contains `load_custom_config()` which manages versioned config blocks with delimiter guards.
-
-## Emacs Configuration
-
-Uses literate programming with org-babel. Main config is `.emacs.d/init.org` which tangles to elisp.
-
-Structure:
-- `.emacs.d/languages/` - Language-specific configs (j-js.el, j-org.el, j-rust.el, etc.)
-- `.emacs.d/packages/` - Package configurations (j-helm.el, j-solarized.el, etc.)
-- `.emacs.d/tangles/` - Generated elisp (gitignored)
-
-To update emacs config after editing init.org: narrow to Bootstrap Process section (C-x n s), then tangle (C-c C-v t).
-
-## Emacs Source Build
-
-Emacs is built from source via `scripts/emacs_build.sh` (called by `configure.sh`). Settings are cached in `~/.config/jconfig/emacs.env`:
-- `JCONFIG_EMACS_VERSION` - pinned semver (e.g., "29.4")
-- `JCONFIG_EMACS_AUTO_UPDATE_MAJOR` / `JCONFIG_EMACS_AUTO_UPDATE_MINOR` - auto-update policy
-
-Build flags are managed via a generated script at `~/.config/jconfig/emacs-configure.sh` which users can edit. Default flags include native AOT compilation, tree-sitter, xwidgets, imagemagick, GTK3, and cairo.
-
-Install location: `~/.local/emacs/`. Build cache: `~/.cache/jconfig/emacs-build/`.
-
-## Shell Configuration
-
-- `aliases/shared.sh` - Cross-platform aliases
-- `aliases/linux.sh` and `aliases/darwin.sh` - OS-specific aliases
-- `scripts/shell_prompt.sh` - Powerline-shell PROMPT_COMMAND setup
-- `powerline_opam_switch.py` - Custom powerline segment for OCaml
-
-OS detection uses `HOST_OS` variable set from `uname`.
-
-## Key Files
-
-- `.gitconfig` - Extensive git aliases (see `git aliases` command). User-specific data in `.gitconfig.user` (not tracked)
-- `.tmux.conf` - Prefix is Ctrl+Space, pane nav uses Ctrl-Alt + emacs keys (b/f/p/n)
-- `update-alternatives-llvm-toolchain.sh` - LLVM/Clang version management via update-alternatives
+- **OS detection**: `HOST_OS` from `uname` (`linux` / `darwin`). Linux is primary; Darwin is supported for cross-platform pieces only.
+- **Cached state**: `~/.config/jconfig/*.env` holds machine-local values (identity, build settings) — written by bootstrap, read by sync and by the live shell.
+- **Base venv**: `~/.venv/dev`, activated by `bash/.bashrc`. The `jconfig` Python package is installed editable into this venv and importable from any shell.
+- **Config deployment**: append-then-source. `scripts/utilities.sh::load_custom_config` injects a delimited include block at the top of `~/.bashrc`, `~/.gitconfig`, `~/.tmux.conf`. Repo files are not symlinked into `~` except powerline configs.

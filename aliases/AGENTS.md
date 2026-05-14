@@ -1,25 +1,12 @@
-# CLAUDE.md
+# aliases
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this directory.
+Shell aliases and functions, dispatched by `$HOST_OS`.
 
-## Overview
+`bash/.bashrc` sources `shared.sh` plus exactly one of `linux.sh` or `darwin.sh`.
 
-Shell aliases and functions, split by platform.
+## Notable functions in shared.sh
 
-## Files
-
-- `shared.sh` - Cross-platform aliases loaded on all systems
-- `linux.sh` - Linux-specific aliases (loaded when `HOST_OS=Linux`)
-- `darwin.sh` - macOS-specific aliases (loaded when `HOST_OS=Darwin`)
-
-## Loading
-
-The main `.bashrc` sources the appropriate files based on `HOST_OS` variable (set from `uname`).
-
-## Notable Functions in shared.sh
-
-- `cdl` - cd and ls
-- `cheat` - Query cht.sh cheat sheets
-- `venv-activate <name>` - Activate Python venv from `~/.venv/<name>`
-- `venv-deactivate` - Deactivate current venv
-- `git-brprune` - Prune local branches not tracking remote
+- `cdl` — cd and ls.
+- `cheat` — query cht.sh cheat sheets.
+- `venv-activate <name>` / `venv-deactivate` — activate/deactivate `~/.venv/<name>`.
+- `git-brprune` — prune local branches not tracking a remote.

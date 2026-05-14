@@ -1,34 +1,23 @@
-# CLAUDE.md
+# .emacs.d
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this directory.
+Emacs configuration in literate org-babel form. `init.org` tangles to `~/.emacs`.
 
-## Overview
-
-Emacs configuration using literate programming with org-babel. The main config is `init.org` which tangles to `~/.emacs`.
-
-## Tangling Process
+## Tangling
 
 To regenerate `~/.emacs` after editing `init.org`:
 1. Narrow to Bootstrap Process section: `C-x n s`
 2. Tangle: `C-c C-v t`
 
-The header property `#+PROPERTY: header-args:emacs-lisp :tangle ...` controls where code blocks are tangled.
-
-## Directory Structure
-
-- `languages/` - Language-specific configs, each file named `j-<lang>.el` and provides `'j-<lang>`
-- `packages/` - Package configurations, each file named `j-<pkg>.el` and provides `'j-<pkg>`
-- `tangles/` - Generated elisp from org-babel (gitignored)
-- `.emacs-custom.el` - Emacs customize output (gitignored)
+Tangle destinations are controlled by `#+PROPERTY: header-args:emacs-lisp :tangle ...` headers within `init.org`.
 
 ## Conventions
 
-All elisp modules use `j-` prefix and must end with `(provide 'j-<name>)`. They are loaded via `(require 'j-<name>)` in `languages.el`.
+- Modules under `languages/` and `packages/` are named `j-<name>.el` and end with `(provide 'j-<name>)`. Loaded via `(require 'j-<name>)` in `languages.el`.
+- Package configs use `use-package` with `:defer t` where appropriate.
+- `tangles/` and `.emacs-custom.el` are gitignored (build/customize output).
 
-Package configs use `use-package` with `:defer t` for lazy loading where appropriate.
+## Notable files
 
-## Key Files
-
-- `init.org` - Main config, sections: Bootstrap Process, Settings, Hooks, Keybindings, Packages
-- `j-dot-org.org` - Org-mode specific configuration (also literate style)
-- `languages.el` - Loads all language modules from `languages/`
+- `init.org` — main literate config. Top-level sections: Bootstrap Process, Settings, Hooks, Keybindings, Packages.
+- `j-dot-org.org` — org-mode-specific configuration, also literate.
+- `languages.el` — loads all `languages/` modules.

@@ -1,30 +1,13 @@
-# CLAUDE.md
+# scripts
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this directory.
+Runtime shell helpers — sourced or invoked by the live shell environment (`.bashrc`, tmux, prompt).
 
-## Overview
+## `load_custom_config()` in `utilities.sh`
 
-Shell utility scripts sourced by the main `.bashrc`.
+Used by `.toolchain/sync.sh` to inject a delimited include block at the top of `~/.bashrc`, `~/.gitconfig`, `~/.tmux.conf`. Parameters:
 
-## Key Functions
-
-### `load_custom_config()`
-Core deployment function used by `configure.sh`. Manages versioned config blocks with delimiter guards.
-
-Parameters:
 1. Custom config content string
 2. Target file path
-3. Comment prefix for the file type
+3. Comment prefix for the target file's syntax (e.g. `#`)
 
-Creates or updates a delimited section at the top of config files, preserving existing content below.
-
-### `mkcd()`
-Create directory and cd into it.
-
-### `is_interactive_shell()`
-Returns true if running in interactive bash session.
-
-## Files
-
-- `utilities.sh` - Core helper functions
-- `shell_prompt.sh` - Powerline-shell PROMPT_COMMAND setup
+Re-runs strip the previous delimited block before re-inserting, preserving content below it.
