@@ -9,3 +9,6 @@ git/.gitconfig.user
 .emacs-custom.el
 scripts/tmux_startup_body.sh
 .outside.json
+.agent-shell/
+docs/superpowers/
+.lean-ctx/
