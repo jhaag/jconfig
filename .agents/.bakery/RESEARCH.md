@@ -34,6 +34,8 @@ Roughly-ordered:
 - The active project `.pi` is selected by committed symlinks:
   - `.pi` -> `.agents/.tastiest_pi`
   - `.agents/.tastiest_pi` -> `.bakery/pies/kitchen_sink`
+- `.agents/.tastiest_pi` is the stable profile selector.
+- `.agents/.fresh_pi` is reserved as the experimental profile selector when needed.
 - The selected pie should contain declarative profile settings only.
 - Runtime state belongs under gitignored `.local/`.
   - `pi-total-recall` data lives at `.local/pi/total-recall`.
@@ -103,6 +105,7 @@ cf. for a collection of cool packages: https://github.com/ogulcancelik/pi-extens
 - [pi-mermaid](https://pi.dev/packages/pi-mermaid): inline ASCII rendering of mermaid diagrams
 - [pi-simplify](https://pi.dev/packages/pi-simplify): review diffs for clarity, consistency & maintainability
 - [pi-minimal-footer](https://pi.dev/packages/@ogulcancelik/pi-minimal-footer): replacement footer with model usage / subscription info
+- [pi-tmux](https://github.com/ogulcancelik/pi-extensions/tree/main/packages/pi-tmux): tmux pane management tool for long-running commands when Pi is running inside tmux
 
 ### Retired
 

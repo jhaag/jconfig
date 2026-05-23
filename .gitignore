@@ -12,3 +12,6 @@ scripts/tmux_startup_body.sh
 .agent-shell/
 docs/superpowers/
 .lean-ctx/
+.local/
+.agents/.bakery/pies/*/npm/
+.agents/.bakery/pies/*/git/
