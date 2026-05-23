@@ -3,9 +3,13 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    herdr = {
+      url = "github:ogulcancelik/herdr/v0.6.2";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, herdr }:
     let
       systems = [
         "x86_64-linux"
@@ -22,12 +26,16 @@
           });
     in
     {
-      packages = forAllSystems ({ pkgs, ... }:
+      packages = forAllSystems ({ pkgs, system }:
         let
-          jzp = pkgs.callPackage ./nix/packages/jzp.nix { };
+          herdrPackage = herdr.packages.${system}.herdr;
+          jzp = pkgs.callPackage ./nix/packages/jzp.nix {
+            herdr = herdrPackage;
+          };
         in
         {
           inherit jzp;
+          herdr = herdrPackage;
           default = jzp;
         });
 
@@ -57,6 +65,7 @@
       apps = forAllSystems ({ pkgs, system }:
         let
           configure = pkgs.callPackage ./nix/apps/configure.nix { };
+          herdrPackage = herdr.packages.${system}.herdr;
           installProfile = pkgs.callPackage ./nix/apps/install-profile.nix { };
           sync = pkgs.callPackage ./nix/apps/sync.nix { };
         in
@@ -81,9 +90,14 @@
             program = "${self.packages.${system}.jzp}/bin/jzp";
           };
 
+          herdr = {
+            type = "app";
+            program = "${herdrPackage}/bin/herdr";
+          };
+
           default = self.apps.${system}.jzp;
         });
 
-      formatter = forAllSystems ({ pkgs, ... }: pkgs.nixfmt-rfc-style);
+      formatter = forAllSystems ({ pkgs, ... }: pkgs.nixfmt);
     };
 }

@@ -1,8 +1,8 @@
-{ writeShellApplication, nix }:
+{ writeShellApplication, gnugrep, nix }:
 
 writeShellApplication {
   name = "jconfig-install-jzp-profile";
-  runtimeInputs = [ nix ];
+  runtimeInputs = [ gnugrep nix ];
   text = ''
     set -euo pipefail
 
@@ -16,7 +16,7 @@ writeShellApplication {
 
     if nix profile list | grep -Fq "$flake_ref"; then
       echo "jzp profile already installed from $flake_ref"
-      echo "To update it after changing jconfig, run: nix profile upgrade '.*jzp.*'"
+      echo "To sync Nix profile entries, run: jzp sync"
       exit 0
     fi
 
