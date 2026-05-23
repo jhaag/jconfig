@@ -33,6 +33,13 @@ if [[ -d "$HOME/.local/emacs/bin" ]]; then
 fi
 export PATH="$PATH:/usr/local/bin"
 
+# Hook direnv when available. direnv is optional for bootstrap: configure.sh
+# must work without it, and the jzp Nix profile is the preferred provider once
+# installed. A temporary OS package is only useful for trying direnv before jzp.
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook bash)"
+fi
+
 #=== Aliases ===================================================================
 source $JCONFIG_ROOT/aliases/$HOST_OS.sh
 source $JCONFIG_ROOT/aliases/shared.sh
