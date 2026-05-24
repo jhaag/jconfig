@@ -85,10 +85,11 @@
   autosetuprebase = always
 
 [core]
-  autocrlf   = input
-  editor     = emacs -nw
-  filemode   = false
-  whitespace = fix,space-before-tab,tab-in-indent,trailing-space
+  autocrlf     = input
+  editor       = emacs -nw
+  excludesfile = ~/jconfig/git/ignore
+  filemode     = false
+  whitespace   = fix,space-before-tab,tab-in-indent,trailing-space
 
 [diff]
   mnemonicprefix = true
