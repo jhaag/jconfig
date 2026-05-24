@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Non-interactive sync: applies repo state to the live system (dev venv, powerline,
-# bash/git/tmux include blocks, gitconfig.user, emacs build + systemd unit, crontabs).
+# Herdr config, bash/git/tmux include blocks, gitconfig.user, emacs build +
+# systemd unit, crontabs).
 # Reads cached identity written by bootstrap.sh; sources emacs_build.sh.
 
 : "${JCONFIG_ROOT:?must be set by configure.sh}"
@@ -55,6 +56,19 @@ fi
 [ -f ~/.powerline-shell-theme.py ] && [ ! -L ~/.powerline-shell-theme.py ] && rm ~/.powerline-shell-theme.py
 [ ! -e ~/.powerline-shell.json ] && ln -s "$JCONFIG_ROOT/powerline/.powerline-shell.json" ~/.powerline-shell.json
 [ ! -e ~/.powerline-shell-theme.py ] && ln -s "$JCONFIG_ROOT/powerline/.powerline-shell-theme.py" ~/.powerline-shell-theme.py
+
+#=== Herdr =====================================================================
+HERDR_CONFIG_DIR="$HOME/.config/herdr"
+HERDR_CONFIG_SRC="$JCONFIG_ROOT/herdr/config.toml"
+HERDR_CONFIG_DEST="$HERDR_CONFIG_DIR/config.toml"
+
+mkdir -p "$HERDR_CONFIG_DIR"
+
+if [[ ! -L "$HERDR_CONFIG_DEST" ]] || [[ "$(readlink "$HERDR_CONFIG_DEST")" != "$HERDR_CONFIG_SRC" ]]; then
+    [[ -e "$HERDR_CONFIG_DEST" || -L "$HERDR_CONFIG_DEST" ]] && rm "$HERDR_CONFIG_DEST"
+    ln -s "$HERDR_CONFIG_SRC" "$HERDR_CONFIG_DEST"
+    echo -e "Linked Herdr config.\n"
+fi
 
 #=== Bash ======================================================================
 read -r -d '' BASH_CONF <<EOF
