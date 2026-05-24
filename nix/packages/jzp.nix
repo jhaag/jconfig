@@ -1,9 +1,9 @@
-{ writeShellApplication, symlinkJoin, coreutils, direnv, herdr, nix }:
+{ writeShellApplication, symlinkJoin, coreutils, direnv, herdr, nix, tmux }:
 
 let
   jzpApp = writeShellApplication {
     name = "jzp";
-    runtimeInputs = [ coreutils direnv herdr nix ];
+    runtimeInputs = [ coreutils direnv herdr nix tmux ];
     text = ''
       set -euo pipefail
 
@@ -29,6 +29,7 @@ let
       Profile tools:
         direnv
         herdr
+        tmux
       EOF
           ;;
         *)
@@ -46,5 +47,6 @@ symlinkJoin {
     jzpApp
     direnv
     herdr
+    tmux
   ];
 }

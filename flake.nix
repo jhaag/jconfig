@@ -48,6 +48,7 @@
             nodejs_24
             python313
             ripgrep
+            tmux
             shellcheck
             uv
           ];
