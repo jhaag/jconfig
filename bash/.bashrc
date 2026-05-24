@@ -14,12 +14,13 @@ esac
 # setup the dircolors to work for solarized
 eval `dircolors ~/.dir_colors/dircolors`
 
-export JCONFIG_ROOT="$HOME/jconfig"
+export JASPAH_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+unset JCONFIG_ROOT JCONFIG_NAME JCONFIG_EMAIL
 export EDITOR="emacs -nw"
 
 # Load cached user identity (name/email set during configure.sh)
-if [[ -f "$HOME/.config/jconfig/user.env" ]]; then
-    source "$HOME/.config/jconfig/user.env"
+if [[ -f "$HOME/.config/jaspah/user.env" ]]; then
+    source "$HOME/.config/jaspah/user.env"
 fi
 
 # Activate dev venv if it exists (sets PATH and VIRTUAL_ENV)
@@ -41,13 +42,13 @@ if command -v direnv >/dev/null 2>&1; then
 fi
 
 #=== Aliases ===================================================================
-source $JCONFIG_ROOT/aliases/$HOST_OS.sh
-source $JCONFIG_ROOT/aliases/shared.sh
+source $JASPAH_ROOT/aliases/$HOST_OS.sh
+source $JASPAH_ROOT/aliases/shared.sh
 
 #=== External Sources ==========================================================
-source $JCONFIG_ROOT/scripts/shell_prompt.sh
-source $JCONFIG_ROOT/scripts/utilities.sh
-source $JCONFIG_ROOT/bash/.git-completion.bash
+source $JASPAH_ROOT/scripts/shell_prompt.sh
+source $JASPAH_ROOT/scripts/utilities.sh
+source $JASPAH_ROOT/bash/.git-completion.bash
 
 #=== Fixes =====================================================================
 if is_interactive_shell; then
@@ -62,6 +63,6 @@ export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT="[%F %T] "
 # Change the file location because certain bash sessions truncate .bash_history
 # file upon close.
-export HISTFILE=$JCONFIG_ROOT/.bash_eternal_history
+export HISTFILE=$JASPAH_ROOT/.bash_eternal_history
 # Force prompt to write history after every command (as the final step).
 PROMPT_COMMAND="$PROMPT_COMMAND; history -a"

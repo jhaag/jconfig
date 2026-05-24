@@ -13,18 +13,18 @@ let
           nix profile upgrade --all
           ;;
         --version|-v)
-          echo "jzp: jconfig Nix profile marker"
+          echo "jzp: jaspah Nix profile marker"
           ;;
         help|-h|--help)
           cat <<'EOF'
-      jzp: jconfig Nix profile marker
+      jzp: jaspah Nix profile marker
 
       Usage:
         jzp sync     Upgrade Nix profile entries
         jzp help     Show this help
 
       Install system-wide user profile with:
-        nix run /home/jhaag/jconfig#install-jzp-profile
+        nix run /home/jhaag/jaspah#install-jzp-profile
 
       Profile tools:
         direnv

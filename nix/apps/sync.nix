@@ -1,31 +1,31 @@
 { writeShellApplication, bash }:
 
 writeShellApplication {
-  name = "jconfig-sync";
+  name = "jaspah-sync";
   runtimeInputs = [ bash ];
   text = ''
     set -euo pipefail
 
     if [[ "''${1:-}" == "--help" || "''${1:-}" == "-h" ]]; then
       cat <<'EOF'
-    jconfig-sync: run jconfig's .toolchain/sync.sh through a Nix app wrapper
+    jaspah-sync: run jaspah's .toolchain/sync.sh through a Nix app wrapper
 
     Usage:
       nix run .#sync
-      JCONFIG_ROOT=/path/to/jconfig nix run .#sync
+      JASPAH_ROOT=/path/to/jaspah nix run .#sync
 
-    The wrapper resolves JCONFIG_ROOT from $JCONFIG_ROOT or $PWD.
+    The wrapper resolves JASPAH_ROOT from $JASPAH_ROOT or $PWD.
     EOF
       exit 0
     fi
 
-    root="''${JCONFIG_ROOT:-$PWD}"
+    root="''${JASPAH_ROOT:-$PWD}"
     if [[ ! -x "$root/.toolchain/sync.sh" ]]; then
-      echo "jconfig-sync: run from jconfig root or set JCONFIG_ROOT" >&2
+      echo "jaspah-sync: run from jaspah root or set JASPAH_ROOT" >&2
       exit 1
     fi
 
-    export JCONFIG_ROOT="$root"
+    export JASPAH_ROOT="$root"
     exec "$root/.toolchain/sync.sh" "$@"
   '';
 }

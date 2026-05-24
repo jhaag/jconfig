@@ -1,5 +1,5 @@
 {
-  description = "jconfig reproducible tool and shell entrypoints";
+  description = "jaspah reproducible tool and shell entrypoints";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -54,7 +54,7 @@
           ];
 
           shellHook = ''
-            echo "jconfig nix dev shell"
+            echo "jaspah nix dev shell"
             echo "  node:   $(node --version 2>/dev/null || true)"
             echo "  npm:    $(npm --version 2>/dev/null || true)"
             echo "  python: $(python --version 2>/dev/null || true)"
@@ -73,17 +73,17 @@
         {
           configure = {
             type = "app";
-            program = "${configure}/bin/jconfig-configure";
+            program = "${configure}/bin/jaspah-configure";
           };
 
           install-jzp-profile = {
             type = "app";
-            program = "${installProfile}/bin/jconfig-install-jzp-profile";
+            program = "${installProfile}/bin/jaspah-install-jzp-profile";
           };
 
           sync = {
             type = "app";
-            program = "${sync}/bin/jconfig-sync";
+            program = "${sync}/bin/jaspah-sync";
           };
 
           jzp = {

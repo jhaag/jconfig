@@ -1,14 +1,14 @@
 { writeShellApplication, gnugrep, nix }:
 
 writeShellApplication {
-  name = "jconfig-install-jzp-profile";
+  name = "jaspah-install-jzp-profile";
   runtimeInputs = [ gnugrep nix ];
   text = ''
     set -euo pipefail
 
-    root="''${JCONFIG_ROOT:-$PWD}"
+    root="''${JASPAH_ROOT:-$PWD}"
     if [[ ! -f "$root/flake.nix" ]]; then
-      echo "jconfig-install-jzp-profile: run from jconfig root or set JCONFIG_ROOT" >&2
+      echo "jaspah-install-jzp-profile: run from jaspah root or set JASPAH_ROOT" >&2
       exit 1
     fi
 
@@ -21,6 +21,6 @@ writeShellApplication {
     fi
 
     echo "Installing jzp profile from $flake_ref"
-    nix profile install "$flake_ref"
+    nix profile add "$flake_ref"
   '';
 }

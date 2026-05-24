@@ -1,4 +1,4 @@
-#+PROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/") (file-name-base) ".el")
+#+PROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jaspah/.emacs.d/tangles/") (file-name-base) ".el")
 #+PROPERTY: header-args :mkdirp yes :comments no
 #+STARTUP: indent overview
 
@@ -61,11 +61,11 @@ Originally, I was planning on tangling this (and other) .org configs, and then l
 Below, I document the contents of this init.el file. In order to tangle this file,  ~C-x n s~ [[Bootstrap Process]], and then use ~C-c C-v t~ in order to tangle it into init.el.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-;;; jbootstrap --- Efficiently/lazily autotangle & load ~/jconfig/init.org. -*- lexical-binding: t -*-
+;;; jbootstrap --- Efficiently/lazily autotangle & load ~/jaspah/init.org. -*- lexical-binding: t -*-
 ;;; Commentary:
 ;;;   This is an auto-generated file, so PLEASE DON'T TOUCH ANYTHING!
 ;;;   If you want to make changes to the bootstrapping code, open
-;;;   ~/jconfig/.emacs.d/init.org, C-x n s on [[Bootstrap Process]],
+;;;   ~/jaspah/.emacs.d/init.org, C-x n s on [[Bootstrap Process]],
 ;;;   and then C-c C-v t to tangle the bootstrapping code into ~/.emacs
 
 ;;; Code:
@@ -232,7 +232,7 @@ alongside the org file."
 With the rest of the setup done, it is quite easy to load the rest of the configuration.
 
 #+BEGIN_SRC emacs-lisp :tangle (expand-file-name "~/.emacs")
-(j/config/load-conf-dot-org "~/jconfig/.emacs.d/init.org")
+(j/config/load-conf-dot-org "~/jaspah/.emacs.d/init.org")
 #+END_SRC
 
 * Customized Variables
@@ -241,11 +241,11 @@ With the rest of the setup done, it is quite easy to load the rest of the config
 Emacs has its own [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Easy-Customization.html#Easy-Customization][customization mechanism]] for easily customizing many parameters. To make it easier to manage, I keep the customized variables and faces in a separate file and load it from the main file. A lot of my custom settings are configured from this init file as well, but there are always some which I change by hand for added flexibility.
 
 #+BEGIN_SRC emacs-lisp
-(setq custom-file "~/jconfig/.emacs.d/.emacs-custom.el")
+(setq custom-file "~/jaspah/.emacs.d/.emacs-custom.el")
 (load custom-file)
 #+END_SRC
 
-#+INCLUDE: "~/jconfig/.emacs.d/.emacs-custom.el" src emacs-lisp
+#+INCLUDE: "~/jaspah/.emacs.d/.emacs-custom.el" src emacs-lisp
 
 * Utilities
 
@@ -405,7 +405,7 @@ I have a variety of hooks that I want to register, so that everything works smoo
 
 ** Config Auto-tangle & Daemon Restart
 
-When saving any ~.org~ file inside ~~/jconfig/.emacs.d/~, tangle it so the
+When saving any ~.org~ file inside ~~/jaspah/.emacs.d/~, tangle it so the
 output in ~tangles/~ stays current.  In daemon mode, also save all open
 buffers and restart the daemon via systemd — the shell wrapper's reconnect
 loop re-attaches any open emacsclient frames.  Non-daemon Emacs just tangles;
@@ -413,12 +413,12 @@ the next fresh launch picks up the new output via ~j/config/load-conf-dot-org~.
 
   #+BEGIN_SRC emacs-lisp
 (defun j/config/auto-tangle-and-restart ()
-  "Tangle current file if it is a .org config in jconfig/.emacs.d/.
+  "Tangle current file if it is a .org config in jaspah/.emacs.d/.
 In daemon mode, save all buffers and restart the daemon via systemd."
   (when (and buffer-file-name
              (string-suffix-p ".org" buffer-file-name)
              (file-in-directory-p buffer-file-name
-                                  (expand-file-name "~/jconfig/.emacs.d/")))
+                                  (expand-file-name "~/jaspah/.emacs.d/")))
     (org-babel-tangle)
     (when (daemonp)
       ;; Save everything before systemd kills us — including scratch buffers
@@ -516,7 +516,7 @@ already-installed skills."
 *** Test
 :PROPERTIES:
 :VISIBILITY: folded
-:header-args:emacs-lisp: :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/tests/") (file-name-base) "-test.el")
+:header-args:emacs-lisp: :tangle (concat (expand-file-name "~/jaspah/.emacs.d/tangles/tests/") (file-name-base) "-test.el")
 :END:
 
 #+BEGIN_SRC emacs-lisp
@@ -1129,7 +1129,7 @@ While ~org-mode~ isn't necessarily a programming language, I consider it as such
 Since my org-mode configuration is so large, I've split it off into a separate file (inspired by jwiegley's configuration). I use the following code to load my org-mode configuration, and set up some default bindings. If my org config isn't present, I simply skip loading org-mode.
 
 #+BEGIN_SRC emacs-lisp
-(j/config/load-conf-dot-org "~/jconfig/.emacs.d/j-dot-org.org")
+(j/config/load-conf-dot-org "~/jaspah/.emacs.d/j-dot-org.org")
 #+END_SRC
 
 *** python

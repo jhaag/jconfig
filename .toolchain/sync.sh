@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # Non-interactive sync: applies repo state to the live system (dev venv, powerline,
-# Herdr config, bash/git/tmux include blocks, gitconfig.user, emacs build +
-# systemd unit, crontabs).
-# Reads cached identity written by bootstrap.sh; sources emacs_build.sh.
+# Herdr config, bash/git/tmux include blocks, gitconfig.user, crontabs).
+# Reads cached identity written by bootstrap.sh.
 
-: "${JCONFIG_ROOT:?must be set by configure.sh}"
+: "${JASPAH_ROOT:?must be set by configure.sh}"
 
 unameOut="$(uname -s)"
 case "${unameOut}" in
@@ -13,18 +12,18 @@ case "${unameOut}" in
     *)          HOST_OS="UNKNOWN:${unameOut}" ;;
 esac
 
-source "$JCONFIG_ROOT/scripts/utilities.sh"
+source "$JASPAH_ROOT/scripts/utilities.sh"
 
 # Load cached identity (written by bootstrap.sh)
-JCONFIG_USER_ENV="$HOME/.config/jconfig/user.env"
-[[ -f "$JCONFIG_USER_ENV" ]] && source "$JCONFIG_USER_ENV"
+JASPAH_USER_ENV="$HOME/.config/jaspah/user.env"
+[[ -f "$JASPAH_USER_ENV" ]] && source "$JASPAH_USER_ENV"
 
 #=== Dev Venv ==================================================================
 DEV_VENV="$HOME/.venv/dev"
 mkdir -p "$HOME/.venv"
 
 echo -e "Syncing dev venv at $DEV_VENV...\n"
-UV_PROJECT_ENVIRONMENT="$DEV_VENV" uv sync --project "$JCONFIG_ROOT"
+UV_PROJECT_ENVIRONMENT="$DEV_VENV" uv sync --project "$JASPAH_ROOT"
 
 #=== Powerline Shell ===========================================================
 # Install as a uv tool (not into the project venv) so its deps stay isolated.
@@ -39,27 +38,39 @@ POWERLINE_SEGMENTS_DIR=$(find $(find $(uv tool dir) -name "*powerline*") -name "
 OPAM_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/opam_switch.py"
 OUTSIDE_SEGMENT_LINK="$POWERLINE_SEGMENTS_DIR/outside.py"
 
-if [[ ! -L "$OPAM_SEGMENT_LINK" ]] || [[ "$(readlink "$OPAM_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline/powerline_opam_switch.py" ]]; then
+if [[ ! -L "$OPAM_SEGMENT_LINK" ]] || [[ "$(readlink "$OPAM_SEGMENT_LINK")" != "$JASPAH_ROOT/powerline/powerline_opam_switch.py" ]]; then
     [[ -e "$OPAM_SEGMENT_LINK" || -L "$OPAM_SEGMENT_LINK" ]] && rm "$OPAM_SEGMENT_LINK"
-    ln -s "$JCONFIG_ROOT/powerline/powerline_opam_switch.py" "$OPAM_SEGMENT_LINK"
+    ln -s "$JASPAH_ROOT/powerline/powerline_opam_switch.py" "$OPAM_SEGMENT_LINK"
     echo -e "Linked custom opam_switch segment.\n"
 fi
 
-if [[ ! -L "$OUTSIDE_SEGMENT_LINK" ]] || [[ "$(readlink "$OUTSIDE_SEGMENT_LINK")" != "$JCONFIG_ROOT/powerline/powerline_outside.py" ]]; then
+if [[ ! -L "$OUTSIDE_SEGMENT_LINK" ]] || [[ "$(readlink "$OUTSIDE_SEGMENT_LINK")" != "$JASPAH_ROOT/powerline/powerline_outside.py" ]]; then
     [[ -e "$OUTSIDE_SEGMENT_LINK" || -L "$OUTSIDE_SEGMENT_LINK" ]] && rm "$OUTSIDE_SEGMENT_LINK"
-    ln -s "$JCONFIG_ROOT/powerline/powerline_outside.py" "$OUTSIDE_SEGMENT_LINK"
+    ln -s "$JASPAH_ROOT/powerline/powerline_outside.py" "$OUTSIDE_SEGMENT_LINK"
     echo -e "Linked custom outside segment.\n"
 fi
 
-# Remove old non-symlink files if they exist, then symlink config and theme
-[ -f ~/.powerline-shell.json ] && [ ! -L ~/.powerline-shell.json ] && rm ~/.powerline-shell.json
-[ -f ~/.powerline-shell-theme.py ] && [ ! -L ~/.powerline-shell-theme.py ] && rm ~/.powerline-shell-theme.py
-[ ! -e ~/.powerline-shell.json ] && ln -s "$JCONFIG_ROOT/powerline/.powerline-shell.json" ~/.powerline-shell.json
-[ ! -e ~/.powerline-shell-theme.py ] && ln -s "$JCONFIG_ROOT/powerline/.powerline-shell-theme.py" ~/.powerline-shell-theme.py
+# Symlink config and theme, replacing stale/broken links from previous repo paths.
+POWERLINE_CONFIG_SRC="$JASPAH_ROOT/powerline/.powerline-shell.json"
+POWERLINE_CONFIG_DEST="$HOME/.powerline-shell.json"
+POWERLINE_THEME_SRC="$JASPAH_ROOT/powerline/.powerline-shell-theme.py"
+POWERLINE_THEME_DEST="$HOME/.powerline-shell-theme.py"
+
+if [[ ! -L "$POWERLINE_CONFIG_DEST" ]] || [[ "$(readlink "$POWERLINE_CONFIG_DEST")" != "$POWERLINE_CONFIG_SRC" ]]; then
+    [[ -e "$POWERLINE_CONFIG_DEST" || -L "$POWERLINE_CONFIG_DEST" ]] && rm "$POWERLINE_CONFIG_DEST"
+    ln -s "$POWERLINE_CONFIG_SRC" "$POWERLINE_CONFIG_DEST"
+    echo -e "Linked powerline-shell config.\n"
+fi
+
+if [[ ! -L "$POWERLINE_THEME_DEST" ]] || [[ "$(readlink "$POWERLINE_THEME_DEST")" != "$POWERLINE_THEME_SRC" ]]; then
+    [[ -e "$POWERLINE_THEME_DEST" || -L "$POWERLINE_THEME_DEST" ]] && rm "$POWERLINE_THEME_DEST"
+    ln -s "$POWERLINE_THEME_SRC" "$POWERLINE_THEME_DEST"
+    echo -e "Linked powerline-shell theme.\n"
+fi
 
 #=== Herdr =====================================================================
 HERDR_CONFIG_DIR="$HOME/.config/herdr"
-HERDR_CONFIG_SRC="$JCONFIG_ROOT/herdr/config.toml"
+HERDR_CONFIG_SRC="$JASPAH_ROOT/herdr/config.toml"
 HERDR_CONFIG_DEST="$HERDR_CONFIG_DIR/config.toml"
 
 mkdir -p "$HERDR_CONFIG_DIR"
@@ -75,7 +86,7 @@ read -r -d '' BASH_CONF <<EOF
 #=== Custom global configurations ==============================================
 
 #=== Hook for pulling in my dotfiles ===========================================
-source $JCONFIG_ROOT/bash/.bashrc
+source $JASPAH_ROOT/bash/.bashrc
 EOF
 
 load_custom_config "$BASH_CONF" ~/.bashrc "#"
@@ -86,16 +97,16 @@ read -r -d '' GIT_CONF <<EOF
 
 #=== Hook for pulling in my dotfiles ===========================================
 [include]
-  path = $JCONFIG_ROOT/git/.gitconfig
+  path = $JASPAH_ROOT/git/.gitconfig
 EOF
 
 load_custom_config "$GIT_CONF" ~/.gitconfig "#"
 
 # Always regenerate .gitconfig.user from cached identity
-cat <<EOF > "$JCONFIG_ROOT/git/.gitconfig.user"
+cat <<EOF > "$JASPAH_ROOT/git/.gitconfig.user"
 [user]
-        name = $JCONFIG_NAME
-        email = $JCONFIG_EMAIL
+        name = $JASPAH_NAME
+        email = $JASPAH_EMAIL
 EOF
 
 #=== Tmux ======================================================================
@@ -103,36 +114,13 @@ read -r -d '' TMUX_CONF <<EOF
 #=== Custom global configurations ==============================================
 
 #=== Hook for pulling in my configurations =====================================
-source-file $JCONFIG_ROOT/tmux/.tmux.conf
+source-file $JASPAH_ROOT/tmux/.tmux.conf
 EOF
 
 load_custom_config "$TMUX_CONF" ~/.tmux.conf "#"
 
-#=== Emacs =====================================================================
-source "$JCONFIG_ROOT/.toolchain/emacs_build.sh"
-
-# Ensure systemd service symlink exists BEFORE build, so emacs_update_systemd_service
-# can daemon-reload/enable/start the service after a build completes.
-if [ "$HOST_OS" == "linux" ]; then
-    SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
-    EMACS_SERVICE_SRC="$JCONFIG_ROOT/systemd/emacs.service"
-    EMACS_SERVICE_DEST="$SYSTEMD_USER_DIR/emacs.service"
-
-    mkdir -p "$SYSTEMD_USER_DIR"
-
-    if [[ ! -L "$EMACS_SERVICE_DEST" ]] || [[ "$(readlink "$EMACS_SERVICE_DEST")" != "$EMACS_SERVICE_SRC" ]]; then
-        [[ -e "$EMACS_SERVICE_DEST" || -L "$EMACS_SERVICE_DEST" ]] && rm "$EMACS_SERVICE_DEST"
-        ln -s "$EMACS_SERVICE_SRC" "$EMACS_SERVICE_DEST"
-        echo -e "Linked emacs systemd user service.\n"
-    fi
-
-    systemctl --user daemon-reload
-fi
-
-emacs_build_main
-
 #=== Cron Jobs =================================================================
-CRON_DIR="$JCONFIG_ROOT/cron"
+CRON_DIR="$JASPAH_ROOT/cron"
 
 if [[ -d "$CRON_DIR" ]]; then
     CURRENT_CRONTAB=$(crontab -l 2>/dev/null || true)
@@ -144,7 +132,7 @@ if [[ -d "$CRON_DIR" ]]; then
 
         cron_name=$(basename "$cron_file")
         cron_content=$(cat "$cron_file")
-        cron_marker="# jconfig:$cron_name"
+        cron_marker="# jaspah:$cron_name"
         cron_entry="${cron_content} ${cron_marker}"
 
         if echo "$UPDATED_CRONTAB" | grep -qF "$cron_marker"; then
@@ -162,6 +150,17 @@ if [[ -d "$CRON_DIR" ]]; then
             CHANGED=true
         fi
     done
+
+    while IFS= read -r cron_line; do
+        if [[ "$cron_line" =~ \#\ jaspah:([^[:space:]]+) ]]; then
+            cron_name="${BASH_REMATCH[1]}"
+            if [[ ! -f "$CRON_DIR/$cron_name" ]]; then
+                echo -e "Removing stale cron entry: $cron_name\n"
+                UPDATED_CRONTAB=$(echo "$UPDATED_CRONTAB" | grep -vF "$cron_line")
+                CHANGED=true
+            fi
+        fi
+    done <<< "$UPDATED_CRONTAB"
 
     if [[ "$CHANGED" == true ]]; then
         echo "$UPDATED_CRONTAB" | crontab -

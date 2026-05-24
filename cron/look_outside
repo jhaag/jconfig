@@ -1,1 +1,1 @@
-*/5 * * * * $HOME/jconfig/scripts/look_outside.sh $HOME/jconfig/.outside.json
+*/5 * * * * $HOME/jaspah/scripts/look_outside.sh $HOME/jaspah/.outside.json

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Interactive one-time prereqs: uv, Solarized terminal theme (Linux), user identity
-# cached to ~/.config/jconfig/user.env. Each block self-gates; re-runs are a no-op
+# cached to ~/.config/jaspah/user.env. Each block self-gates; re-runs are a no-op
 # on a configured machine.
 
-: "${JCONFIG_ROOT:?must be set by configure.sh}"
+: "${JASPAH_ROOT:?must be set by configure.sh}"
 
 unameOut="$(uname -s)"
 case "${unameOut}" in
@@ -35,27 +35,27 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 
 #--- User Identity -------------------------------------------------------------
-JCONFIG_USER_ENV="$HOME/.config/jconfig/user.env"
+JASPAH_USER_ENV="$HOME/.config/jaspah/user.env"
 
-if [[ -f "$JCONFIG_USER_ENV" ]]; then
-    source "$JCONFIG_USER_ENV"
+if [[ -f "$JASPAH_USER_ENV" ]]; then
+    source "$JASPAH_USER_ENV"
 fi
 
 prompted=false
-if [[ -z "$JCONFIG_NAME" ]]; then
-    read -r -p "Enter your full name: " JCONFIG_NAME
+if [[ -z "$JASPAH_NAME" ]]; then
+    read -r -p "Enter your full name: " JASPAH_NAME
     prompted=true
 fi
-if [[ -z "$JCONFIG_EMAIL" ]]; then
-    read -r -p "Enter your email address: " JCONFIG_EMAIL
+if [[ -z "$JASPAH_EMAIL" ]]; then
+    read -r -p "Enter your email address: " JASPAH_EMAIL
     prompted=true
 fi
 
 if [[ "$prompted" == "true" ]]; then
-    mkdir -p "$(dirname "$JCONFIG_USER_ENV")"
-    cat > "$JCONFIG_USER_ENV" <<EOF
-export JCONFIG_NAME="$JCONFIG_NAME"
-export JCONFIG_EMAIL="$JCONFIG_EMAIL"
+    mkdir -p "$(dirname "$JASPAH_USER_ENV")"
+    cat > "$JASPAH_USER_ENV" <<EOF
+export JASPAH_NAME="$JASPAH_NAME"
+export JASPAH_EMAIL="$JASPAH_EMAIL"
 EOF
-    echo -e "User identity cached at $JCONFIG_USER_ENV\n"
+    echo -e "User identity cached at $JASPAH_USER_ENV\n"
 fi

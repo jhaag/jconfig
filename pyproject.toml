@@ -1,5 +1,5 @@
 [project]
-name = "jconfig"
+name = "jaspah"
 version = "0"
 requires-python = ">=3.14"
 

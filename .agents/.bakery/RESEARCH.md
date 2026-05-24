@@ -41,9 +41,9 @@ Roughly-ordered:
   - `pi-total-recall` data lives at `.local/pi/total-recall`.
   - Memory/session databases, indexes, caches, credentials, and host identity must not live under `pies/` or `packages/`.
 
-## `jconfig` package direction
+## `jaspah` package direction
 
-`jconfig` should be a local integration package/catalog for pi and this repo.
+`jaspah` should be a local integration package/catalog for pi and this repo.
 
 - Prefer consuming upstream keybindings, themes, prompts, skills, and UI/UX resources.
 - Add local glue/functionality where upstream resources do not cover the intended workflow.
@@ -54,7 +54,7 @@ Roughly-ordered:
 Initial likely shape:
 
 ```text
-.agents/.bakery/packages/jconfig/
+.agents/.bakery/packages/jaspah/
   package.json
   README.md
   prompts/
@@ -79,7 +79,7 @@ This package should start thin. Existing shell, tmux, Emacs, powerline, and git 
 
 - Whether package ownership should be Nix-first, `nvm`/npm-first, or hybrid.
 - Whether each pie should own its own `package.json`/`package-lock.json`, or share one package set.
-- Whether `jconfig` should be installed globally, per-pie, or exposed through a Nix/devShell activation path.
+- Whether `jaspah` should be installed globally, per-pie, or exposed through a Nix/devShell activation path.
 - Which upstream packages should provide the canonical keybindings/themes/UI resources.
 - Which pie profiles should be committed beyond `kitchen_sink`.
 

@@ -1,4 +1,4 @@
-## `jconfig/.agents/.bakery`
+## `jaspah/.agents/.bakery`
 
 Research & Development area for `pi`, tailored to my personal needs (cf. [`RESEARCH.md`](./RESEARCH.md)).
 

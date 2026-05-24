@@ -6,10 +6,10 @@ These rules govern `flake.nix`, `flake.lock`, `nix/`, Nix-backed shell integrati
 
 Use Nix as the reproducible toolchain and packaging layer.
 
-Keep `jconfig` responsible for live user configuration:
+Keep `jaspah` responsible for live user configuration:
 
 - bash, git, tmux, and Emacs settings
-- cached host identity under `~/.config/jconfig/`
+- cached host identity under `~/.config/jaspah/`
 - append-then-source dotfile deployment
 - project language environments managed by their native tools
 
@@ -31,7 +31,7 @@ Prefer the narrowest owner.
 
 - Use a dev shell for tools needed by one repository.
 - Use a profile package for tools used across normal shells.
-- Use Home Manager for user files only when `jconfig` does not own the same file.
+- Use Home Manager for user files only when `jaspah` does not own the same file.
 - Use NixOS modules for machine state only on NixOS hosts.
 - Use bootstrap scripts for pre-Nix setup and host discovery.
 
