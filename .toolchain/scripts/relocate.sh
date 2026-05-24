@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Relocate a pre-rename checkout and live system state to the current jaspah layout.
+# Relocate this checkout and live system state to a requested jaspah layout.
 #
 # Usage:
 #   .toolchain/scripts/relocate.sh [new-local-clone-name] [--origin <git-url>]
@@ -122,7 +122,7 @@ if [[ -f "$HOME/.emacs" ]]; then
     mv "$tmp_emacs" "$HOME/.emacs"
 fi
 
-# Migrate the old machine-local identity cache. This one-time relocation script is
+# Copy the old machine-local identity cache. This one-time relocation script is
 # the only place that knows about the previous jconfig namespace.
 old_config_dir="$HOME/.config/jconfig"
 new_config_dir="$HOME/.config/jaspah"
@@ -137,7 +137,7 @@ if [[ -f "$old_user_env" && ! -f "$new_user_env" ]]; then
 export JASPAH_NAME="${JASPAH_NAME:-${JCONFIG_NAME:-}}"
 export JASPAH_EMAIL="${JASPAH_EMAIL:-${JCONFIG_EMAIL:-}}"
 EOF
-    echo "Migrated user identity cache: $old_user_env -> $new_user_env"
+    echo "Copied user identity cache: $old_user_env -> $new_user_env"
 fi
 
 if [[ -d "$old_config_dir" ]]; then
@@ -160,7 +160,8 @@ if command -v crontab >/dev/null 2>&1; then
     current_crontab="$(crontab -l 2>/dev/null || true)"
     if grep -qF '# jconfig:' <<< "$current_crontab"; then
         echo "Removing old jconfig-managed cron entries"
-        grep -vF '# jconfig:' <<< "$current_crontab" | crontab -
+        filtered_crontab="$(grep -vF '# jconfig:' <<< "$current_crontab" || true)"
+        printf '%s\n' "$filtered_crontab" | crontab -
     fi
 fi
 
