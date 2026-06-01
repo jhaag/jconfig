@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     herdr = {
-      url = "github:ogulcancelik/herdr/v0.6.2";
+      url = "github:ogulcancelik/herdr/v0.6.6";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
