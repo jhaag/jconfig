@@ -1,15 +1,36 @@
+# jaspah: a self-contained uv workspace for this dotfiles repo's automation.
+#
+# The workspace root is itself the primary `jaspah` package (tmux orchestration,
+# scratch-pane computation, agent helpers); related packages live as members under
+# packages/<name>/. It builds, tests, and type-checks on its own (no outer
+# workspace required), and is consumable by other uv workspaces two ways:
+#   - directly:        depend on `jaspah` via a path/git source to this repo root
+#   - per nested pkg:   depend on a packages/<name> member independently
+# `uv sync --all-packages --inexact` installs every member editable into the base
+# venv (~/.venv/dev) without pruning deps owned by other repos sharing that venv.
+
 [project]
 name = "jaspah"
 version = "0"
+description = "Personal automation toolkit: tmux session orchestration, scratch-pane computation, agent helpers."
 requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.11.0,<0.12.0"]
+build-backend = "uv_build"
+
+[project.scripts]
+jaspah = "jaspah.cli:main"
 
 [tool.uv.workspace]
-members = []
+members = ["packages/*"]
 
 [dependency-groups]
 dev = [
     "ruff",
     "basedpyright",
+    "pytest",
 ]
 
 [tool.ruff]
@@ -18,5 +39,10 @@ extend-exclude = ["powerline"]
 
 [tool.basedpyright]
 pythonVersion = "3.13"
+typeCheckingMode = "standard"
+include = ["src", "packages", "tmux", "tests"]
+exclude = ["powerline", "**/.venv", "**/node_modules", "**/__pycache__", "**/build", "**/dist"]
 # Venv is resolved from $VIRTUAL_ENV at runtime (bashrc activates ~/.venv/dev).
-# Editor integrations may need their own pythonPath setting.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -206,7 +206,11 @@ def split_fields(line: str, count: int) -> list[str]:
 def get_context(session: str | None, window: str | None) -> Context:
     target = window or session or ""
     fmt = "#{session_id}\t#{session_name}\t#{window_id}\t#{window_width}\t#{host}\t#{host_short}"
-    args = ["display-message", "-p", fmt] if not target else ["display-message", "-t", target, "-p", fmt]
+    args = (
+        ["display-message", "-p", fmt]
+        if not target
+        else ["display-message", "-t", target, "-p", fmt]
+    )
     fields = split_fields(tmux(*args), 6)
     return Context(
         session_id=fields[0],
@@ -317,7 +321,9 @@ def window_rows_needed(segments: list[str], available_width: int, max_rows: int)
     return min(choose_groups(total, available_width, max_rows), len(segments), max_rows)
 
 
-def split_window_rows(segments: list[str], available_width: int, n_rows: int) -> list[str]:
+def split_window_rows(
+    segments: list[str], available_width: int, n_rows: int
+) -> list[str]:
     """Lay window segments into exactly `n_rows` cells.
 
     Segments pack into the fewest rows that fit the width, then centre
@@ -463,7 +469,10 @@ def build_rows(ctx: Context) -> list[str]:
     info_cells = (info + [""] * content_rows)[:content_rows]
     win_cells = split_window_rows(segments, layout.window_width, content_rows)
 
-    rows = [status_row(left, right, layout) for left, right in zip(info_cells, win_cells, strict=True)]
+    rows = [
+        status_row(left, right, layout)
+        for left, right in zip(info_cells, win_cells, strict=True)
+    ]
     rows.append(separator_row(ctx))
     return rows
 
@@ -478,7 +487,17 @@ def apply_status(ctx: Context) -> None:
     for idx, row in enumerate(rows):
         if idx == 0:
             row = row + DRIVER
-        commands.extend([";", "set-option", "-t", ctx.session_id, "-q", f"status-format[{idx}]", row])
+        commands.extend(
+            [
+                ";",
+                "set-option",
+                "-t",
+                ctx.session_id,
+                "-q",
+                f"status-format[{idx}]",
+                row,
+            ]
+        )
     tmux(*commands)
 
 

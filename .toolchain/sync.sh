@@ -23,7 +23,14 @@ DEV_VENV="$HOME/.venv/dev"
 mkdir -p "$HOME/.venv"
 
 echo -e "Syncing dev venv at $DEV_VENV...\n"
-UV_PROJECT_ENVIRONMENT="$DEV_VENV" uv sync --project "$JASPAH_ROOT"
+# --all-packages installs the jaspah workspace root + every packages/* member
+# editable; --inexact leaves deps owned by other repos sharing this venv intact.
+UV_PROJECT_ENVIRONMENT="$DEV_VENV" uv sync --all-packages --inexact --project "$JASPAH_ROOT"
+
+#=== Git Hooks (repo-scoped) ===================================================
+# Route this repo's hooks at the committed git/hooks/ dir so the Python quality
+# gate (ruff + basedpyright) runs on every commit, regardless of the agent/harness.
+git -C "$JASPAH_ROOT" config --local core.hooksPath "$JASPAH_ROOT/git/hooks"
 
 #=== Powerline Shell ===========================================================
 # Install as a uv tool (not into the project venv) so its deps stay isolated.

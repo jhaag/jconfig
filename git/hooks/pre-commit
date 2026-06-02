@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Repo-scoped pre-commit gate, activated via core.hooksPath (set by
+# .toolchain/sync.sh). Harness-agnostic: any commit — by a human, Claude, codex,
+# or pi — must pass the canonical Python quality gate on its staged *.py files.
+set -uo pipefail
+
+root=$(git rev-parse --show-toplevel)
+mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACM -- '*.py')
+[[ ${#staged[@]} -eq 0 ]] && exit 0
+
+exec "$root/scripts/py-quality.sh" "${staged[@]}"
