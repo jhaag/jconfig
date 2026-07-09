@@ -1,4 +1,4 @@
-{ writeShellApplication, symlinkJoin, lib, stdenv, coreutils, direnv, herdr, nix, tmux, xclip }:
+{ writeShellApplication, symlinkJoin, lib, stdenv, coreutils, direnv, gh, herdr, nix, tmux, xclip }:
 
 let
   jzpApp = writeShellApplication {
@@ -28,6 +28,7 @@ let
 
       Profile tools:
         direnv
+        gh
         herdr
         tmux
         xclip (Linux)
@@ -47,6 +48,7 @@ symlinkJoin {
   paths = [
     jzpApp
     direnv
+    gh
     herdr
     tmux
   ] ++ lib.optional stdenv.isLinux xclip;
