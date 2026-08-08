@@ -1,0 +1,11 @@
+{
+  "packages": [
+    "npm:pi-subagents@0.25.0",
+    "npm:pi-lean-ctx@3.6.16",
+    "npm:pi-total-recall@1.8.0",
+    "npm:pi-simplify@0.2.1",
+    "npm:pi-mermaid@0.3.0",
+    "npm:@ogulcancelik/pi-minimal-footer@0.1.9",
+    "npm:@ogulcancelik/pi-tmux@0.1.2"
+  ]
+}

@@ -151,7 +151,7 @@ class Segment(BasicSegment):
         self.powerline.append(" " + segment_text + f"{half_space} ", fg, bg)
 
     def load_cache(self) -> dict[str, str] | None:
-        cache_file = Path("~/jconfig").expanduser().resolve() / ".outside.json"
+        cache_file = Path(os.environ.get("JASPAH_ROOT", "~/jaspah")).expanduser().resolve() / ".outside.json"
 
         # Check if cache file is fresh (<5 minutes old)
         cache_is_fresh = False

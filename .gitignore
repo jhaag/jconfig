@@ -1,9 +1,17 @@
-git/.gitconfig.user
-.bash_eternal_history
+## Build Artifacts
+__pycache__
 *.asc
 tangles/
+
+## User-Local Settings
+git/.gitconfig.user
+.bash_eternal_history
 .emacs-custom.el
 scripts/tmux_startup_body.sh
 .outside.json
 .agent-shell/
 docs/superpowers/
+.lean-ctx/
+.local/
+.agents/.bakery/pies/*/npm/
+.agents/.bakery/pies/*/git/

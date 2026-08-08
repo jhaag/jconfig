@@ -93,7 +93,7 @@ function jmux {
     else
         export SESSION_PATH="$dev_path"
         [[ $no_split -eq 1 ]] && export SESSION_NO_SPLIT=1
-        source ~/jconfig/scripts/tmux_startup.sh "$session"
+        source "${JASPAH_ROOT:-$HOME/jaspah}/scripts/tmux_startup.sh" "$session"
         unset SESSION_PATH SESSION_NO_SPLIT
     fi
 }

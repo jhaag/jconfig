@@ -1,4 +1,4 @@
-#+PROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jconfig/.emacs.d/tangles/") (file-name-base) ".el") :noweb-ref org-utils :mkdirp yes :comments no
+#+PROPERTY: header-args:emacs-lisp :tangle (concat (expand-file-name "~/jaspah/.emacs.d/tangles/") (file-name-base) ".el") :noweb-ref org-utils :mkdirp yes :comments no
 #+STARTUP: indent overview
 
 #+TITLE: My Org-Mode config for Emacs
@@ -48,7 +48,7 @@ CLOSED: [2019-01-06 Sun 13:21]
 CLOCK: [2019-01-04 Fri 11:22]--[2019-01-04 Fri 11:23] =>  0:01
 :END:
 [2019-01-04 Fri 11:22]
-[[file:~/jconfig/.emacs.d/org-confs/j-dot-org.org::*Packages][Packages]]
+[[file:~/jaspah/.emacs.d/org-confs/j-dot-org.org::*Packages][Packages]]
 * References
 
 Just as Emacs config is an art, Org mode config is an art, and I've learned a lot by reading through other people's config files, and from many other resources. These are some useful resources for using and working with ~org-mode~ that I've stumbled on so far.

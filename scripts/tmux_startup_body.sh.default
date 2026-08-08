@@ -2,12 +2,11 @@
 # Default tmux startup body configuration
 # This file sets up the default pane layout for tmux sessions.
 # Users can override this by creating tmux_startup_body.sh (which is gitignored)
+#
+# Note: panes are left unnamed on purpose to allow for automatic name handling in ../tmux/.tmux.conf
 
-# Window 1: org (org-mode / organization hub)
-tmux new-session -d -s $SESSION -n "org"
-
-# Window 2: dev (root/anchor pane)
-tmux new-window -t $SESSION:2 -n "${SESSION:-dev}"
+tmux new-session -d -s $SESSION
+tmux new-window -t $SESSION:2
 tmux send-keys -t $SESSION:2.1 "cd ${SESSION_PATH:-~/dev}; clear" C-m
 if [[ -z "$SESSION_NO_SPLIT" ]]; then
     tmux split-window -h -t $SESSION:2

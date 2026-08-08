@@ -85,10 +85,11 @@
   autosetuprebase = always
 
 [core]
-  autocrlf   = input
-  editor     = emacs -nw
-  filemode   = false
-  whitespace = fix,space-before-tab,tab-in-indent,trailing-space
+  autocrlf     = input
+  editor       = emacs -nw
+  excludesfile = ~/jaspah/git/ignore
+  filemode     = false
+  whitespace   = fix,space-before-tab,tab-in-indent,trailing-space
 
 [diff]
   mnemonicprefix = true
@@ -110,7 +111,7 @@
 
 [include]
   ; Store the user block in this separate file, excluded from version control.
-  path = ~/jconfig/git/.gitconfig.user
+  path = ~/jaspah/git/.gitconfig.user
   ; file should contain a block like this:
   ; [user]
   ;   name = Jasper Haag
